@@ -7,38 +7,27 @@
         <div class="login-bg">
             <div class="login-box">
                 <div class="login-box-d">
-                    <div class="box-title">欢迎注册易码商城</div>
-                    <div class="go-login">
-                        <span>已有账号?</span>
-                        <span tappable @click="$router.push({name: 'login'})">去登陆</span>
-                    </div>
-                    <el-form ref="registerForm" :model="registerForm" :rules="registerRules" label-width="0px">
+                    <div class="box-title">重置密码</div>
+                    <el-form ref="forgetPasswordForm" :model="forgetPasswordForm" :rules="forgetPasswordRules" label-width="0px">
                         <el-form-item prop="phone">
-                            <el-input v-model="registerForm.phone" size="large" placeholder="手机号" prefix-icon="iconfont iconshoujihao"></el-input>
+                            <el-input v-model="forgetPasswordForm.phone" size="large" placeholder="手机号" prefix-icon="iconfont iconshoujihao"></el-input>
                         </el-form-item>
                         <el-form-item prop="code">
-                            <el-input v-model="registerForm.code" size="large" placeholder="验证码" prefix-icon="iconfont iconyanzhengma" style="width: 222px;"></el-input>
+                            <el-input v-model="forgetPasswordForm.code" size="large" placeholder="验证码" prefix-icon="iconfont iconyanzhengma" style="width: 202px;"></el-input>
                             <el-button @click="getCode" v-if="codeTiming == 0" size="large">获取验证码</el-button>
                             <span style="color: #999;" v-else>重新发送({{codeTiming}}s)</span>
                         </el-form-item>
                         <el-form-item prop="password">
-                            <el-input type="password" v-model="registerForm.password" size="large" placeholder="密码" prefix-icon="iconfont iconmima"></el-input>
+                            <el-input v-model="forgetPasswordForm.password" size="large" placeholder="重置密码" prefix-icon="iconfont iconmima"></el-input>
                         </el-form-item>
-                        <el-form-item prop="passwordAgain">
-                            <el-input type="password" v-model="registerForm.passwordAgain" placeholder="确认密码" size="large" prefix-icon="iconfont iconmima"></el-input>
+                        <el-form-item prop="passwordAgain" style="margin-bottom: 10px;">
+                            <el-input type="password" v-model="forgetPasswordForm.passwordAgain" placeholder="确认重置密码" size="large" prefix-icon="iconfont iconmima"></el-input>
                         </el-form-item>
                         <div class="forget-register">
-                            <el-checkbox v-model="isAgree">已阅读并同意</el-checkbox>
-                            <router-link to="/agreement" target="_blank">
-                                <div>
-                                    <span>《</span>
-                                    <span tappable class="sett-agreement">入驻协议</span>
-                                    <span>》</span>
-                                </div>
-                            </router-link>
+                            <span class="iconfont iconfanhui" tappable @click="$router.push({ name: 'login'})" style="font-size: 12px;">返回登录</span>
                         </div>
                         <el-form-item>
-                            <el-button @click="handleRegister" :disabled="!isAgree" type="primary" round style="width: 100%;">同意条款并注册</el-button>
+                            <el-button @click="resetPassword" type="primary" round style="width: 100%;">重置密码</el-button>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -80,15 +69,14 @@ export default {
             }
         }
         return {
-            isAgree: false,
             codeTiming: 0,
-            registerForm: {
+            forgetPasswordForm: {
                 phone: '',
                 code: '',
                 password: '',
                 passwordAgain: '',
             },
-            registerRules: {
+            forgetPasswordRules: {
                 phone: [ 
                     { required: true, message: '手机号不能为空', trigger: 'blur'},
                     { validator: checkPhone, trigger:'blur' }
@@ -103,9 +91,9 @@ export default {
         }
     },
     methods: {
-        handleRegister() {
-            //注册
-            this.$refs.registerForm.validate(valid => {
+        resetPassword() {
+            //重置密码
+            this.$refs.forgetPasswordForm.validate(valid => {
                 if (valid) {
 
                 }
@@ -149,7 +137,7 @@ export default {
         background-image: url('~@/assets/img/login-bg.jpg');
         background-size: cover;
         .login-box{
-            width: 380px;
+            width: 360px;
             margin-right: 180px;
             display: flex;
             flex-direction: column;
@@ -171,39 +159,26 @@ export default {
     }
 }
 .login-box-d{
-    position: relative;
     background-color: #fff;
     padding: 10px 20px;
     border-radius: 4px;
-    width: 380px;
+    width: 360px;
     .box-title{
         font-size: 20px;
-        padding-top: 15px;
+        padding-top: 10px;
         padding-bottom: 20px;
         text-align: center;
     }
-    .go-login{
-        position: absolute;
-        top: 6px;
-        right: 10px;
-        font-size: 12px;
-        span:last-child{
-            color: #409eff;
-            cursor: pointer;
-            &:hover{
-                color: #3c8fe3;
-            }
-        }
-    }
 }
 .forget-register{
-    display: flex;
+    color: #999;
+    text-align: right;
     margin-bottom: 20px;
-    .sett-agreement{
-        color: #409eff;
+    span{
+        padding-left: 5px;
         cursor: pointer;
         &:hover{
-            color: #3c8fe3;
+            color: #409eff;
         }
     }
 }

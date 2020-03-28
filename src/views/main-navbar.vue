@@ -60,22 +60,24 @@ export default {
 methods: {
     // 退出
     logoutHandle () {
-        this.$confirm(`确定进行[退出]操作?`, '提示', {
+        this.$confirm(`确定[退出]当前系统?`, '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
         }).then(() => {
-            this.$http({
-            url: this.$http.adornUrl('/sys/logout'),
-            method: 'post',
-            data: this.$http.adornData()
-            }).then(({data}) => {
-            if (data && data.code === 0) {
-                clearLoginInfo()
-                this.$router.push({ name: 'login' })
-            }
-            })
-        }).catch(() => {})
+            clearLoginInfo()
+            this.$router.push({ name: 'login' })
+            // this.http({
+            //     url: '',
+            //     method: 'post',
+            //     data: this.$http.adornData()
+            // }).then(res => {
+            //     if (res.code == 0) {
+            //         clearLoginInfo()
+            //         this.$router.push({ name: 'login' })
+            //     }
+            // })
+        })
     }
 }
 }

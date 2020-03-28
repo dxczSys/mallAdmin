@@ -7,43 +7,20 @@
         <div class="login-bg">
             <div class="login-box">
                 <div class="login-box-d">
-                    <div v-if="!formSwitch" class="box-title">登&nbsp;&nbsp;&nbsp;&nbsp;录</div>
-                    <div v-if="formSwitch" class="box-title">重置密码</div>
-                    <el-form v-if="!formSwitch" ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0px">
+                    <div class="box-title">登&nbsp;&nbsp;&nbsp;&nbsp;录</div>
+                    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0px">
                         <el-form-item prop="username">
-                            <el-input v-model="loginForm.username" size="large" placeholder="用户名" prefix-icon="iconfont iconyonghu"></el-input>
+                            <el-input v-model="loginForm.username" size="large" placeholder="手机号" prefix-icon="iconfont iconyonghu"></el-input>
                         </el-form-item>
                         <el-form-item prop="password" style="margin-bottom: 10px;">
                             <el-input type="password" v-model="loginForm.password" placeholder="密码" size="large" prefix-icon="iconfont iconmima"></el-input>
                         </el-form-item>
                         <div class="forget-register">
-                            <span tappable @click="formSwitch = !formSwitch">忘记密码?</span>
+                            <span tappable @click="$router.push({ name: 'forget-password'})">忘记密码?</span>
                             <span tappable @click="$router.push({name: 'register'})">免费注册</span>
                         </div>
                         <el-form-item>
                             <el-button @click="handleLogin" type="primary" round style="width: 100%;">登&nbsp;&nbsp;录</el-button>
-                        </el-form-item>
-                    </el-form>
-
-                    <el-form v-if="formSwitch" ref="forgetPasswordForm" :model="forgetPasswordForm" label-width="0px">
-                        <el-form-item>
-                            <el-input v-model="forgetPasswordForm.phone" size="large" placeholder="手机号" prefix-icon="iconfont iconshoujihao"></el-input>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-input v-model="forgetPasswordForm.code" size="large" placeholder="验证码" prefix-icon="iconfont iconyanzhengma" style="width: 202px;"></el-input>
-                            <el-button size="large">获取验证码</el-button>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-input v-model="forgetPasswordForm.password" size="large" placeholder="密码" prefix-icon="iconfont iconmima"></el-input>
-                        </el-form-item>
-                        <el-form-item style="margin-bottom: 10px;">
-                            <el-input type="password" v-model="forgetPasswordForm.passwordAgain" placeholder="确认密码" size="large" prefix-icon="iconfont iconmima"></el-input>
-                        </el-form-item>
-                        <div class="forget-register">
-                            <span class="iconfont iconfanhui" tappable @click="formSwitch = !formSwitch" style="font-size: 12px;">返回</span>
-                        </div>
-                        <el-form-item>
-                            <el-button type="primary" round style="width: 100%;">重置密码</el-button>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -65,40 +42,44 @@
 export default {
     data() {
         return {
-            formSwitch: false,
             loginForm: {
                 username: '',
                 password: ''
             },
-            forgetPasswordForm: {
-                phone: '',
-                code: '',
-                password: '',
-                passwordAgain: '',
-            },
             loginRules: {
-                username: [ { required: true, message: '用户名不能为空', trigger: 'blur'} ],
+                username: [ { required: true, message: '手机号不能为空', trigger: 'blur'} ],
                 password: [ { required: true, message: '密码不能为空', trigger: 'blur'} ],
-            }
+            },
         }
     },
     methods: {
         handleLogin() {
-            this.$refs.loginForm.validate(valid => {
-                if (valid) {
-                    this.http({
-                        url: 'sys/login',
-                        method: 'post',
-                        data: {
-                            username: this.loginForm.username,
-                            password: this.loginForm.password
-                        }
-                    }, res => {
-                        console.log(res)
-                    })
-                }
-            })
-        }
+            this.$cookie.set('token', 'sdsdfeeff')
+            sessionStorage.setItem('userType', '1')
+            sessionStorage.setItem('userId', '112233')
+            this.$router.push({ name: 'home' })
+            // this.$refs.loginForm.validate(valid => {
+            //     if (valid) {
+            //         this.http({
+            //             url: 'sys/login',
+            //             method: 'post',
+            //             data: {
+            //                 username: this.loginForm.username,
+            //                 password: this.loginForm.password
+            //             }
+            //         }, res => {
+            //             if (res.code == 0) {
+            //                 this.$cookie.set('token', 'sdsdfeeff')
+            //                 sessionStorage.setItem('userType', '1')
+            //                 sessionStorage.setItem('userId', '112233')
+            //                 this.$router.push({ name: 'home' })
+            //             }else {
+            //                 this.$message.info('登录失败')
+            //             }
+            //         })
+            //     }
+            // })
+        },
     }
 }
 </script>

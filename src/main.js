@@ -22,7 +22,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // 挂载全局
-Vue.prototype.http = getHttp // ajax请求方法
+Vue.prototype.http = getHttp
 Vue.prototype.isAuth = isAuth     // 权限方法
 
 // 保存整站vuex本地储存初始状态

@@ -20,7 +20,8 @@ const globalRoutes = [
     { path: '/404', component: _import('common/404'), name: '404', meta: { title: '404未找到' } },
     { path: '/login', component: _import('common/login'), name: 'login', meta: { title: '登录' } },
     { path: '/register', component: _import('common/register'), name: 'register', meta: { title: '注册' } },
-    { path: '/agreement', component: _import('common/agreement'), name: 'agreement', meta: { title: '入驻协议' } }
+    { path: '/agreement', component: _import('common/agreement'), name: 'agreement', meta: { title: '入驻协议' } },
+    { path: '/forget-password', component: _import('common/forget-password'), name: 'forget-password', meta: { title: '忘记密码' } }
 ]
 
 // 主入口路由(需嵌套上左右整体布局)

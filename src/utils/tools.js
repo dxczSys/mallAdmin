@@ -27,19 +27,19 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
         http({
             url: url,
             method: params.method,
-            params: http.adornParams(params.data)
+            params: http.adornParams(params.data || {})
         }).then(callback).catch(err)
     }else if (params.method == 'post') {
         http({
             url: url,
             method: params.method,
-            data: http.adornData(params.data)
+            data: http.adornData(params.data || {})
         }).then(callback).catch(err)
     }else {
         http({
             url: url,
             method: params.method,
-            data: http.adornData(params.data, false, 'form'),
+            data: http.adornData(params.data || {}, false, 'form'),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(callback).catch(err)
     }
