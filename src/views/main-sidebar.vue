@@ -1,7 +1,7 @@
 <template>
     <aside class="site-sidebar" :class="'site-sidebar--' + sidebarLayoutSkin">
         <div class="site-sidebar__inner">
-            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :collapseTransition="false" class="site-sidebar__menu">
+            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#17B3A3" :collapseTransition="false" class="site-sidebar__menu">
                 <el-menu-item index="home" @click="$router.push({ name: 'home' })">
                     <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>
                     <span slot="title">首页</span>
@@ -21,6 +21,16 @@
                     </el-menu-item>
                 </el-submenu>
                 <sub-menu v-for="menu in menuList" :key="menu.menuId" :menu="menu" :dynamicMenuRoutes="dynamicMenuRoutes"></sub-menu>
+                <el-submenu index="设置">
+                    <template slot="title">
+                        <icon-svg name="shezhi" class="site-sidebar__menu-icon"></icon-svg>
+                        <span>设置</span>
+                    </template>
+                    <el-menu-item index="demo-echarts" @click="$router.push({ name: 'demo-echarts' })">
+                        <icon-svg name="jiesuo" class="site-sidebar__menu-icon"></icon-svg>
+                        <span slot="title">修改密码</span>
+                    </el-menu-item>
+                </el-submenu>
             </el-menu>
         </div>
     </aside>
@@ -32,7 +42,8 @@ import { isURL } from '@/utils/validate'
 export default {
     data () {
         return {
-            dynamicMenuRoutes: []
+            dynamicMenuRoutes: [],
+            openeds: ['1']
         }
     },
     components: {
