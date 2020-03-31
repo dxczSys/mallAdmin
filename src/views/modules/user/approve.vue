@@ -26,11 +26,42 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="店铺标志" required>
-                    <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/"
+                    <el-upload class="avatar-uploader" action=""
                     :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
                         <img v-if="imageUrl" :src="imageUrl" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
+                </el-form-item>
+                <el-form-item label="营业执照" required>
+                    <el-upload class="avatar-uploader" action=""
+                    :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item label="法人/经营者" required>
+                    <el-input v-model="infoForm.shopOwner" placeholder="法人/经营者"></el-input>
+                </el-form-item>
+                <el-form-item label="身份证正反面" required>
+                    <el-upload
+                        action="https://jsonplaceholder.typicode.com/posts/"
+                        list-type="picture-card"
+                        :on-preview="handlePictureCardPreview"
+                        :on-remove="handleRemove">
+                        <i class="el-icon-plus"></i>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item label="联系电话" required>
+                    <el-input v-model="infoForm.phone" placeholder="联系电话"></el-input>
+                </el-form-item>
+                <el-form-item label="微信" required>
+                    <el-input v-model="infoForm.chat" placeholder="微信"></el-input>
+                </el-form-item>
+                <el-form-item label="商铺简介" required>
+                    <el-input type="textarea" v-model="infoForm.introduction" rows="5" placeholder="商铺简介"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary">发送审核</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -74,10 +105,15 @@ export default {
 .base-mess-wrapper{
     padding: 20px;
     .base-form{
-        width: 600px;
         padding-right: 20px;
         /deep/ .el-form-item__content .el-select{
-            width: 100%;
+            width: 360px;
+        }
+        /deep/ .el-form-item__content .el-input{
+            width: 360px;
+        }
+        /deep/ .el-form-item__content .el-textarea{
+            width: 360px;
         }
     }
 }
@@ -95,14 +131,14 @@ export default {
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 178px;
-        height: 178px;
-        line-height: 178px;
+        width: 110px;
+        height: 110px;
+        line-height: 110px;
         text-align: center;
     }
     .avatar {
-        width: 178px;
-        height: 178px;
+        width: 110px;
+        height: 110px;
         display: block;
     }
 }

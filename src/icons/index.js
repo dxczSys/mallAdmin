@@ -12,6 +12,7 @@
  */
 import Vue from 'vue'
 import IconSvg from '@/components/icon-svg'
+
 import './iconfont.js'
 
 Vue.component('IconSvg', IconSvg)

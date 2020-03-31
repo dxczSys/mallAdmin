@@ -38,7 +38,8 @@ const mainRoutes = {
         // 提示: 如需要通过iframe嵌套展示内容, 但不通过tab打开, 请自行创建组件使用iframe处理!
         { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '首页' } },
         { path: '/demo-echarts', component: _import('demo/echarts'), name: 'demo-echarts', meta: { title: 'demo-echarts', isTab: false } },
-        { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: false } }
+        { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: false } },
+        { path: '/user-apply-ad', component: _import('modules/user/applyAd'), name: 'user-apply-ad', meta: { title: '广告位申请', isTab: false } }
     ],
     beforeEnter (to, from, next) {
         let token = Vue.cookie.get('token')
@@ -88,7 +89,7 @@ const navDataList = [
                 'parentId': 1,
                 'parentName': null,
                 'name': '广告位管理',
-                'url': 'sys/user',
+                'url': 'user/ad-manager',
                 'perms': null,
                 'type': 1,
                 'icon': 'guanggaowei',
@@ -101,7 +102,7 @@ const navDataList = [
                 'parentId': 1,
                 'parentName': null,
                 'name': '商品管理',
-                'url': 'sys/user',
+                'url': 'user/goods-manager',
                 'perms': null,
                 'type': 1,
                 'icon': 'shangpin',
@@ -114,7 +115,7 @@ const navDataList = [
                 'parentId': 1,
                 'parentName': null,
                 'name': '发布商品',
-                'url': 'sys/user',
+                'url': 'user/release-goods',
                 'perms': null,
                 'type': 1,
                 'icon': 'fabu',

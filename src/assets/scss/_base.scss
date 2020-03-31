@@ -10,6 +10,10 @@ body {
   color: #333333;
   background-color: #fff;
 }
+// 解决table表头错位的bug
+body .el-table th.gutter{
+  display: table-cell!important;
+}
 a {
   color: mix(#fff, $--color-primary, 20%);
   text-decoration: none;

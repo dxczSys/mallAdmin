@@ -76,6 +76,7 @@ import {
   MessageBox,
   Message,
   Notification,
+  Divider,
 } from 'element-ui'
 
 Vue.use(Pagination)
@@ -141,6 +142,7 @@ Vue.use(Header)
 Vue.use(Aside)
 Vue.use(Main)
 Vue.use(Footer)
+Vue.use(Divider)
 
 Vue.use(Loading.directive)
 

@@ -8,6 +8,7 @@ import '@/icons'
 import '@/element-ui-theme'
 import '@/assets/scss/index.scss'
 import '@/assets/font/iconfont.css'
+import clickoutside from 'element-ui/lib/utils/clickoutside'
 import { isAuth } from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { getHttp } from '@/utils/tools'
@@ -24,6 +25,8 @@ if (process.env.NODE_ENV !== 'production') {
 // 挂载全局
 Vue.prototype.http = getHttp
 Vue.prototype.isAuth = isAuth     // 权限方法
+
+Vue.directive('clickoutside', clickoutside)
 
 // 保存整站vuex本地储存初始状态
 window.SITE_CONFIG['storeState'] = cloneDeep(store.state)
