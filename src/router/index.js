@@ -39,7 +39,12 @@ const mainRoutes = {
         { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '首页' } },
         { path: '/demo-echarts', component: _import('demo/echarts'), name: 'demo-echarts', meta: { title: 'demo-echarts', isTab: false } },
         { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: false } },
-        { path: '/user-apply-ad', component: _import('modules/user/applyAd'), name: 'user-apply-ad', meta: { title: '广告位申请', isTab: false } }
+        { path: '/user-apply-ad', component: _import('modules/user/applyAd'), name: 'user-apply-ad', meta: { title: '广告位申请', isTab: false } },
+        { path: '/user-sendout-goods', component: _import('modules/user/sendout-goods'), name: 'user-sendout-goods', meta: { title: '发货', isTab: false } },
+        { path: '/user-order-detail', component: _import('modules/user/order-detail'), name: 'user-order-detail', meta: { title: '订单详情', isTab: false } },
+        { path: '/user-dealwith-sale', component: _import('modules/user/dealwith-sale'), name: 'user-dealwith-sale', meta: { title: '售后处理', isTab: false } },
+        { path: '/setting-update-personInfo', component: _import('modules/setting/update-personInfo'), name: 'setting-update-personInfo', meta: { title: '基本信息修改', isTab: false } },
+        { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } }
     ],
     beforeEnter (to, from, next) {
         let token = Vue.cookie.get('token')
@@ -128,7 +133,7 @@ const navDataList = [
                 'parentId': 1,
                 'parentName': null,
                 'name': '订单管理',
-                'url': 'sys/user',
+                'url': 'user/order-manage',
                 'perms': null,
                 'type': 1,
                 'icon': 'dingdan',
@@ -141,7 +146,7 @@ const navDataList = [
                 'parentId': 1,
                 'parentName': null,
                 'name': '售后管理',
-                'url': 'sys/user',
+                'url': 'user/sale-manage',
                 'perms': null,
                 'type': 1,
                 'icon': 'shouhou',

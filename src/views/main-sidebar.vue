@@ -1,7 +1,8 @@
 <template>
     <aside class="site-sidebar" :class="'site-sidebar--' + sidebarLayoutSkin">
         <div class="site-sidebar__inner">
-            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#17B3A3" :collapseTransition="false" class="site-sidebar__menu">
+            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#17B3A3" 
+                unique-opened :collapseTransition="false" class="site-sidebar__menu">
                 <el-menu-item index="home" @click="$router.push({ name: 'home' })">
                     <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>
                     <span slot="title">首页</span>
@@ -26,9 +27,13 @@
                         <icon-svg name="shezhi" class="site-sidebar__menu-icon"></icon-svg>
                         <span>设置</span>
                     </template>
-                    <el-menu-item index="demo-echarts" @click="$router.push({ name: 'demo-echarts' })">
+                    <el-menu-item index="update-password" @click="$router.push({ name: 'setting-update-password' })">
                         <icon-svg name="jiesuo" class="site-sidebar__menu-icon"></icon-svg>
                         <span slot="title">修改密码</span>
+                    </el-menu-item>
+                    <el-menu-item index="update-personInfo" @click="$router.push({ name: 'setting-update-personInfo' })">
+                        <icon-svg name="gerenziliao" class="site-sidebar__menu-icon"></icon-svg>
+                        <span slot="title">个人资料</span>
                     </el-menu-item>
                 </el-submenu>
             </el-menu>

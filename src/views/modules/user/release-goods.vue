@@ -39,27 +39,40 @@
                         <el-checkbox v-for="(i, j) in item.valueList" :key="j" :label="i.label"></el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
-                <el-form-item label="商品销售规格">
+                <el-form-item label="商品销售规格" v-if="assemTableData.length">
                     <el-table :data="assemTableData" style="width: 100%;" border>
-                        <el-table-column v-for="(item, index) in coloumNameArr" :key="index" :prop="item.value" :label="item.label" width="200">
+                        <el-table-column v-for="(item, index) in coloumNameArr" :key="index" :prop="item.value" :label="item.label" width="180">
                         </el-table-column>
-                        <el-table-column header-align="center" align="center" label="价格(元)" >
+                        <el-table-column header-align="center" align="center" label="价格(元)" width="150">
                             <template slot-scope="scpoe">
-                                <el-input v-model="scpoe.row.price" placeholder="价格"></el-input>
+                                <el-input type="number" v-model="scpoe.row.price" placeholder="价格"></el-input>
                             </template>
                         </el-table-column>
-                        <el-table-column header-align="center" align="center" prop="amount" label="数量" >
+                        <el-table-column header-align="center" align="center" prop="amount" label="数量(件)" width="150">
                             <template slot-scope="scpoe">
-                                <el-input v-model="scpoe.row.amount" placeholder="数量"></el-input>
+                                <el-input type="number" v-model="scpoe.row.amount" placeholder="数量"></el-input>
                             </template>
                         </el-table-column>
-                        <el-table-column header-align="center" align="center" prop="coding" label="商品编码" >
+                        <el-table-column header-align="center" align="center" prop="coding" label="商品编码" min-width="150">
                             <template slot-scope="scpoe">
                                 <el-input v-model="scpoe.row.coding" placeholder="商品编码"></el-input>
                             </template>
                         </el-table-column>
                     </el-table>
-
+                </el-form-item>
+                <el-form-item label="一口价" required>
+                    <el-input type="number" v-model="releaseForm.onePrice" style="width: 360px;"></el-input>
+                    <span>元</span>
+                </el-form-item>
+                <el-form-item label="总数量" required>
+                    <el-input type="number" v-model="releaseForm.total" style="width: 360px;"></el-input>
+                    <span>件</span>
+                </el-form-item>
+                <el-form-item label="商品描述" required>
+                    <el-input type="textarea" v-model="releaseForm.description" rows="6" placeholder="商品描述" style="width: 500px;"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary">立即发布</el-button>
                 </el-form-item>
             </div>
         </el-form>
@@ -76,6 +89,9 @@ export default {
             releaseForm: {
                 goodsType: '',
                 goodsTitle: '',
+                onePrice: 0,
+                total: 0,
+                description: ''
             },
             colorPickerTable: [{
                 nomalColor: '',

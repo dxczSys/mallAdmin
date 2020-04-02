@@ -1,10 +1,12 @@
 <template>
     <div class="approve-wrapper">
-        <el-steps :active="1" align-center style="border-bottom: 1px solid #eee;">
-            <el-step title="申请" description="商户自主填写相关资料"></el-step>
-            <el-step title="审核" description="发送商城管理员审核"></el-step>
-            <el-step title="通过" description="审核通过即可发布商品"></el-step>
-        </el-steps>
+        <div class="step-box">
+            <el-steps :active="0" align-center>
+                <el-step title="申请" description="商户自主填写相关资料"></el-step>
+                <el-step title="审核" description="发送商城管理员审核"></el-step>
+                <el-step title="通过" description="审核通过即可发布商品"></el-step>
+            </el-steps>
+        </div>
         <div class="base-mess-wrapper">
             <el-form ref="infoForm" :model="infoForm" label-width="120px" class="base-form">
                 <el-form-item label="商铺名称" required>
@@ -102,6 +104,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.step-box{
+    padding: 10px 0;
+    background-color: #fff7eb;
+    border: 1px solid #F58B0F;
+    border-radius: 4px;
+}
 .base-mess-wrapper{
     padding: 20px;
     .base-form{

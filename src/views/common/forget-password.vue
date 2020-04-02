@@ -18,7 +18,7 @@
                             <span style="color: #999;" v-else>重新发送({{codeTiming}}s)</span>
                         </el-form-item>
                         <el-form-item prop="password">
-                            <el-input v-model="forgetPasswordForm.password" size="large" placeholder="重置密码" prefix-icon="iconfont iconmima"></el-input>
+                            <el-input type="text" v-model="forgetPasswordForm.password" size="large" placeholder="重置密码" prefix-icon="iconfont iconmima"></el-input>
                         </el-form-item>
                         <el-form-item prop="passwordAgain" style="margin-bottom: 10px;">
                             <el-input type="password" v-model="forgetPasswordForm.passwordAgain" placeholder="确认重置密码" size="large" prefix-icon="iconfont iconmima"></el-input>

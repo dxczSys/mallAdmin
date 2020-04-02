@@ -40,7 +40,7 @@
                             <img :src="scope.row.url">
                             <div class="table-goods-des">
                                 <div>{{scope.row.goodsName}}</div>
-                                <div>编码:{{scope.row.id}}</div>
+                                <div>商品编码:{{scope.row.id}}</div>
                             </div>
                         </div>
                     </template>
@@ -63,7 +63,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :hide-on-single-page="tableData.length < 10"
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :hide-on-single-page="total % pageSize < 1"
                 :page-sizes="[10, 20, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
@@ -166,7 +166,7 @@ export default {
         border-radius: 4px;
     }
     .table-goods-des{
-        margin-left: 5px;
+        margin-left: 10px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;

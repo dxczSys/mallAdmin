@@ -1,10 +1,12 @@
 <template>
     <div class="apply-ad-wrapper">
-        <el-steps :active="1" align-center style="border-bottom: 1px solid #eee;">
-            <el-step title="申请" description="商户自主填写相关资料并付款"></el-step>
-            <el-step title="审核中" description="发送商城管理员审核"></el-step>
-            <el-step title="已上架" description="审核通过立即上线广告位"></el-step>
-        </el-steps>
+        <div class="step-box">
+            <el-steps :active="0" align-center>
+                <el-step title="申请" description="商户自主填写相关资料并付款"></el-step>
+                <el-step title="审核中" description="发送商城管理员审核"></el-step>
+                <el-step title="已上架" description="审核通过立即上线广告位"></el-step>
+            </el-steps>
+        </div>
         <div class="apply-form">
             <el-form ref="applyForm" :model="applyForm" label-width="120px">
                 <el-form-item label="广告位类型" required>
@@ -81,6 +83,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.step-box{
+    padding: 10px 0;
+    background-color: #fff7eb;
+    border: 1px solid #F58B0F;
+    border-radius: 4px;
+}
 .apply-form{
     margin-top: 20px;
     /deep/ .el-form-item__content .el-select{
