@@ -1,7 +1,10 @@
 <template>
     <div class="release-goods-wrapper">
         <el-form ref="releaseForm" :model="releaseForm" label-width="120px">
-            <span style="font-weight: 600;">基本信息</span>
+            <div style="display: flex;align-items: center;">
+                <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                <div style="font-weight: 600;">基本信息</div>
+            </div>
             <div class="base-mess-box">
                 <el-form-item label="商品类目" required>
                     <filter-tree :data="kindsList" width="360"></filter-tree>
@@ -23,7 +26,10 @@
                     </el-upload>
                 </el-form-item>
             </div>
-            <span style="font-weight: 600;">销售信息</span>
+            <div style="display: flex;align-items: center;">
+                <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                <div style="font-weight: 600;">销售信息</div>
+            </div>
             <div class="base-mess-box">
                 <el-form-item label="颜色分类" v-if="formatList.isColorPicker == 1" required>
                     <div class="color-picker-custom">

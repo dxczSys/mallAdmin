@@ -9,38 +9,76 @@
         </div>
         <div class="base-mess-wrapper">
             <el-form ref="infoForm" :model="infoForm" label-width="120px" class="base-form">
-                <el-form-item label="商铺名称" required>
-                    <el-input v-model="infoForm.shopName" placeholder="商铺名称"></el-input>
-                </el-form-item>
-                <el-form-item label="所属商场" required>
-                    <el-select v-model="infoForm.shopCityName" placeholder="所属商场">
-                        <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="所在楼层" required>
-                    <el-select v-model="infoForm.floor" placeholder="所在楼层">
-                        <el-option v-for="(item, index) in floorList" :key="index" :label="item.label" :value="item.label"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="所属行业" required>
-                    <el-select v-model="infoForm.businessType" placeholder="所属行业">
-                        <el-option v-for="(item, index) in businessTypeList" :key="index" :label="item.label" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="店铺标志" required>
-                    <el-upload class="avatar-uploader" action=""
-                    :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
-                </el-form-item>
-                <el-form-item label="营业执照" required>
-                    <el-upload class="avatar-uploader" action=""
-                    :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
-                </el-form-item>
+                <div style="display: flex;align-items: center; margin-bottom: 20px;">
+                    <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                    <div style="font-weight: 600;">基本信息</div>
+                </div>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="商铺名称" required>
+                            <el-input v-model="infoForm.shopName" placeholder="商铺名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="所属商场" required>
+                            <el-select v-model="infoForm.shopCityName" placeholder="所属商场">
+                                <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="所在楼层" required>
+                            <el-select v-model="infoForm.floor" placeholder="所在楼层">
+                                <el-option v-for="(item, index) in floorList" :key="index" :label="item.label" :value="item.label"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="所属行业" required>
+                            <el-select v-model="infoForm.businessType" placeholder="所属行业">
+                                <el-option v-for="(item, index) in businessTypeList" :key="index" :label="item.label" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="联系电话" required>
+                            <el-input v-model="infoForm.phone" placeholder="联系电话"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="微信" required>
+                            <el-input v-model="infoForm.chat" placeholder="微信"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <div style="display: flex;align-items: center; margin-bottom: 20px;">
+                    <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                    <div style="font-weight: 600;">营业信息</div>
+                </div>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="店铺标志" required>
+                            <el-upload class="avatar-uploader" action=""
+                            :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="营业执照" required>
+                            <el-upload class="avatar-uploader" action=""
+                            :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <el-form-item label="法人/经营者" required>
                     <el-input v-model="infoForm.shopOwner" placeholder="法人/经营者"></el-input>
                 </el-form-item>
@@ -52,12 +90,6 @@
                         :on-remove="handleRemove">
                         <i class="el-icon-plus"></i>
                     </el-upload>
-                </el-form-item>
-                <el-form-item label="联系电话" required>
-                    <el-input v-model="infoForm.phone" placeholder="联系电话"></el-input>
-                </el-form-item>
-                <el-form-item label="微信" required>
-                    <el-input v-model="infoForm.chat" placeholder="微信"></el-input>
                 </el-form-item>
                 <el-form-item label="商铺简介" required>
                     <el-input type="textarea" v-model="infoForm.introduction" rows="5" placeholder="商铺简介"></el-input>
@@ -139,14 +171,14 @@ export default {
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 110px;
-        height: 110px;
-        line-height: 110px;
+        width: 148px;
+        height: 148px;
+        line-height: 148px;
         text-align: center;
     }
     .avatar {
-        width: 110px;
-        height: 110px;
+        width: 148px;
+        height: 148px;
         display: block;
     }
 }

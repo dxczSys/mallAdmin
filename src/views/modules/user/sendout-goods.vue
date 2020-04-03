@@ -1,6 +1,9 @@
 <template>
     <div class="sendout-goods-wrapper">
-        <span style="font-weight: 600;">立即发货</span>
+        <div style="display: flex;align-items: center;">
+            <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+            <div style="font-weight: 600;">物流信息</div>
+        </div>
         <el-form ref="sendoutForm" :model="sendoutForm" label-width="100px" style="margin-top: 20px;">
             <el-form-item label="运送方式" required>
                 <el-select v-model="sendoutForm.sendType" placeholder="请选择发货方式" style="width: 360px;">

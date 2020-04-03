@@ -8,7 +8,10 @@
             </div>
         </div>
         <div class="order-info">
-            <span style="font-weight: 600;">订单信息</span>
+            <div style="display: flex;align-items: center;">
+                <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                <div style="font-weight: 600;">订单信息</div>
+            </div>
             <div class="order-info-box">
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="8">
@@ -53,7 +56,10 @@
             </div>
         </div>
         <div class="logistics-info">
-            <span style="font-weight: 600;">物流信息</span>
+            <div style="display: flex;align-items: center;">
+                <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                <div style="font-weight: 600;">物流信息</div>
+            </div>
             <div class="logistics-info-box">
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="20">

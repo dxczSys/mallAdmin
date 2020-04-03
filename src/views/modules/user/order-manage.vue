@@ -1,7 +1,10 @@
 <template>
     <div class="order-manage-wrapper">
         <div class="filter-box">
-            <span style="font-weight: 600;">条件查询</span>
+            <div style="display: flex;align-items: center;">
+                <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                <div style="font-weight: 600;">条件查询</div>
+            </div>
             <div class="filter-form">
                 <div class="filter-form-row">
                     <div class="filter-form-col">

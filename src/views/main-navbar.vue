@@ -4,7 +4,7 @@
             <div class="site-navbar__brand" @click="$router.push({ name: 'home' })">
                 <div class="site-navbar__brand-lg">
                     <img class="site-navbar__brand-logo" src="~@/assets/img/logo.png">
-                    <span>易码商城</span>
+                    <font style="font-size: 18px;">易码商城</font>
                 </div>
                 <div class="site-navbar__brand-mini">
                     <img class="site-navbar__brand-logo" src="~@/assets/img/logo.png">
@@ -12,11 +12,11 @@
             </div>
         </div>
         <div class="site-navbar__body clearfix">
-            <el-menu class="site-navbar__menu" mode="horizontal">
+            <!-- <el-menu class="site-navbar__menu" mode="horizontal">
                 <el-menu-item class="site-navbar__switch" index="0" @click="sidebarFold = !sidebarFold">
                     <icon-svg name="zhedie"></icon-svg>
                 </el-menu-item>
-            </el-menu>
+            </el-menu> -->
             <el-menu class="site-navbar__menu site-navbar__menu--right" mode="horizontal">
                 <el-menu-item class="site-navbar__avatar" index="3">
                     <el-dropdown :show-timeout="0" placement="bottom">
