@@ -65,8 +65,100 @@ const router = new Router({
 
 const navDataList = [
     {
-        'menuId': 1,
-        'parentId': 0,
+        'menuId': '1',
+        'parentId': '0',
+        'parentName': null,
+        'name': '管理员',
+        'url': null,
+        'perms': null,
+        'type': 0,
+        'icon': 'shangpu',
+        'orderNum': 0,
+        'open': null,
+        'list': [
+            {
+                'menuId': '1-1',
+                'parentId': '1',
+                'parentName': null,
+                'name': '组织结构',
+                'url': 'user/approve',
+                'perms': null,
+                'type': 1,
+                'icon': 'zuzhi',
+                'orderNum': 1,
+                'open': null,
+                'list': null
+            },
+            {
+                'menuId': '1-2',
+                'parentId': '1',
+                'parentName': null,
+                'name': '审批管理',
+                'url': 'user/ad-manager',
+                'perms': null,
+                'type': 1,
+                'icon': 'shenpi',
+                'orderNum': 2,
+                'open': null,
+                'list': null
+            },
+            {
+                'menuId': '1-3',
+                'parentId': '1',
+                'parentName': null,
+                'name': '广告位管理',
+                'url': 'user/goods-manager',
+                'perms': null,
+                'type': 1,
+                'icon': 'guanggaowei',
+                'orderNum': 3,
+                'open': null,
+                'list': null
+            },
+            {
+                'menuId': '1-4',
+                'parentId': '1',
+                'parentName': null,
+                'name': '售后管理',
+                'url': 'user/release-goods',
+                'perms': null,
+                'type': 1,
+                'icon': 'shouhou',
+                'orderNum': 4,
+                'open': null,
+                'list': null
+            },
+            {
+                'menuId': '1-5',
+                'parentId': '1',
+                'parentName': null,
+                'name': '类目管理',
+                'url': 'user/order-manage',
+                'perms': null,
+                'type': 1,
+                'icon': 'leimu',
+                'orderNum': 5,
+                'open': null,
+                'list': null
+            },
+            {
+                'menuId': '1-6',
+                'parentId': '1',
+                'parentName': null,
+                'name': '数据报表',
+                'url': 'user/sale-manage',
+                'perms': null,
+                'type': 1,
+                'icon': 'baobiao',
+                'orderNum': 6,
+                'open': null,
+                'list': null
+            }
+        ]
+    },
+    {
+        'menuId': '2',
+        'parentId': '0',
         'parentName': null,
         'name': '商户中心',
         'url': null,
@@ -77,8 +169,8 @@ const navDataList = [
         'open': null,
         'list': [
             {
-                'menuId': 2,
-                'parentId': 1,
+                'menuId': '2-1',
+                'parentId': '2',
                 'parentName': null,
                 'name': '商铺认证',
                 'url': 'user/approve',
@@ -90,8 +182,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 3,
-                'parentId': 1,
+                'menuId': '2-2',
+                'parentId': '2',
                 'parentName': null,
                 'name': '广告位管理',
                 'url': 'user/ad-manager',
@@ -103,8 +195,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 4,
-                'parentId': 1,
+                'menuId': '2-3',
+                'parentId': '2',
                 'parentName': null,
                 'name': '商品管理',
                 'url': 'user/goods-manager',
@@ -116,8 +208,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 5,
-                'parentId': 1,
+                'menuId': '2-4',
+                'parentId': '2',
                 'parentName': null,
                 'name': '发布商品',
                 'url': 'user/release-goods',
@@ -129,8 +221,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 6,
-                'parentId': 1,
+                'menuId': '2-5',
+                'parentId': '2',
                 'parentName': null,
                 'name': '订单管理',
                 'url': 'user/order-manage',
@@ -142,8 +234,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 7,
-                'parentId': 1,
+                'menuId': '2-6',
+                'parentId': '2',
                 'parentName': null,
                 'name': '售后管理',
                 'url': 'user/sale-manage',
@@ -155,8 +247,8 @@ const navDataList = [
                 'list': null
             },
             {
-                'menuId': 8,
-                'parentId': 1,
+                'menuId': '2-7',
+                'parentId': '2',
                 'parentName': null,
                 'name': '数据报表',
                 'url': 'sys/user',
@@ -169,41 +261,10 @@ const navDataList = [
             },
         ]
     }
+    
 ]
 const permissions = [
-    'sys:schedule:info',
-    'sys:menu:update',
-    'sys:menu:delete',
-    'sys:config:info',
-    'sys:menu:list',
-    'sys:config:save',
-    'sys:config:update',
-    'sys:schedule:resume',
-    'sys:user:delete',
-    'sys:config:list',
-    'sys:user:update',
-    'sys:role:list',
-    'sys:menu:info',
-    'sys:menu:select',
-    'sys:schedule:update',
-    'sys:schedule:save',
-    'sys:role:select',
-    'sys:user:list',
-    'sys:menu:save',
-    'sys:role:save',
-    'sys:schedule:log',
-    'sys:role:info',
-    'sys:schedule:delete',
-    'sys:role:update',
-    'sys:schedule:list',
-    'sys:user:info',
-    'sys:schedule:run',
-    'sys:config:delete',
-    'sys:role:delete',
-    'sys:user:save',
-    'sys:schedule:pause',
-    'sys:log:list',
-    'sys:oss:all'
+    'sys:schedule:info'
 ]
 
 router.beforeEach((to, from, next) => {

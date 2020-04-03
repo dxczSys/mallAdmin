@@ -12,11 +12,11 @@
             </div>
         </div>
         <div class="site-navbar__body clearfix">
-            <!-- <el-menu class="site-navbar__menu" mode="horizontal">
+            <el-menu class="site-navbar__menu" mode="horizontal">
                 <el-menu-item class="site-navbar__switch" index="0" @click="sidebarFold = !sidebarFold">
                     <icon-svg name="zhedie"></icon-svg>
                 </el-menu-item>
-            </el-menu> -->
+            </el-menu>
             <el-menu class="site-navbar__menu site-navbar__menu--right" mode="horizontal">
                 <el-menu-item class="site-navbar__avatar" index="3">
                     <el-dropdown :show-timeout="0" placement="bottom">
