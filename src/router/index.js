@@ -44,7 +44,8 @@ const mainRoutes = {
         { path: '/user-order-detail', component: _import('modules/user/order-detail'), name: 'user-order-detail', meta: { title: '订单详情', isTab: false } },
         { path: '/user-dealwith-sale', component: _import('modules/user/dealwith-sale'), name: 'user-dealwith-sale', meta: { title: '售后处理', isTab: false } },
         { path: '/setting-update-personInfo', component: _import('modules/setting/update-personInfo'), name: 'setting-update-personInfo', meta: { title: '基本信息修改', isTab: false } },
-        { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } }
+        { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } },
+        { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } }
     ],
     beforeEnter (to, from, next) {
         let token = Vue.cookie.get('token')
@@ -81,7 +82,7 @@ const navDataList = [
                 'parentId': '1',
                 'parentName': null,
                 'name': '组织结构',
-                'url': 'user/approve',
+                'url': 'admin/organize-structure',
                 'perms': null,
                 'type': 1,
                 'icon': 'zuzhi',
