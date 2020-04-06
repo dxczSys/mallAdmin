@@ -42,8 +42,21 @@
                     </el-col>
                 </el-row>
                 <el-form-item label="楼层设定" required>
-                    <el-tag v-for="(item, index) in mallForm.floor" :key="index" closable @close="deleteFloor(index)" style="margin-right: 10px;">{{item}}</el-tag>
-                    
+                    <el-tag v-for="(item, index) in mallForm.floor" :key="index" closable 
+                    @close="deleteFloor(index)" style="margin-right: 10px; color: #409eff;">{{item}}楼</el-tag>
+                    <span v-if="!mallForm.floor.length" style="color: #999; font-size: 13px;">*请设置楼层</span>
+                    <el-input type="number" v-if="isAddFloor" v-model="newFloor" placeholder="1" class="add-input" size="mini"></el-input>
+                    <span class="add-floor-button" v-if="!isAddFloor" @click="isAddFloor = !isAddFloor">
+                        <span class="el-icon-plus" style="font-weight: 600;"></span>
+                        <span>新增</span>
+                    </span>
+                    <span v-if="isAddFloor" class="add-floor-button" @click="addFloor">
+                        <span class="el-icon-check" style="font-weight: 600;"></span>
+                        <span>保存</span>
+                    </span>
+                </el-form-item>
+                <el-form-item label="商城简介">
+                    <el-input type="textarea" v-model="mallForm.mallInfo" rows="5" style="width: 360px;"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleAddMall">立即创建</el-button>
@@ -67,10 +80,13 @@ export default {
                 mallLat: '',
                 companyName: '',
                 phone: '',
-                floor: ['1楼', '2楼']
+                floor: [-1, 1, 2],
+                mallInfo: '',
             },
+            isAddFloor: false,
+            newFloor: null,
             logoImg: [],
-            permitImg: []
+            permitImg: [],
         }
     },
     methods: {
@@ -81,6 +97,18 @@ export default {
         },
         deleteFloor(index) {
             this.mallForm.floor.splice(index, 1)
+        },
+        addFloor() {
+            let num = parseInt(this.newFloor)
+            if (this.newFloor && this.mallForm.floor.indexOf(num) == -1) {
+                let arr = this.mallForm.floor
+                arr.push(num)
+                this.mallForm.floor = arr.sort((x, y) => {
+                    return x - y
+                })
+            }
+            this.newFloor = null
+            this.isAddFloor = false
         },
         handleAddMall() {
             this.isBeginUpload = true
@@ -100,29 +128,18 @@ export default {
 .mall-adress-selected{
     color: #333 !important;
 }
-.avatar-uploader{
-    /deep/ .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        &:hover{
-            border-color: #409EFF;
-        }
+.add-floor-button{
+    color: #409eff;
+    cursor: pointer;
+    &:hover{
+        color: #2285eb;
     }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 148px;
-        height: 148px;
-        line-height: 148px;
-        text-align: center;
-    }
-    .avatar {
-        width: 148px;
-        height: 148px;
-        display: block;
+}
+.add-input{
+    width: 60px;
+    margin-right: 6px;
+    /deep/ .el-input__inner{
+        padding: 0 10px;
     }
 }
 </style>

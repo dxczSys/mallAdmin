@@ -12,7 +12,7 @@
                     </div>
                 </div>
             </div>
-            <el-upload
+            <el-upload v-if="refreInput"
                 class="avatar-uploader" action=""
                 :show-file-list="false"
                 :on-change="handleChange"
@@ -52,7 +52,8 @@ export default {
             fileLists: [],
             dialogVisible: false,
             dialogImageUrl: '',
-            beginNum: 0
+            beginNum: 0,
+            refreInput: true
         }
     },
     watch: {
@@ -83,6 +84,10 @@ export default {
                     this.imageArr.push({
                         uid: file.uid,
                         url: URL.createObjectURL(file.raw)
+                    })
+                    this.refreInput = false
+                    this.$nextTick(_ => {
+                        this.refreInput = true
                     })
                 }else {
                     this.$message.error('文件类型不符!')

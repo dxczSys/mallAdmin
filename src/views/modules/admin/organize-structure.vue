@@ -13,14 +13,24 @@
                         </span>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item @click.native="$router.push({ name: 'admin-add-mall'})">新增商城</el-dropdown-item>
-                            <el-dropdown-item>楼层管理</el-dropdown-item>
                             <el-dropdown-item>授权中心</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </div>
             </div>
             <div class="organize-right">
-
+                <div class="mall-box">
+                    <div style="display: flex;align-items: center;">
+                        <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                        <div style="font-weight: 600;">当前节点:{{currentLabel}}</div>
+                    </div>
+                    <div class="mall-item-box">
+                        <div class="mall-item" v-for="(item, index) in mallList" :key="index">
+                            <img :src="item.url">
+                        </div>
+                    </div>
+                </div>
+                <div class="floor-box"></div>
             </div>
         </div>
     </div>
@@ -39,7 +49,13 @@ export default {
                         {
                             id: '2',
                             label: '开元商城',
+                            url: require('@/assets/img/kaiyuan.png'),
                             children: [
+                                {
+                                    id: 'a1',
+                                    label: '管理员1',
+                                    type: 'admin'
+                                },
                                 {
                                     id: '3',
                                     label: '1楼'
@@ -65,7 +81,9 @@ export default {
                         }
                     ]
                 }
-            ]
+            ],
+            currentLabel: '易码商城',
+            mallList: []
         }
     },
     methods: {
@@ -73,19 +91,59 @@ export default {
             if (node.level == 1) {
                 return (
                     <div class="first-level">
+                        <icon-svg name="company"></icon-svg>
                         <span>{data.label}</span>
+                    </div>)
+            }else if (node.level == 2) {
+                return (
+                    <div class="others-level">
+                        <span class="others-level-label">
+                            <icon-svg name="mall"></icon-svg>
+                            <span>{data.label}</span>
+                        </span>
+                        <span class="others-level-operate">
+                            <span class="el-icon-edit edit-tree-node" onClick={() => this.editMall(data.id) }></span>
+                            <span class="el-icon-delete delete-tree-node"></span>
+                        </span>
+                    </div>)
+            }else if (node.level == 3) {
+                let iconName = '', font = ''
+                data.type == 'admin'? iconName = 'administraor' : iconName = 'louceng'
+                return (
+                    <div class="others-level">
+                        <span class="others-level-label">
+                            <icon-svg name={iconName}></icon-svg>
+                            <span>{data.label}</span>
+                        </span>
+                        <span class="others-level-operate">
+                            {data.type == 'admin'? <span title="授权管理" class="iconfont iconshouquan edit-tree-node"></span> : 
+                            <span class="el-icon-delete delete-tree-node"></span>}
+                        </span>
                     </div>)
             }else {
                 return (
                     <div class="others-level">
-                        <span class="others-level-label">{data.label}</span>
+                        <span class="others-level-label">
+                            <icon-svg name="dianpu"></icon-svg>
+                            <span>{data.label}</span>
+                        </span>
                         <span class="others-level-operate">
-                            <span class="el-icon-edit edit-tree-node"></span>
                             <span class="el-icon-delete delete-tree-node"></span>
                         </span>
                     </div>)
             }
+        },
+        editMall(id) {
+            this.$router.push({
+                name: 'admin-add-mall',
+                query: {
+                    id: id
+                }
+            })
         }
+    },
+    mounted() {
+        this.mallList = this.treeData[0].children
     }
 }
 </script>
@@ -119,16 +177,27 @@ export default {
     }
     /deep/ .first-level{
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        span{
+            margin-left: 5px;
+        }
     }
     /deep/ .others-level{
         display: flex;
         width: 100%;
         justify-content: space-between;
         .others-level-label{
-            width: 15em;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            span{
+                margin-left: 5px;
+                width: 15em;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
         }
         .others-level-operate{
             padding-left: 6px;
