@@ -12,6 +12,7 @@ import clickoutside from 'element-ui/lib/utils/clickoutside'
 import { isAuth } from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { getHttp } from '@/utils/tools'
+import httpRequest from '@/utils/httpRequest'
 // import VueLazyload from 'vue-lazyload'  //图片懒加载
 
 Vue.use(VueCookie)
@@ -24,7 +25,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // 挂载全局
 Vue.prototype.http = getHttp
-Vue.prototype.isAuth = isAuth     // 权限方法
+Vue.prototype.$httpapi = httpRequest
+Vue.prototype.isAuth = isAuth
 
 Vue.directive('clickoutside', clickoutside)
 
