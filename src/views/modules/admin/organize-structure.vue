@@ -63,7 +63,20 @@
         </div>
 
         <el-dialog title="授权中心" :visible.sync="dialogVisible" width="400px">
-            <div></div>
+            <div>
+                <el-form ref="authorizeForm" :model="authorizeForm" label-width="80px">
+                    <el-form-item label="授权商城" required>
+                        <el-select v-model="authorizeForm.mallId" placeholder="请选择授权商城">
+                            <el-option v-for="(item, index) in mallIdList" :key="index" :label="item.label" :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="授予人" required>
+                        <el-input v-model="authorizeForm.userId" prefix-icon="el-icon-search"></el-input>
+                    </el-form-item>
+                </el-form>
+                
+            </div>
             <div slot="footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
                 <el-button size="small" type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -157,6 +170,14 @@ export default {
             mallList: [],
             floorList: [],
             dialogVisible: false,
+            authorizeForm: {
+                mallId: '',
+                userId: '',
+            },
+            mallIdList: [{
+                label: '开元商城',
+                id: '1',
+            }]
         }
     },
     methods: {
