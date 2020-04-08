@@ -134,7 +134,7 @@ const navDataList = [
                 'parentId': '1',
                 'parentName': null,
                 'name': '类目管理',
-                'url': 'user/order-manage',
+                'url': 'admin/kinds-admin',
                 'perms': null,
                 'type': 1,
                 'icon': 'leimu',

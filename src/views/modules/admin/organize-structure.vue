@@ -66,13 +66,13 @@
             <div>
                 <el-form ref="authorizeForm" :model="authorizeForm" label-width="80px">
                     <el-form-item label="授权商城" required>
-                        <el-select v-model="authorizeForm.mallId" placeholder="请选择授权商城">
+                        <el-select v-model="authorizeForm.mallId" placeholder="请选择授权商城" style="width: 100%;">
                             <el-option v-for="(item, index) in mallIdList" :key="index" :label="item.label" :value="item.id">
                             </el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="授予人" required>
-                        <el-input v-model="authorizeForm.userId" prefix-icon="el-icon-search"></el-input>
+                        <el-input v-model="authorizeForm.userId" prefix-icon="el-icon-search" placeholder=""></el-input>
                     </el-form-item>
                 </el-form>
                 
