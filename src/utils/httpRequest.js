@@ -3,8 +3,10 @@ import axios from 'axios'
 import router from '@/router'
 import qs from 'qs'
 import merge from 'lodash/merge'
+import md5 from 'js-md5'
 import { clearLoginInfo } from '@/utils'
 import { Message } from 'element-ui'
+
 
 const http = axios.create({
     baseURL: window.SITE_CONFIG.baseUrl,
@@ -19,7 +21,8 @@ const http = axios.create({
  * 请求拦截
  */
 http.interceptors.request.use(config => {
-    config.headers['token'] = Vue.cookie.get('token') // 请求头带上token
+    config.headers['Authorization'] = Vue.cookie.get('token') // 请求头带上token
+    config.headers['sing'] = md5(`token=${Vue.cookie.get('token')}&private_sing=08c063bde1f64805875ff5a73f9f3404`).toUpperCase()
     return config
 }, error => {
     return Promise.reject(error)

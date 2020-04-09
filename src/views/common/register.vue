@@ -107,21 +107,62 @@ export default {
             //注册
             this.$refs.registerForm.validate(valid => {
                 if (valid) {
-
+                    if (this.registerForm.password === this.registerForm.passwordAgain) {
+                        this.http({
+                            url: 'user/register',
+                            method: 'post',
+                            data: {
+                                tUserTel: this.registerForm.phone,
+                                tUserPassWord: this.registerForm.password,
+                                code: this.registerForm.code
+                            }
+                        }, res => {
+                            if (res.data.code == 200) {
+                                this.$message.success('注册成功!')
+                                let _data = res.data.data   
+                                this.$cookie.set('token', _data.tUserToken)
+                                sessionStorage.setItem('userId', _data.id)
+                                sessionStorage.setItem('roleId', _data.roleLists[0].id)
+                                sessionStorage.setItem('roleName', _data.roleLists[0].tRoleName)
+                                sessionStorage.setItem('roleIdentify', _data.roleLists[0].tRoleIdentify)
+                                sessionStorage.setItem('userName', _data.tUserName || '')
+                                sessionStorage.setItem('realUserName', _data.tRealUserName || '') 
+                                sessionStorage.setItem('phone', _data.tUserTel)
+                                sessionStorage.setItem('url', _data.tUserPic || '')
+                                this.$router.push({ name: 'home' })
+                            }else {
+                                this.$message.info(res.data.msg)
+                            }
+                        })
+                    }else {
+                        this.$message.info('俩次密码输入不一致！')
+                    }
                 }
             })
         },
         getCode() {
             //获取验证码
-            this.codeTiming = 59
-            let timer = setInterval(() => {
-                if (this.codeTiming > 0) {
-                    -- this.codeTiming
-                }else {
-                    clearTimeout(timer)
-                    timer = null
-                }
-            }, 1000)
+            if (/^1[3456789]\d{9}$/.test(this.registerForm.phone)) {
+                this.codeTiming = 299
+                let timer = setInterval(() => {
+                    if (this.codeTiming > 0) {
+                        -- this.codeTiming
+                    }else {
+                        clearTimeout(timer)
+                        timer = null
+                    }
+                }, 1000)
+                this.http({
+                    url: `user/SendMessage?phone=${this.registerForm.phone}`,
+                    method: 'get',
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$message.success(res.data.msg)
+                    }
+                })
+            }else {
+                this.$message.info('请输入正确的手机号')
+            }
         }
     }
 }

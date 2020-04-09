@@ -21,7 +21,7 @@
                 <el-menu-item class="site-navbar__avatar" index="3">
                     <el-dropdown :show-timeout="0" placement="bottom">
                     <span class="el-dropdown-link">
-                        <img src="~@/assets/img/avatar.png" :alt="userName">{{ userName }}
+                        <img :src="avatarUrl" :alt="userName">{{ userName }}
                     </span>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="logoutHandle()">退出</el-dropdown-item>
@@ -38,7 +38,7 @@ import { clearLoginInfo } from '@/utils'
 export default {
     data () {
         return {
-        
+            avatarUrl: require('@/assets/img/avatar_default.png'),
         }
     },
     computed: {

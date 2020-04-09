@@ -28,19 +28,46 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
             url: url,
             method: params.method,
             params: http.adornParams(params.data || {})
-        }).then(callback).catch(err)
+        }).then(data => {
+            callback(data)
+        }).catch(error => {
+            Message({
+                message: '服务器开小差了...',
+                type: 'error',
+                duration: 1500
+            })
+            err(error)
+        })
     }else if (params.method == 'post') {
         http({
             url: url,
             method: params.method,
             data: http.adornData(params.data || {})
-        }).then(callback).catch(err)
+        }).then(data => {
+            callback(data)
+        }).catch(error => {
+            Message({
+                message: '服务器开小差了...',
+                type: 'error',
+                duration: 1500
+            })
+            err(error)
+        })
     }else {
         http({
             url: url,
             method: params.method,
             data: http.adornData(params.data || {}, false, 'form'),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        }).then(callback).catch(err)
+        }).then(data => {
+            callback(data)
+        }).catch(error => {
+            Message({
+                message: '服务器开小差了...',
+                type: 'error',
+                duration: 1500
+            })
+            err(error)
+        })
     }
 }

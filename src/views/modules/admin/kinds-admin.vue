@@ -1,5 +1,9 @@
 <template>
     <div class="kinds-admin-wrapper">
+        <div style="display: flex;align-items: center; margin-bottom: 20px;">
+            <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+            <div style="font-weight: 600;">类目管理</div>
+        </div>
         <div class="kinds-admin-box">
             <div class="kinds-left">
                 <el-input v-model="filterText" placeholder="输入关键字过滤" prefix-icon="el-icon-search"></el-input>

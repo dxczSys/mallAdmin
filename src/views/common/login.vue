@@ -34,7 +34,6 @@
             </div>
             <div class="recommend-tips">推荐使用chrome浏览器访问</div>
         </div>
-
     </div>
 </template>
 
@@ -58,11 +57,12 @@ export default {
             sessionStorage.setItem('userType', '1')
             sessionStorage.setItem('userId', '112233')
             this.$router.push({ name: 'home' })
+
             // this.$refs.loginForm.validate(valid => {
             //     if (valid) {
             //         this.http({
-            //             url: 'sys/login',
-            //             method: 'post',
+            //             url: 'user/login',
+            //             method: 'form',
             //             data: {
             //                 username: this.loginForm.username,
             //                 password: this.loginForm.password

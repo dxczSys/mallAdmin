@@ -70,8 +70,8 @@ export default {
         // 获取当前登录者信息
         getUserInfo () {
             this.loading = false
-            this.userId = 'aa'
-            this.userName = 'sss'
+            this.userId = sessionStorage.getItem('userId')
+            this.userName = sessionStorage.getItem('userName') || sessionStorage.getItem('realUserName')
         }
     }
 }

@@ -6,7 +6,7 @@
  */
 import Vue from 'vue'
 import Router from 'vue-router'
-import http from '@/utils/httpRequest'
+import { getHttp } from '@/utils/tools'
 import { isURL } from '@/utils/validate'
 import { clearLoginInfo } from '@/utils'
 
@@ -45,7 +45,8 @@ const mainRoutes = {
         { path: '/user-dealwith-sale', component: _import('modules/user/dealwith-sale'), name: 'user-dealwith-sale', meta: { title: '售后处理', isTab: false } },
         { path: '/setting-update-personInfo', component: _import('modules/setting/update-personInfo'), name: 'setting-update-personInfo', meta: { title: '基本信息修改', isTab: false } },
         { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } },
-        { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } }
+        { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } },
+        { path: '/admin-approval-detail', component: _import('modules/admin/approval-detail'), name: 'admin-approval-detail', meta: { title: '审批详情', isTab: false } },
     ],
     beforeEnter (to, from, next) {
         let token = Vue.cookie.get('token')
@@ -95,7 +96,7 @@ const navDataList = [
                 'parentId': '1',
                 'parentName': null,
                 'name': '审批管理',
-                'url': 'user/ad-manager',
+                'url': 'admin/approval-manage',
                 'perms': null,
                 'type': 1,
                 'icon': 'shenpi',
@@ -280,26 +281,32 @@ router.beforeEach((to, from, next) => {
         sessionStorage.setItem('menuList', JSON.stringify(navDataList || '[]'))
         sessionStorage.setItem('permissions', JSON.stringify(permissions || '[]'))
         next({ ...to, replace: true })
-      // http({
-      //   url: http.adornUrl('/sys/menu/nav'),
-      //   method: 'get',
-      //   params: http.adornParams()
-      // }).then(({data}) => {
-      //   if (data && data.code === 0) {
-      //     fnAddDynamicMenuRoutes(data.menuList)
-      //     router.options.isAddDynamicMenuRoutes = true
-      //     sessionStorage.setItem('menuList', JSON.stringify(data.menuList || '[]'))
-      //     sessionStorage.setItem('permissions', JSON.stringify(data.permissions || '[]'))
-      //     next({ ...to, replace: true })
-      //   } else {
-      //     sessionStorage.setItem('menuList', '[]')
-      //     sessionStorage.setItem('permissions', '[]')
-      //     next()
-      //   }
-      // }).catch((e) => {
-      //   console.log(`%c${e} 请求菜单列表和权限失败，跳转至登录页！！`, 'color:blue')
-      //   router.push({ name: 'login' })
-      // })
+        getHttp({
+            url: 'user/findUserMenuLisByLoginUser',
+            method: 'get',
+        }, res => {
+            if (res.data.code == 200) {
+                fnAddDynamicMenuRoutes(data.menuList)
+                router.options.isAddDynamicMenuRoutes = true
+            }
+        })
+        // next({ ...to, replace: true })
+        // .then(({data}) => {
+        //     if (data && data.code === 0) {
+        //     fnAddDynamicMenuRoutes(data.menuList)
+        //     router.options.isAddDynamicMenuRoutes = true
+        //     sessionStorage.setItem('menuList', JSON.stringify(data.menuList || '[]'))
+        //     sessionStorage.setItem('permissions', JSON.stringify(data.permissions || '[]'))
+        //     next({ ...to, replace: true })
+        //     } else {
+        //     sessionStorage.setItem('menuList', '[]')
+        //     sessionStorage.setItem('permissions', '[]')
+        //     next()
+        //     }
+        // }).catch((e) => {
+        //     console.log(`%c${e} 请求菜单列表和权限失败，跳转至登录页！！`, 'color:blue')
+        //     router.push({ name: 'login' })
+        // })
     }
 })
   
