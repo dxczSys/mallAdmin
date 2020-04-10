@@ -112,23 +112,23 @@ export default {
                             url: 'user/register',
                             method: 'post',
                             data: {
-                                tUserTel: this.registerForm.phone,
-                                tUserPassWord: this.registerForm.password,
+                                userTel: this.registerForm.phone,
+                                userPassWord: this.registerForm.password,
                                 code: this.registerForm.code
                             }
                         }, res => {
                             if (res.data.code == 200) {
                                 this.$message.success('注册成功!')
                                 let _data = res.data.data   
-                                this.$cookie.set('token', _data.tUserToken)
+                                this.$cookie.set('token', _data.userToken)
                                 sessionStorage.setItem('userId', _data.id)
                                 sessionStorage.setItem('roleId', _data.roleLists[0].id)
-                                sessionStorage.setItem('roleName', _data.roleLists[0].tRoleName)
-                                sessionStorage.setItem('roleIdentify', _data.roleLists[0].tRoleIdentify)
-                                sessionStorage.setItem('userName', _data.tUserName || '')
-                                sessionStorage.setItem('realUserName', _data.tRealUserName || '') 
-                                sessionStorage.setItem('phone', _data.tUserTel)
-                                sessionStorage.setItem('url', _data.tUserPic || '')
+                                sessionStorage.setItem('roleName', _data.roleLists[0].roleName)
+                                sessionStorage.setItem('roleIdentify', _data.roleLists[0].roleIdentify)
+                                sessionStorage.setItem('userName', _data.userName || '')
+                                sessionStorage.setItem('realUserName', _data.realUserName || '') 
+                                sessionStorage.setItem('phone', _data.userTel)
+                                sessionStorage.setItem('url', _data.userPic || '')
                                 this.$router.push({ name: 'home' })
                             }else {
                                 this.$message.info(res.data.msg)

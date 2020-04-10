@@ -53,32 +53,39 @@ export default {
     },
     methods: {
         handleLogin() {
-            this.$cookie.set('token', 'sdsdfeeff')
-            sessionStorage.setItem('userType', '1')
-            sessionStorage.setItem('userId', '112233')
-            this.$router.push({ name: 'home' })
+            // this.$cookie.set('token', 'sdsdfeeff')
+            // sessionStorage.setItem('userType', '1')
+            // sessionStorage.setItem('userId', '112233')
+            // this.$router.push({ name: 'home' })
 
-            // this.$refs.loginForm.validate(valid => {
-            //     if (valid) {
-            //         this.http({
-            //             url: 'user/login',
-            //             method: 'form',
-            //             data: {
-            //                 username: this.loginForm.username,
-            //                 password: this.loginForm.password
-            //             }
-            //         }, res => {
-            //             if (res.code == 0) {
-            //                 this.$cookie.set('token', 'sdsdfeeff')
-            //                 sessionStorage.setItem('userType', '1')
-            //                 sessionStorage.setItem('userId', '112233')
-            //                 this.$router.push({ name: 'home' })
-            //             }else {
-            //                 this.$message.info('登录失败')
-            //             }
-            //         })
-            //     }
-            // })
+            this.$refs.loginForm.validate(valid => {
+                if (valid) {
+                    this.http({
+                        url: 'user/login',
+                        method: 'form',
+                        data: {
+                            username: this.loginForm.username,
+                            password: this.loginForm.password
+                        }
+                    }, res => {
+                        if (res.data.code == 200) {
+                            let _data = res.data.data   
+                            this.$cookie.set('token', _data.userToken)
+                            sessionStorage.setItem('userId', _data.id)
+                            sessionStorage.setItem('roleId', _data.roleLists[0].id)
+                            sessionStorage.setItem('roleName', _data.roleLists[0].roleName)
+                            sessionStorage.setItem('roleIdentify', _data.roleLists[0].roleIdentify)
+                            sessionStorage.setItem('userName', _data.userName || '')
+                            sessionStorage.setItem('realUserName', _data.realUserName || '') 
+                            sessionStorage.setItem('phone', _data.userTel)
+                            sessionStorage.setItem('url', _data.userPic || '')
+                            this.$router.push({ name: 'home' })
+                        }else {
+                            this.$message.info(res.data.msg)
+                        }
+                    })
+                }
+            })
         },
     }
 }

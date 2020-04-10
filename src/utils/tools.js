@@ -56,7 +56,7 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
     }else {
         http({
             url: url,
-            method: params.method,
+            method: 'post',
             data: http.adornData(params.data || {}, false, 'form'),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(data => {

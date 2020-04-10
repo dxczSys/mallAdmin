@@ -9,6 +9,7 @@ import Router from 'vue-router'
 import { getHttp } from '@/utils/tools'
 import { isURL } from '@/utils/validate'
 import { clearLoginInfo } from '@/utils'
+import { Message } from 'element-ui'
 
 Vue.use(Router)
 
@@ -65,210 +66,6 @@ const router = new Router({
     routes: globalRoutes.concat(mainRoutes)
 })
 
-const navDataList = [
-    {
-        'menuId': '1',
-        'parentId': '0',
-        'parentName': null,
-        'name': '管理员',
-        'url': null,
-        'perms': null,
-        'type': 0,
-        'icon': 'shangpu',
-        'orderNum': 0,
-        'open': null,
-        'list': [
-            {
-                'menuId': '1-1',
-                'parentId': '1',
-                'parentName': null,
-                'name': '组织结构',
-                'url': 'admin/organize-structure',
-                'perms': null,
-                'type': 1,
-                'icon': 'zuzhi',
-                'orderNum': 1,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '1-2',
-                'parentId': '1',
-                'parentName': null,
-                'name': '审批管理',
-                'url': 'admin/approval-manage',
-                'perms': null,
-                'type': 1,
-                'icon': 'shenpi',
-                'orderNum': 2,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '1-3',
-                'parentId': '1',
-                'parentName': null,
-                'name': '广告位管理',
-                'url': 'user/goods-manager',
-                'perms': null,
-                'type': 1,
-                'icon': 'guanggaowei',
-                'orderNum': 3,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '1-4',
-                'parentId': '1',
-                'parentName': null,
-                'name': '售后管理',
-                'url': 'user/release-goods',
-                'perms': null,
-                'type': 1,
-                'icon': 'shouhou',
-                'orderNum': 4,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '1-5',
-                'parentId': '1',
-                'parentName': null,
-                'name': '类目管理',
-                'url': 'admin/kinds-admin',
-                'perms': null,
-                'type': 1,
-                'icon': 'leimu',
-                'orderNum': 5,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '1-6',
-                'parentId': '1',
-                'parentName': null,
-                'name': '数据报表',
-                'url': 'user/sale-manage',
-                'perms': null,
-                'type': 1,
-                'icon': 'baobiao',
-                'orderNum': 6,
-                'open': null,
-                'list': null
-            }
-        ]
-    },
-    {
-        'menuId': '2',
-        'parentId': '0',
-        'parentName': null,
-        'name': '商户中心',
-        'url': null,
-        'perms': null,
-        'type': 0,
-        'icon': 'shangpu',
-        'orderNum': 0,
-        'open': null,
-        'list': [
-            {
-                'menuId': '2-1',
-                'parentId': '2',
-                'parentName': null,
-                'name': '商铺认证',
-                'url': 'user/approve',
-                'perms': null,
-                'type': 1,
-                'icon': 'renzheng',
-                'orderNum': 1,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-2',
-                'parentId': '2',
-                'parentName': null,
-                'name': '广告位管理',
-                'url': 'user/ad-manager',
-                'perms': null,
-                'type': 1,
-                'icon': 'guanggaowei',
-                'orderNum': 2,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-3',
-                'parentId': '2',
-                'parentName': null,
-                'name': '商品管理',
-                'url': 'user/goods-manager',
-                'perms': null,
-                'type': 1,
-                'icon': 'shangpin',
-                'orderNum': 3,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-4',
-                'parentId': '2',
-                'parentName': null,
-                'name': '发布商品',
-                'url': 'user/release-goods',
-                'perms': null,
-                'type': 1,
-                'icon': 'fabu',
-                'orderNum': 4,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-5',
-                'parentId': '2',
-                'parentName': null,
-                'name': '订单管理',
-                'url': 'user/order-manage',
-                'perms': null,
-                'type': 1,
-                'icon': 'dingdan',
-                'orderNum': 5,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-6',
-                'parentId': '2',
-                'parentName': null,
-                'name': '售后管理',
-                'url': 'user/sale-manage',
-                'perms': null,
-                'type': 1,
-                'icon': 'shouhou',
-                'orderNum': 6,
-                'open': null,
-                'list': null
-            },
-            {
-                'menuId': '2-7',
-                'parentId': '2',
-                'parentName': null,
-                'name': '数据报表',
-                'url': 'sys/user',
-                'perms': null,
-                'type': 1,
-                'icon': 'baobiao',
-                'orderNum': 7,
-                'open': null,
-                'list': null
-            },
-        ]
-    }
-    
-]
-const permissions = [
-    'sys:schedule:info'
-]
-
 router.beforeEach((to, from, next) => {
     // 添加动态(菜单)路由
     // 1. 已经添加 or 全局路由, 直接访问
@@ -276,37 +73,27 @@ router.beforeEach((to, from, next) => {
     if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
         next()
     }else {
-        fnAddDynamicMenuRoutes(navDataList)
-        router.options.isAddDynamicMenuRoutes = true
-        sessionStorage.setItem('menuList', JSON.stringify(navDataList || '[]'))
-        sessionStorage.setItem('permissions', JSON.stringify(permissions || '[]'))
-        next({ ...to, replace: true })
         getHttp({
             url: 'user/findUserMenuLisByLoginUser',
             method: 'get',
         }, res => {
             if (res.data.code == 200) {
-                fnAddDynamicMenuRoutes(data.menuList)
+                fnAddDynamicMenuRoutes(res.data.data)
                 router.options.isAddDynamicMenuRoutes = true
+                sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
+                next({ ...to, replace: true })
+            }else {
+                sessionStorage.setItem('menuList', '[]')
+                Message({
+                    message: res.data.msg,
+                    type: 'error',
+                    duration: 1500
+                })
+                next()
             }
+        }, err => {
+            router.push({ name: 'login' })
         })
-        // next({ ...to, replace: true })
-        // .then(({data}) => {
-        //     if (data && data.code === 0) {
-        //     fnAddDynamicMenuRoutes(data.menuList)
-        //     router.options.isAddDynamicMenuRoutes = true
-        //     sessionStorage.setItem('menuList', JSON.stringify(data.menuList || '[]'))
-        //     sessionStorage.setItem('permissions', JSON.stringify(data.permissions || '[]'))
-        //     next({ ...to, replace: true })
-        //     } else {
-        //     sessionStorage.setItem('menuList', '[]')
-        //     sessionStorage.setItem('permissions', '[]')
-        //     next()
-        //     }
-        // }).catch((e) => {
-        //     console.log(`%c${e} 请求菜单列表和权限失败，跳转至登录页！！`, 'color:blue')
-        //     router.push({ name: 'login' })
-        // })
     }
 })
   

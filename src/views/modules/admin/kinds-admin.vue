@@ -11,8 +11,8 @@
                     <el-button type="primary" @click="addChild" icon="el-icon-plus" size="mini">新增一级</el-button>
                 </div>
                 <div class="kinds-left-tree">
-                     <el-tree class="kinds-tree" :data="treeData" node-key="id"  
-                        @node-click="treeNodeClick" :render-content="renderTree">
+                     <el-tree class="kinds-tree" :data="treeData" node-key="id" @node-click="treeNodeClick" :expand-on-click-node="false"
+                        :render-content="renderTree" ref="myTree" :filter-node-method="filterNode" :default-expanded-keys="expandedKeys" v-if="refreshTree">
                     </el-tree>
                 </div>
             </div>
@@ -38,19 +38,19 @@
                              <el-tag v-for="(value, j) in item.conditionArr" :key="j" closable 
                                 @close="deleteItem(index, j)" style="margin-right: 10px; color: #409eff;">{{value}}</el-tag>
                             <span v-if="!item.conditionArr.length" style="color: #999; font-size: 13px;">*请设置规格条件</span>
-                            <el-input v-if="isAddItem" v-model="newConditionName" placeholder="规格条件值" class="add-input" size="mini"></el-input>
-                            <span class="add-floor-button" v-if="!isAddItem" @click="isAddItem = !isAddItem">
+                            <el-input v-if="item.isAddItem" v-model="newConditionName" placeholder="规格条件值" class="add-input" size="mini"></el-input>
+                            <span class="add-floor-button" v-if="!item.isAddItem" @click="openAdd(item, index)">
                                 <span class="el-icon-plus" style="font-weight: 600;"></span>
                                 <span>新增</span>
                             </span>
-                            <span v-if="isAddItem" class="add-floor-button" @click="handleAddItem(item)">
+                            <span v-if="item.isAddItem" class="add-floor-button" @click="handleAddItem(item)">
                                 <span class="el-icon-check" style="font-weight: 600;"></span>
                                 <span>完成</span>
                             </span>
                         </el-form-item>
                     </div>
-                    <div v-if="conditionList.length" style="padding-left: 20px; margin-top: 20px;">
-                        <el-button type="primary" size="small">保存</el-button>
+                    <div style="padding-left: 20px; text-align: right; margin-top: 20px;">
+                        <el-button @click="handleSaveCondition" type="primary" size="small">保存</el-button>
                     </div>
                 </el-form>
             </div>
@@ -63,67 +63,72 @@ export default {
     data() {
         return {
             filterText: '',
-            treeData: [
-                {
-                    id: '1',
-                    label: '男装',
-                    children: [
-                        {
-                            id: '2',
-                            label: '风衣',
-                            conditionList: [],
-                            children: [
-                                {
-                                    id: '3',
-                                    label: '快鱼',
-                                    conditionList: []
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            refreshTree: true,
+            expandedKeys: [],
+            treeData: [],
             currentLabel: '',
             currentLevel: 0,
+            currentId: '',
             conditionForm: {
                 isColor: '1'
             },
             conditionList: [],
-            isAddItem: false,
             newConditionName: '',
         }
     },
+    watch: {
+        filterText(val) {
+            this.$refs.myTree.filter(val)
+        }
+    },
     methods: {
+         filterNode(value, data) {
+            if (!value) return true;
+            return data.label.indexOf(value) !== -1;
+        },
         renderTree(h, { node, data, store }) {
             if (node.level == 3) {
                 return (
                     <div class="nomal-level">
-                        <span id={`span${data.id}`}>{data.label}</span>
+                        <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
                         <input class="edit-input" placeholder="请输入类目名称" id={`input${data.id}`} value={data.label}></input>
                         <span class="nomal-level-operate">
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
-                            <span class="el-icon-delete"></span>
+                            <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
                         </span>
                     </div>)
             }else {
                 return (
                     <div class="nomal-level">
-                        <span id={`span${data.id}`}>{data.label}</span>
+                        <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
                         <input class="edit-input" placeholder="请输入类目名称" id={`input${data.id}`} value={data.label}></input>
                         <span class="nomal-level-operate">
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
                             <span class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
-                            <span class="el-icon-delete"></span>
+                            <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
                         </span>
                     </div>)
             }
         },
         treeNodeClick(data, node, el) {
+            this.currentId = data.id
             this.currentLabel = data.label
             this.currentLevel = node.level
-            this.conditionList = JSON.parse(JSON.stringify(data.conditionList))
+            this.currentLevel != 1 && this.getConditionList()
+        },
+
+        getConditionList() {
+            this.http({
+                url: `merchant/tGoodCategory/TGoodCategoryAttrSel?id=${this.currentId}`,
+                method: 'get',
+            }, res => {
+                if (res.data.code) {
+                    this.conditionForm.isColor = res.data.data.isColor
+                    this.conditionList = res.data.data.conditionList
+                }
+            })
         },
 
         doEdit(data) {
@@ -136,21 +141,78 @@ export default {
             edit.style.display = 'none'
             save.style.display = 'inline'
         },
+        deleteTreeNode(node, data) {
+            if (data.children.length) {
+                this.$message.info('该类目下有子类目，请先删除下级类目')
+            }else {
+                this.$confirm('此操作将删除当前类目, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                }).then(() => {
+                    this.http({
+                        url: `merchant/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
+                        method: 'get'
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.$message.success('删除成功！')
+                            const parent = node.parent
+                            const children = parent.data.children || parent.data
+                            const index = children.findIndex(d => d.id === data.id)
+                            children.splice(index, 1)
+                            this.currentLevel = 0
+                        }
+                    })
+                }).catch(() => {})
+            }
+        },
         doSave(node, data) {
             let input = document.getElementById(`input${data.id}`),
                 span = document.getElementById(`span${data.id}`),
                 edit = document.getElementById(`edit${data.id}`),
                 save = document.getElementById(`save${data.id}`)
-            console.log(input.value)
-            if (data.isNew) {
-                //新增
+            if (input.value) {
+                if (data.isNew) {
+                    this.http({
+                        url: 'merchant/tGoodCategory/tGoodCategorySave',
+                        method: 'post',
+                        data: {
+                            categoryParent: node.parent.data.id? node.parent.data.id : undefined,
+                            categoryName: input.value,
+                            categoryGrade: node.level
+                        }
+                    }, res => {
+                        debugger
+                        if (res.data.code == 200) {
+                            data.id = res.data.data.id
+                            data.label = res.data.data.label
+                            data.children = res.data.data.children
+                            delete data.isNew
+                        }else {
+                            this.$message.error(res.data.msg)
+                        }
+                    })
+                }else {
+                    //保存
+                    this.http({
+                        url: 'merchant/tGoodCategory/tGoodCategoryUpd',
+                        method: 'post',
+                        data: {
+                            id: data.id,
+                            categoryName: input.value,
+                        }
+                    }, res => {
+                        if (res.data.code == 200) {
+                            data.label = input.value
+                            input.style.display = 'none'
+                            span.style.display = 'inline'
+                            edit.style.display = 'inline'
+                            save.style.display = 'none'
+                        }
+                    })
+                }
             }else {
-                //保存
-                data.label = input.value
-                input.style.display = 'none'
-                span.style.display = 'inline'
-                edit.style.display = 'inline'
-                save.style.display = 'none'
+                this.$message.info('类目名不能为空！')
             }
         },
         addChild(node, data) {
@@ -159,9 +221,10 @@ export default {
                 if (!data.children) {
                     this.$set(data, 'children', [])
                 }
-                data.children.push({ id: tempId, label: '', isNew: 1 })
+                data.children.push({ id: tempId, label: '', isNew: 1, children: [] })
+                this.expandedKeys.push(tempId)
             }else {
-                this.treeData.push({ id: tempId, label: '', isNew: 1 })
+                this.treeData.push({ id: tempId, label: '', isNew: 1, children: [] })
             }
             let timer = setTimeout(_ => {
                 let input = document.getElementById(`input${tempId}`),
@@ -181,11 +244,22 @@ export default {
         deleteItem(index, j) {
             this.conditionList[index].conditionArr.splice(j, 1)
         },
+        openAdd(item, index) {
+            if (item.isAddItem == undefined) {
+                this.$set(this.conditionList[index], 'isAddItem', true)
+            }else {
+                this.conditionList[index].isAddItem = true
+            }
+        },
         handleAddItem(item) {
             if (this.newConditionName) {
-                item.conditionArr.push(this.newConditionName)
-                this.newConditionName = ''
-                this.isAddItem = false
+                if (item.conditionArr.indexOf(this.newConditionName) < 0) {
+                    item.conditionArr.push(this.newConditionName)
+                    this.newConditionName = ''
+                    item.isAddItem = false
+                }else {
+                    this.$message.info('条件重复！')
+                }
             }
         },
         handleNewCondition() {
@@ -193,8 +267,33 @@ export default {
                 conditionName: '',
                 conditionArr: []
             })
+        },
+        handleSaveCondition() {
+            this.http({
+                url: 'merchant/tGoodCategory/TGoodAttrKeySave',
+                method: 'post',
+                data: {
+                    id: this.currentId,
+                    conditionList: this.conditionList,
+                    isColor: this.conditionForm.isColor
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.$message.success('保存成功')
+                }
+            })
         }
     },
+    mounted() {
+        this.http({
+            url: 'merchant/tGoodCategory/tGoodCategorySelByParentId',
+            method: 'get',
+        }, res => {
+            if (res.data.code == 200) {
+                this.treeData = res.data.data
+            }
+        })
+    }
 }
 </script>
 
@@ -202,7 +301,7 @@ export default {
 .kinds-left{
     width: 400px;
     .kinds-left-tree{
-        margin-top: 5px;
+        margin-top: 10px;
     }
 }
 .kinds-admin-box{
@@ -215,6 +314,12 @@ export default {
 .kinds-tree{
     /deep/ .el-tree-node__content{
         height: 36px;
+    }
+    /deep/ .nomal-level-label{
+        width: 20em;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
     /deep/ .nomal-level{
         width: 100%;

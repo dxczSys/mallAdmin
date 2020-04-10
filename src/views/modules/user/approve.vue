@@ -62,35 +62,39 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="店铺标志" required>
-                            <el-upload class="avatar-uploader" action=""
-                            :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                            </el-upload>
+                            <upload-file :filelist="infoForm.shopLogo"></upload-file>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="营业执照" required>
-                            <el-upload class="avatar-uploader" action=""
-                            :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                            </el-upload>
+                            <upload-file :filelist="infoForm.shopPermit"></upload-file>
                         </el-form-item>
                     </el-col>
                 </el-row>
-                <el-form-item label="法人/经营者" required>
-                    <el-input v-model="infoForm.shopOwner" placeholder="法人/经营者"></el-input>
-                </el-form-item>
-                <el-form-item label="身份证正反面" required>
-                    <el-upload
-                        action="https://jsonplaceholder.typicode.com/posts/"
-                        list-type="picture-card"
-                        :on-preview="handlePictureCardPreview"
-                        :on-remove="handleRemove">
-                        <i class="el-icon-plus"></i>
-                    </el-upload>
-                </el-form-item>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="法人/经营者" required>
+                            <el-input v-model="infoForm.shopOwner" placeholder="法人/经营者"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="身份证号" required>
+                            <el-input v-model="infoForm.cardNum" placeholder="身份证号"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="身份证正面" required>
+                            <upload-file :filelist="infoForm.cardUrl"></upload-file>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="身份证反面" required>
+                            <upload-file :filelist="infoForm.cardOverUrl"></upload-file>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <el-form-item label="商铺简介" required>
                     <el-input type="textarea" v-model="infoForm.introduction" rows="5" placeholder="商铺简介"></el-input>
                 </el-form-item>
@@ -103,7 +107,9 @@
 </template>
 
 <script>
+import uploadFile from '@/components/upload-file'
 export default {
+    components: { uploadFile },
     data() {
         return {
             infoForm: {
@@ -111,10 +117,12 @@ export default {
                 shopCityName: '',
                 floor: '',
                 businessType: '',
-                shopLogo: '',
-                shopPermit: '',
+                shopLogo: [],
+                shopPermit: [],
                 shopOwner: '',
-                ownerCard: '',
+                cardNum: '',
+                cardUrl: [],
+                cardOverUrl: [],
                 phone: '',
                 chat: '',
                 introduction: '',
