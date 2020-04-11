@@ -6,6 +6,8 @@
 
   // api接口请求地址
   window.SITE_CONFIG['baseUrl'] = 'http://192.168.3.24:9001/';
+  window.SITE_CONFIG['uploadUrl'] = 'http://192.168.3.24:9001/file/fileUploads'
+  window.SITE_CONFIG['fileUrl'] = 'http://192.168.3.24:9004/filename='
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

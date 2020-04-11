@@ -53,11 +53,6 @@ export default {
     },
     methods: {
         handleLogin() {
-            // this.$cookie.set('token', 'sdsdfeeff')
-            // sessionStorage.setItem('userType', '1')
-            // sessionStorage.setItem('userId', '112233')
-            // this.$router.push({ name: 'home' })
-
             this.$refs.loginForm.validate(valid => {
                 if (valid) {
                     this.http({

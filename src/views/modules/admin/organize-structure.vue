@@ -4,8 +4,8 @@
             <div class="organize-left">
                 <el-input v-model="filterText" placeholder="输入关键字过滤" style="width: 360px;"></el-input>
                 <div class="organize-left-bottom">
-                    <el-tree class="organize-tree" :data="treeData" node-key="id" :expand-on-click-node="false" 
-                        @node-click="treeNodeClick" :render-content="renderTree" :default-expanded-keys="['1']">
+                    <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree"
+                        :load="loadTree" @node-click="treeNodeClick" :render-content="renderTree" :default-expanded-keys="['a1']">
                     </el-tree>
                     <el-dropdown class="organize-left-bottom-dropdown">
                         <span class="el-dropdown-link">
@@ -13,7 +13,7 @@
                         </span>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item @click.native="$router.push({ name: 'admin-add-mall'})">新增商城</el-dropdown-item>
-                            <el-dropdown-item @click.native="dialogVisible=true">授权中心</el-dropdown-item>
+                            <el-dropdown-item @click.native="getAllMall">授权中心</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </div>
@@ -21,13 +21,21 @@
             <div class="organize-right">
                 <div style="display: flex;align-items: center;">
                     <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                    <div style="font-weight: 600;">当前节点:{{currentLabel}}</div>
+                    <div v-if="currentLevel == 3 && isAdmin" style="font-weight: 600;">
+                        <span>{{currentParentLabel}}</span>
+                        <span style="padding-left: 8px;">{{currentLabel}}</span>
+                    </div>
+                    <div v-if="currentLevel == 3 && !isAdmin" style="font-weight: 600;">
+                        <span>{{currentParentLabel}}</span>
+                        <span style="padding-left: 8px;">{{currentLabel}}楼</span>
+                    </div>
+                    <div v-if="currentLevel == 1 || currentLevel == 2" style="font-weight: 600;">{{currentLabel}}</div>
                 </div>
                 <div class="mall-box" v-if="currentLevel == 1">
                     <div class="mall-item-box">
                         <div class="mall-item" v-for="(item, index) in mallList" :key="index">
                             <div class="mall-item-left">
-                                <img :src="item.url">
+                                <img :src="fileUrl + item.url">
                             </div>
                             <div class="mall-item-right">
                                 <div class="mall-item-right-top">
@@ -40,18 +48,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="floor-box" v-if="currentLevel == 2 || currentLevel == 3">
+                <div class="admin-person-mess" v-if="currentLevel == 3 && isAdmin">
+                    <div class="admin-person-avatar">
+                        <img v-if="adminMess.userPic" :src="fileUrl + adminMess.userPic">
+                        <img v-else src="~@/assets/img/avatar_default.png">
+                    </div>
+                    <div class="admin-person-row">
+                        <label>姓名：</label>
+                        <span>{{adminMess.realUserName}}</span>
+                    </div>
+                    <div class="admin-person-row">
+                        <label>手机号：</label>
+                        <span>{{adminMess.userTel}}</span>
+                    </div>
+                </div>
+                <div class="floor-box" v-if="(currentLevel == 2 || currentLevel == 3) && !isAdmin">
                     <div class="floor-item" v-for="(item, index) in floorList" :key="index">
                         <div class="floor-title">
                             <icon-svg name="louceng"></icon-svg>
-                            <span>{{item.label}}</span>
+                            <span>{{item.label}}楼</span>
                         </div>
                         <div v-if="!item.children || !item.children.length" style="text-align: center; padding: 20px 0; color: #999;">*当前楼层暂无商家入驻</div>
                         <div class="shop-item-box">
                             <el-row :gutter="10">
                                 <el-col :span="4" v-for="(value, j) in item.children" :key="j">
                                     <div class="shop-item">
-                                        <img :src="value.url">
+                                        <img :src="fileUrl + value.url">
                                         <div>{{value.label}}</div>
                                     </div>
                                 </el-col>
@@ -67,7 +89,7 @@
                 <el-form ref="authorizeForm" :model="authorizeForm" label-width="80px">
                     <el-form-item label="授权商城" required>
                         <el-select v-model="authorizeForm.mallId" placeholder="请选择授权商城" style="width: 100%;">
-                            <el-option v-for="(item, index) in mallIdList" :key="index" :label="item.label" :value="item.id">
+                            <el-option v-for="(item, index) in mallIdList" :key="index" :label="item.shopName" :value="item.id">
                             </el-option>
                         </el-select>
                     </el-form-item>
@@ -89,84 +111,13 @@
 export default {
     data() {
         return {
+            fileUrl: window.SITE_CONFIG.fileUrl,
             filterText: '',
-            treeData: [
-                {
-                    id: '1',
-                    label: '易码商城',
-                    children: [
-                        {
-                            id: '2',
-                            label: '开元商城(钟楼店)',
-                            address: '西安市碑林区解放市场6号',
-                            url: require('@/assets/img/avatar.png'),
-                            phone: '029-86300000',
-                            company: '开元商业有限公司',
-                            children: [
-                                {
-                                    id: 'a1',
-                                    label: '管理员1',
-                                    type: 'admin'
-                                },
-                                {
-                                    id: '3',
-                                    label: '1楼'
-                                },
-                                {
-                                    id: '4',
-                                    label: '2楼',
-                                    children: [
-                                        {
-                                            id: '5',
-                                            label: 'rampo乱步旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//a9/6d/TB1vNGBRpXXXXbdaXXXSutbFXXX.jpg_140x140Q90.jpg'
-                                        },
-                                        {
-                                            id: '6',
-                                            label: '优衣库官方旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//a4/6e/TB15wg4viMnBKNjSZFCSut0KFXa.jpg_140x140Q90.jpg',
-                                        },
-                                        {
-                                            id: '61',
-                                            label: 'ASURA大码男装',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//f7/5e/TB1P.U2FFXXXXXsXFXXwu0bFXXX.png_140x140Q90.jpg',
-                                        },
-                                        {
-                                            id: '62',
-                                            label: 'Champion官方旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//47/51/TB1GAe_xNuTBuNkHFNRSuw9qpXa.jpg_140x140Q90.jpg',
-                                        },
-                                        {
-                                            id: '63',
-                                            label: '异至男装旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//ed/24/TB1ztyioA9WBuNjSspe1rmz5VXa.JPG_140x140Q90.jpg',
-                                        },
-                                        {
-                                            id: '63',
-                                            label: '异至男装旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//ed/24/TB1ztyioA9WBuNjSspe1rmz5VXa.JPG_140x140Q90.jpg',
-                                        },
-                                        {
-                                            id: '63',
-                                            label: '异至男装旗舰店',
-                                            url: 'https://g-search1.alicdn.com/img/bao/uploaded/i4//ed/24/TB1ztyioA9WBuNjSspe1rmz5VXa.JPG_140x140Q90.jpg',
-                                        }
-                                    ]
-                                }
-                            ]
-                        },{
-                            id: '7',
-                            label: '赛格国际购物中心',
-                            address: '西安市雁塔区长安中路123号',
-                            url: require('@/assets/img/saige.png'),
-                            phone: '029-86300000',
-                            company: '西安赛格商业运营管理有限公司',
-                        }
-                    ]
-                }
-            ],
+            currentParentLabel: '',
             currentLabel: '易码商城',
             currentLevel: 1,
+            isAdmin: false,
+            adminMess: {},
             mallList: [],
             floorList: [],
             dialogVisible: false,
@@ -174,10 +125,7 @@ export default {
                 mallId: '',
                 userId: '',
             },
-            mallIdList: [{
-                label: '开元商城',
-                id: '1',
-            }]
+            mallIdList: []
         }
     },
     methods: {
@@ -197,21 +145,28 @@ export default {
                         </span>
                         <span class="others-level-operate">
                             <span class="el-icon-edit edit-tree-node" onClick={() => this.editMall(data.id) }></span>
-                            <span class="el-icon-delete delete-tree-node"></span>
+                            <span class="el-icon-delete delete-tree-node" onClick={() => this.deleteTreeNode(data.id, node) }></span>
                         </span>
                     </div>)
             }else if (node.level == 3) {
-                let iconName = '', font = ''
-                data.type == 'admin'? iconName = 'administraor' : iconName = 'louceng'
+                let iconName = '', _label = '', name = ''
+                if (data.type == 'admin') {
+                    iconName = 'administraor'
+                    _label = data.label
+                    name = data.realName
+                }else {
+                    iconName = 'louceng'
+                    _label = data.label + '楼'
+                }
                 return (
                     <div class="others-level">
                         <span class="others-level-label">
                             <icon-svg name={iconName}></icon-svg>
-                            <span>{data.label}</span>
+                            <span>{_label}&nbsp;&nbsp;{name}</span>
                         </span>
                         <span class="others-level-operate">
                             {data.type == 'admin'? <span title="授权管理" class="iconfont iconshouquan edit-tree-node"></span> : 
-                            <span class="el-icon-delete delete-tree-node"></span>}
+                            <span class="el-icon-delete delete-tree-node" onClick={() => this.deleteTreeNode(data.id, node) }></span>}
                         </span>
                     </div>)
             }else {
@@ -222,10 +177,41 @@ export default {
                             <span>{data.label}</span>
                         </span>
                         <span class="others-level-operate">
-                            <span class="el-icon-delete delete-tree-node"></span>
+                            <span class="el-icon-delete delete-tree-node" onClick={() => this.deleteTreeNode(data.id, node) }></span>
                         </span>
                     </div>)
             }
+        },
+        loadTree(node, resolve) {
+            if (node.level === 0) {
+                return resolve([{ id: 'a1', label: '易码商城' }])
+            }else if (node.level === 1) {
+                this.http({
+                    url: `admin/shopMall/tShopMallSelTree?id=&type=1`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.mallList = res.data.data
+                         return resolve(res.data.data)
+                    }
+                })
+            }else if (node.level === 2) {
+                this.http({
+                    url: `admin/shopMall/tShopMallSelTree?id=${node.data.id}&type=2`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        return resolve(res.data.data)
+                    }
+                })
+            }else if (node.level === 3) {
+                if (node.data.type == 'admin') {
+                    return resolve([])
+                }else {
+
+                }
+            }
+            
         },
         editMall(id) {
             this.$router.push({
@@ -235,28 +221,64 @@ export default {
                 }
             })
         },
+        deleteTreeNode(id, node) {
+            if (node.childNodes.length) {
+                this.$message.info('该节点下有子节点，禁止删除，请先删除子节点！')
+            }else {
+                this.http({
+                    url: `admin/shopMall/tShopMallDelById?id=${id}&type=${node.level - 1}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$refs.myTree.remove(node)
+                        this.$message.success('删除成功！')
+                    }
+                })
+            }           
+        },
         treeNodeClick(data, node, el) {
             this.currentLabel = data.label
             this.currentLevel = node.level
+            this.currentParentLabel = node.parent.data.label
+            data.type == 'admin'? this.isAdmin = true : this.isAdmin = false
             if (node.level == 2) {
                 let arr = []
-                data.children.forEach(item => {
-                    if (item.type != 'admin') {
-                        arr.push(item)
+                node.childNodes.forEach(item => {
+                    if (item.data.type != 'admin') {
+                        arr.push(item.data)
                     }
                 })
                 this.floorList = arr
-            }else if(node.level == 3 && data.type != 'admin') {
-                this.currentLabel = node.parent.label + data.label
-                this.floorList = [data]
+            }else if(node.level == 3) {
+                if (data.type == 'admin') {
+                    this.http({
+                        url: `user/selById?userId=${data.id}`,
+                        method: 'get',
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.adminMess = res.data.data
+                        }
+                    })
+                }else {
+                    this.floorList = [data]
+                }
+                
             }else {
                 this.floorList = []
             }
+        },
+        getAllMall() {
+            this.http({
+                url: 'admin/shopMall/tShopMallSelByAllAuthorization',
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.mallIdList = res.data.data
+                    this.dialogVisible = true
+                }
+            })
         }
     },
-    mounted() {
-        this.mallList = this.treeData[0].children
-    }
 }
 </script>
 
@@ -381,6 +403,27 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+    }
+}
+.admin-person-mess{
+    margin-top: 20px;
+    margin-left: 10px;
+    .admin-person-avatar{
+        margin-bottom: 10px;
+        img{
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+    .admin-person-row{
+        display: flex;
+        line-height: 30px;
+        label{
+            width: 4em;
+            text-align: right;
+        }
     }
 }
 </style>

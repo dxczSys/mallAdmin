@@ -26,7 +26,7 @@
                         <el-radio v-model="conditionForm.isColor" label="1">是</el-radio>
                         <el-radio v-model="conditionForm.isColor" label="2">否</el-radio>
                     </el-form-item>
-                    <div style="padding-left: 20px;">
+                    <div>
                         <el-button @click="handleNewCondition" type="primary" size="mini">新增规格</el-button>
                         <span style="font-size: 13px; color: #999;">可新增多个规格</span>
                     </div>
@@ -48,6 +48,7 @@
                                 <span>完成</span>
                             </span>
                         </el-form-item>
+                        <span @click="deleteCondition(item, index)" class="delete-condition-item el-icon-delete"></span>
                     </div>
                     <div style="padding-left: 20px; text-align: right; margin-top: 20px;">
                         <el-button @click="handleSaveCondition" type="primary" size="small">保存</el-button>
@@ -121,11 +122,11 @@ export default {
 
         getConditionList() {
             this.http({
-                url: `merchant/tGoodCategory/TGoodCategoryAttrSel?id=${this.currentId}`,
+                url: `admin/tGoodCategory/TGoodCategoryAttrSel?id=${this.currentId}`,
                 method: 'get',
             }, res => {
                 if (res.data.code) {
-                    this.conditionForm.isColor = res.data.data.isColor
+                    this.conditionForm.isColor = res.data.data.isColor || '1'
                     this.conditionList = res.data.data.conditionList
                 }
             })
@@ -151,7 +152,7 @@ export default {
                         type: 'warning'
                 }).then(() => {
                     this.http({
-                        url: `merchant/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
+                        url: `admin/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
                         method: 'get'
                     }, res => {
                         if (res.data.code == 200) {
@@ -174,7 +175,7 @@ export default {
             if (input.value) {
                 if (data.isNew) {
                     this.http({
-                        url: 'merchant/tGoodCategory/tGoodCategorySave',
+                        url: 'admin/tGoodCategory/tGoodCategorySave',
                         method: 'post',
                         data: {
                             categoryParent: node.parent.data.id? node.parent.data.id : undefined,
@@ -182,7 +183,6 @@ export default {
                             categoryGrade: node.level
                         }
                     }, res => {
-                        debugger
                         if (res.data.code == 200) {
                             data.id = res.data.data.id
                             data.label = res.data.data.label
@@ -195,7 +195,7 @@ export default {
                 }else {
                     //保存
                     this.http({
-                        url: 'merchant/tGoodCategory/tGoodCategoryUpd',
+                        url: 'admin/tGoodCategory/tGoodCategoryUpd',
                         method: 'post',
                         data: {
                             id: data.id,
@@ -262,6 +262,9 @@ export default {
                 }
             }
         },
+        deleteCondition(item, index) {
+            this.conditionList.splice(index, 1)
+        },
         handleNewCondition() {
             this.conditionList.push({
                 conditionName: '',
@@ -270,7 +273,7 @@ export default {
         },
         handleSaveCondition() {
             this.http({
-                url: 'merchant/tGoodCategory/TGoodAttrKeySave',
+                url: 'admin/tGoodCategory/TGoodAttrKeySave',
                 method: 'post',
                 data: {
                     id: this.currentId,
@@ -286,7 +289,7 @@ export default {
     },
     mounted() {
         this.http({
-            url: 'merchant/tGoodCategory/tGoodCategorySelByParentId',
+            url: 'admin/tGoodCategory/selectTGoodCategoryAsTree',
             method: 'get',
         }, res => {
             if (res.data.code == 200) {
@@ -351,15 +354,34 @@ export default {
                     color: #17B3A3;
                 }
             }
-            .el-icon-delete:hover{
+            .el-icon-delete{
                 color: #F56C6C;
+                &:hover{
+                    font-weight: 400;
+                    color: #e70e0e;
+                }
             }
         }
     }
 }
 .condition-item{
+    position: relative;
     margin-top: 20px;
-    border-bottom: 1px solid #eee;
+    border: 1px solid #eee;
+    padding-top: 20px;
+    border-radius: 4px;
+    .delete-condition-item{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        color: #f56c6c;
+        font-size: 18px;
+        &:hover{
+            color: #f13a3a;
+            font-weight: 300;
+        }
+    }
 }
 .add-floor-button{
     color: #409eff;

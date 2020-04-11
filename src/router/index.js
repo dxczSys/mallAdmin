@@ -92,6 +92,7 @@ router.beforeEach((to, from, next) => {
                 next()
             }
         }, err => {
+            clearLoginInfo()
             router.push({ name: 'login' })
         })
     }

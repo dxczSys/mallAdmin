@@ -59,7 +59,7 @@ export default {
     watch: {
         filelist: {
             handler(n) {
-                if (!this.beginNum) {
+                if (this.beginNum == 1) {
                     n.map(item => {
                         item.uid = (Math.random()*10000000000 + '').split('.')[0]
                     })
@@ -85,16 +85,16 @@ export default {
                         uid: file.uid,
                         url: URL.createObjectURL(file.raw)
                     })
-                    this.refreInput = false
-                    this.$nextTick(_ => {
-                        this.refreInput = true
-                    })
                 }else {
                     this.$message.error('文件类型不符!')
                 }
             }else {
                 this.$message.error('文件大小超出限制!')
             } 
+            this.refreInput = false
+            this.$nextTick(_ => {
+                this.refreInput = true
+            })
         },
         imgPreview(item) {
             this.dialogVisible = true
@@ -114,15 +114,6 @@ export default {
                 }
             }
         },
-        // uploadFile() {
-        //     let formData = new FormData()
-        //     formData.append('file', this.fileLists[0].raw)
-        //     return this.$httpapi({
-        //         url: 'https://jsonplaceholder.typicode.com/posts/',
-        //         method: 'post',
-        //         data: this.$httpapi.adornData(formData, false, 'form')
-        //     })
-        // }
     }
 }
 </script>
