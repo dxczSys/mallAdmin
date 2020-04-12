@@ -4,8 +4,8 @@
             <div class="organize-left">
                 <el-input v-model="filterText" placeholder="输入关键字过滤" style="width: 360px;"></el-input>
                 <div class="organize-left-bottom">
-                    <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree"
-                        :load="loadTree" @node-click="treeNodeClick" :render-content="renderTree" :default-expanded-keys="['a1']">
+                    <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree" v-if="refreshTree"
+                        :load="loadTree" @node-click="treeNodeClick" :render-content="renderTree" :default-expanded-keys="expandedId">
                     </el-tree>
                     <el-dropdown class="organize-left-bottom-dropdown">
                         <span class="el-dropdown-link">
@@ -29,7 +29,7 @@
                         <span>{{currentParentLabel}}</span>
                         <span style="padding-left: 8px;">{{currentLabel}}楼</span>
                     </div>
-                    <div v-if="currentLevel == 1 || currentLevel == 2" style="font-weight: 600;">{{currentLabel}}</div>
+                    <div v-if="currentLevel == 1 || currentLevel == 2 || currentLevel == 4" style="font-weight: 600;">{{currentLabel}}</div>
                 </div>
                 <div class="mall-box" v-if="currentLevel == 1">
                     <div class="mall-item-box">
@@ -69,7 +69,7 @@
                             <span>{{item.label}}楼</span>
                         </div>
                         <div v-if="!item.children || !item.children.length" style="text-align: center; padding: 20px 0; color: #999;">*当前楼层暂无商家入驻</div>
-                        <div class="shop-item-box">
+                        <div class="shop-item-box" v-if="item.children">
                             <el-row :gutter="10">
                                 <el-col :span="4" v-for="(value, j) in item.children" :key="j">
                                     <div class="shop-item">
@@ -81,27 +81,129 @@
                         </div>
                     </div>
                 </div>
+                <div class="shop-mess-box">
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>商铺名称：</label>
+                                <span>{{shopMessData.shopName}}</span>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>所属商场：</label>
+                                <span>{{shopMessData.shopToPart}}</span>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>所在楼层：</label>
+                                <span>{{shopMessData.shopToFloor}}楼</span>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>所属行业：</label>
+                                <span>{{shopMessData.shopToIndustry}}</span>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>联系电话：</label>
+                                <span>{{shopMessData.shopTel}}</span>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>微信：</label>
+                                <span>{{shopMessData.shopPersonVx}}</span>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>店铺标志：</label>
+                                <img :src="fileUrl + shopMessData.shopSign">
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>营业执照：</label>
+                                <img :src="fileUrl + shopMessData.shopBusinessLicense">
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>法人/经营者：</label>
+                                <span>{{shopMessData.shopLegalPerson}}</span>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>身份证号：</label>
+                                <span>{{shopMessData.shopLegalPersonId}}</span>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>身份证正面：</label>
+                                <img :src="fileUrl + shopMessData.idCardPicPositive">
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="shop-mess-row">
+                                <label>身份证反面：</label>
+                                <img :src="fileUrl + shopMessData.idCardPicSide">
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="24">
+                            <div class="shop-mess-row">
+                                <label>商铺简介：</label>
+                                <div>{{shopMessData.shopInfo}}</div>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
             </div>
         </div>
 
         <el-dialog title="授权中心" :visible.sync="dialogVisible" width="400px">
             <div>
-                <el-form ref="authorizeForm" :model="authorizeForm" label-width="80px">
-                    <el-form-item label="授权商城" required>
+                <el-form ref="authorizeForm" :model="authorizeForm" :rules="rules" label-width="80px">
+                    <el-form-item label="授权商城" prop="mallId" required>
                         <el-select v-model="authorizeForm.mallId" placeholder="请选择授权商城" style="width: 100%;">
                             <el-option v-for="(item, index) in mallIdList" :key="index" :label="item.shopName" :value="item.id">
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="授予人" required>
-                        <el-input v-model="authorizeForm.userId" prefix-icon="el-icon-search" placeholder=""></el-input>
+                    <el-form-item label="授予人" prop="userId" required>
+                        <el-select v-model="authorizeForm.userId" filterable remote placeholder="手机号、真实姓名、邮箱、昵称搜索"
+                            :remote-method="remoteMethod" clearable style="width: 100%;">
+                            <el-option v-for="item in remoteUserList" :key="item.id" :label="item.value" :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="授予" required>
+                        <el-select v-model="authorizeForm.roleId" placeholder="请选择角色" style="width: 100%;">
+                            <el-option label="商城管理员" value="1"></el-option>
+                        </el-select>
                     </el-form-item>
                 </el-form>
-                
             </div>
             <div slot="footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-                <el-button size="small" type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button size="small" type="primary" @click="handleAuthorize">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -112,6 +214,9 @@ export default {
     data() {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
+            roleId: sessionStorage.getItem('roleId'),
+            refreshTree: true,
+            expandedId: ['a1'],
             filterText: '',
             currentParentLabel: '',
             currentLabel: '易码商城',
@@ -124,8 +229,15 @@ export default {
             authorizeForm: {
                 mallId: '',
                 userId: '',
+                roleId: '1',
             },
-            mallIdList: []
+            mallIdList: [],
+            remoteUserList: [],
+            shopMessData: {},
+            rules: {
+                mallId: [ { required: true, message: '授权商城不能为空', trigger: 'blur'} ],
+                userId: [ { required: true, message: '授予人不能为空', trigger: 'blur'} ],
+            }
         }
     },
     methods: {
@@ -165,7 +277,8 @@ export default {
                             <span>{_label}&nbsp;&nbsp;{name}</span>
                         </span>
                         <span class="others-level-operate">
-                            {data.type == 'admin'? <span title="授权管理" class="iconfont iconshouquan edit-tree-node"></span> : 
+                            {data.type == 'admin'? this.roleId == 1? <span title="取消授权" onClick={() => this.cancelAuthriod(data, node) } class="iconfont iconshouquan edit-tree-node"></span> :
+                            <span></span> :
                             <span class="el-icon-delete delete-tree-node" onClick={() => this.deleteTreeNode(data.id, node) }></span>}
                         </span>
                     </div>)
@@ -208,8 +321,17 @@ export default {
                 if (node.data.type == 'admin') {
                     return resolve([])
                 }else {
-
+                    this.http({
+                        url: `merchant/tShop/selShopByFloorId?floorId=${node.data.id}`,
+                        method: 'get'
+                    }, res1 => {
+                        if (res1.data.code == 200) {
+                            return resolve(res1.data.data)
+                        }
+                    })
                 }
+            }else {
+                return resolve([])
             }
             
         },
@@ -225,30 +347,37 @@ export default {
             if (node.childNodes.length) {
                 this.$message.info('该节点下有子节点，禁止删除，请先删除子节点！')
             }else {
-                this.http({
-                    url: `admin/shopMall/tShopMallDelById?id=${id}&type=${node.level - 1}`,
-                    method: 'get'
-                }, res => {
-                    if (res.data.code == 200) {
-                        this.$refs.myTree.remove(node)
-                        this.$message.success('删除成功！')
-                    }
-                })
+                this.$confirm('此操作将删除该节点, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.http({
+                        url: `admin/shopMall/tShopMallDelById?id=${id}&type=${node.level - 1}`,
+                        method: 'get'
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.$refs.myTree.remove(node)
+                            this.$message.success('删除成功！')
+                        }
+                    })
+                }).catch(() => {})
             }           
         },
         treeNodeClick(data, node, el) {
             this.currentLabel = data.label
             this.currentLevel = node.level
-            this.currentParentLabel = node.parent.data.label
+            node.level != 1 && (this.currentParentLabel = node.parent.data.label)
             data.type == 'admin'? this.isAdmin = true : this.isAdmin = false
             if (node.level == 2) {
-                let arr = []
-                node.childNodes.forEach(item => {
-                    if (item.data.type != 'admin') {
-                        arr.push(item.data)
+                this.http({
+                    url: `admin/shopMall/selShopAllByShopMallId?shopMallId=${data.id}`,
+                    method: 'get',
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.floorList = res.data.data
                     }
                 })
-                this.floorList = arr
             }else if(node.level == 3) {
                 if (data.type == 'admin') {
                     this.http({
@@ -260,11 +389,23 @@ export default {
                         }
                     })
                 }else {
-                    this.floorList = [data]
+                    let _arr = [], obj = JSON.parse(JSON.stringify(data))
+                    node.childNodes.forEach(item => {
+                        _arr.push(item.data)
+                    })
+                    obj.children = _arr
+                    this.floorList = [obj]
                 }
                 
-            }else {
-                this.floorList = []
+            }else if (node.level == 4){
+                this.http({
+                    url: `admin/shopMall/selTShopInfoByShopId?shopId=${data.id}`,
+                    method: 'get',
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.shopMessData = res.data.data
+                    }
+                })
             }
         },
         getAllMall() {
@@ -277,6 +418,69 @@ export default {
                     this.dialogVisible = true
                 }
             })
+        },
+        remoteMethod(query) {
+            if (query) {
+                this.http({
+                    url: `user/dynamicFind?query=${query}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.remoteUserList = res.data.data
+                    }
+                })
+            }else {
+                this.remoteUserList = []
+            }
+        },
+        handleAuthorize() {
+            this.$refs.authorizeForm.validate(valid => {
+                if (valid) {
+                    this.http({
+                        url: `admin/shopMall/shopAuthorization?type=1&userId=${this.authorizeForm.userId}&shopId=${this.authorizeForm.mallId}`,
+                        method: 'get'
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.expandedId.push(this.authorizeForm.mallId)
+                            this.$refs.authorizeForm.resetFields()
+                            this.dialogVisible = false
+                            this.refreshTree = false
+                            this.$nextTick(_ => { this.refreshTree = true })
+                            this.$message.success('授权成功！')
+                        }
+                    })
+                }
+            })
+        },
+        cancelAuthriod(data, node) {
+            const h = this.$createElement;
+            this.$msgbox({
+                title: '取消授权',
+                message: h('div', null, [
+                    h('span', null, '确认取消'),
+                    h('span', { style: 'padding: 0 5px; font-weight: 600;'}, node.parent.data.label),
+                    h('span', { style: 'color: #409EFF; padding-right: 5px;' }, data.realName),
+                    h('span', null, '的管理员权限?')
+                ]),
+                showCancelButton: true,
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                beforeClose: (action, instance, done) => {
+                    if (action === 'confirm') {
+                        this.http({
+                            url: `admin/shopMall/shopAuthorization?type=2&userId=${data.id}&shopId=${node.parent.data.id}`,
+                            method: 'get',
+                        }, res => {
+                            if (res.data.code == 200) {
+                                this.$refs.myTree.remove(node)
+                                done()
+                            }
+                        })
+                    }else {
+                        done()
+                    }
+                }
+            }).then(action => {})
         }
     },
 }
@@ -384,6 +588,7 @@ export default {
 }
 .floor-box{
     margin-top: 20px;
+    margin-left: 5px;
 }
 .shop-item-box{
     padding: 10px 20px;
@@ -423,6 +628,23 @@ export default {
         label{
             width: 4em;
             text-align: right;
+        }
+    }
+}
+.shop-mess-box{
+    margin-left: 10px;
+    margin-top: 20px;
+    .shop-mess-row{
+        padding: 10px 0;
+        display: flex;
+        label{
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        img{
+            max-width: 100px;
+            max-height: 120px;
+            object-fit: scale-down;
         }
     }
 }

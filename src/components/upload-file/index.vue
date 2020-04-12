@@ -7,7 +7,7 @@
                     <div class="delete-layer">
                         <div>
                             <span @click="imgPreview(item)" class="el-icon-zoom-in"></span>
-                            <span @click="remove(item)" class="el-icon-delete"></span>
+                            <span @click="remove(item)" v-if="!disabled" class="el-icon-delete"></span>
                         </div>
                     </div>
                 </div>
@@ -40,16 +40,16 @@ export default {
                 return []
             } 
         },
+        disabled: { default: false },
         multiple: { default: false },
         limit: { default: 1 },
         size: { default: 2 },
         accept: { default: 'image/*' },
-        limitTip: { default: '文件大小不能超过2M' }
+        limitTip: { default: '图片大小不能超过2M' }
     },
     data() {
         return {
             imageArr: [],
-            fileLists: [],
             dialogVisible: false,
             dialogImageUrl: '',
             beginNum: 0,
@@ -78,6 +78,7 @@ export default {
     },
     methods: {
         handleChange(file, fileList) {
+            this.beginNum ++
             if (file.size / 1024 / 1024 < this.size) {
                 if (file.raw.type.split('/')[0] == this.accept.split('/')[0]) {
                     this.filelist.push(file)

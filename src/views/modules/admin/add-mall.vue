@@ -25,7 +25,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="营业执照" required>
-                            <upload-file :filelist="permitImg"></upload-file>
+                            <upload-file :size="5" limitTip="图片大小不能超过5M" :filelist="permitImg"></upload-file>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -56,7 +56,7 @@
                     </span>
                 </el-form-item>
                 <el-form-item label="商城简介">
-                    <el-input type="textarea" v-model="mallForm.mallInfo" rows="5"  maxlength="500" show-word-limit style="width: 60%;"></el-input>
+                    <el-input type="textarea" v-model="mallForm.mallInfo" rows="5" style="width: 60%;"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button v-if="isUpdate" type="primary" @click="handleAddMall">保存修改</el-button>
