@@ -11,7 +11,7 @@ import '@/assets/font/iconfont.css'
 import clickoutside from 'element-ui/lib/utils/clickoutside'
 import { isAuth } from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
-import { getHttp, uploadFile } from '@/utils/tools'
+import { getHttp, uploadFile, dateFormat } from '@/utils/tools'
 import httpRequest from '@/utils/httpRequest'
 // import VueLazyload from 'vue-lazyload'  //图片懒加载
 
@@ -27,6 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
 Vue.prototype.http = getHttp
 Vue.prototype.$upload = uploadFile
 Vue.prototype.$httpapi = httpRequest
+Vue.prototype._dateFormat = dateFormat
 Vue.prototype.isAuth = isAuth
 
 Vue.directive('clickoutside', clickoutside)

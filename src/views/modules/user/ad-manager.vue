@@ -1,5 +1,9 @@
 <template>
     <div class="ad-manager-wrapper">
+        <div style="display: flex;align-items: center; margin-bottom: 20px;">
+            <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+            <div style="font-weight: 600;">广告位管理</div>
+        </div>
         <div class="apply-button">
             <el-button type="primary" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
         </div>

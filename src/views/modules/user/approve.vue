@@ -5,10 +5,10 @@
             <div style="font-weight: 600;">商铺认证</div>
         </div>
         <div class="step-box">
-            <el-steps :active="shopApprovalStatus" align-center>
+            <el-steps :active="shopApprovalStatus" process-status="success" finish-status="wait" align-center>
                 <el-step title="申请" description="商户自主填写相关资料"></el-step>
-                <el-step title="审核" description="发送商城管理员审核"></el-step>
-                <el-step title="通过" status="success" v-if="shopApprovalStatus < 3" description="审核通过即可发布商品"></el-step>
+                <el-step title="审核中" description="发送商城管理员审核"></el-step>
+                <el-step title="审核通过" v-if="shopApprovalStatus < 3" description="商铺认证审核已通过"></el-step>
                 <el-step title="拒绝" status="error" v-else :description="refuseInfo"></el-step>
             </el-steps>
         </div>
@@ -277,7 +277,10 @@ export default {
                             shopInfo: this.infoForm.introduction
                         }
                     }, approvalRes => {
-                        console.log(approvalRes)
+                        if (approvalRes.data.code == 200) {
+                            this.$message.success('申请已发送，等待管理员审核中...')
+                            this.getApprovalData()
+                        }
                     })
                 })
             })

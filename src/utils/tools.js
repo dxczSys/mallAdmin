@@ -3,8 +3,8 @@ import http from '@/utils/httpRequest'
 import { Message } from 'element-ui'
 import { Loading } from 'element-ui'
 
-export function dateFormat(fmt, date) {
-    let ret
+export function dateFormat(fmt, str) {
+    let ret, date = new Date(str)
     let opt = {
         "Y+": date.getFullYear().toString(),       
         "m+": (date.getMonth() + 1).toString(),     

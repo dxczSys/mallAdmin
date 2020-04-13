@@ -1,17 +1,19 @@
 <template>
     <div class="upload-file-wrapper">
         <div class="upload-file-box">
-            <div class="show-imgs-list" v-if="imageArr.length">
-                <div class="img-item" v-for="(item, index) in imageArr" :key="index">
-                    <img :src="item.url">
-                    <div class="delete-layer">
-                        <div>
-                            <span @click="imgPreview(item)" class="el-icon-zoom-in"></span>
-                            <span @click="remove(item)" v-if="!disabled" class="el-icon-delete"></span>
+            <viewer title="点击预览" :images="imageArr" @inited="inited" ref="viewer">
+                <div class="show-imgs-list" v-if="imageArr.length">
+                    <div class="img-item" v-for="(item, index) in imageArr" :key="index">
+                        <img :src="item.url">
+                        <div class="delete-layer">
+                            <div>
+                                <span @click="imgPreview(item)" class="el-icon-zoom-in"></span>
+                                <span @click="remove(item)" v-if="!disabled" class="el-icon-delete"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </viewer>
             <el-upload v-if="refreInput"
                 class="avatar-uploader" action=""
                 :show-file-list="false"
@@ -24,13 +26,14 @@
             </el-upload>
         </div>
         <div class="limit-tip">{{limitTip}}</div>
-        <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl">
-        </el-dialog>
     </div>
 </template>
 
 <script>
+import 'viewerjs/dist/viewer.css'
+import Viewer from 'v-viewer'
+import Vue from 'vue'
+Vue.use(Viewer)
 export default {
     props: {
         'show-file-list': { default: false },
@@ -50,8 +53,6 @@ export default {
     data() {
         return {
             imageArr: [],
-            dialogVisible: false,
-            dialogImageUrl: '',
             beginNum: 0,
             refreInput: true
         }
@@ -77,6 +78,9 @@ export default {
         },
     },
     methods: {
+        inited (viewer) {
+            this.$viewer = viewer
+        },
         handleChange(file, fileList) {
             this.beginNum ++
             if (file.size / 1024 / 1024 < this.size) {
@@ -98,8 +102,7 @@ export default {
             })
         },
         imgPreview(item) {
-            this.dialogVisible = true
-            this.dialogImageUrl = item.url
+            this.$viewer.show()
         },
         remove(item) {
             for (let j = 0; j < this.filelist.length; j ++) {

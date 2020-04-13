@@ -81,7 +81,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="shop-mess-box">
+                <div class="shop-mess-box" v-if="currentLevel == 4">
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <div class="shop-mess-row">
@@ -128,13 +128,13 @@
                         <el-col :span="12">
                             <div class="shop-mess-row">
                                 <label>店铺标志：</label>
-                                <img :src="fileUrl + shopMessData.shopSign">
+                                <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMessData.shopSign]"></img-view>
                             </div>
                         </el-col>
                         <el-col :span="12">
                             <div class="shop-mess-row">
                                 <label>营业执照：</label>
-                                <img :src="fileUrl + shopMessData.shopBusinessLicense">
+                                <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMessData.shopBusinessLicense]"></img-view>
                             </div>
                         </el-col>
                     </el-row>
@@ -156,13 +156,13 @@
                         <el-col :span="12">
                             <div class="shop-mess-row">
                                 <label>身份证正面：</label>
-                                <img :src="fileUrl + shopMessData.idCardPicPositive">
+                                <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMessData.idCardPicPositive]"></img-view>
                             </div>
                         </el-col>
                         <el-col :span="12">
                             <div class="shop-mess-row">
                                 <label>身份证反面：</label>
-                                <img :src="fileUrl + shopMessData.idCardPicSide">
+                                <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMessData.idCardPicSide]"></img-view>
                             </div>
                         </el-col>
                     </el-row>
@@ -210,7 +210,9 @@
 </template>
 
 <script>
+import imgView from '@/components/img-view'
 export default {
+    components: { imgView },
     data() {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
@@ -640,11 +642,6 @@ export default {
         label{
             margin-right: 10px;
             flex-shrink: 0;
-        }
-        img{
-            max-width: 100px;
-            max-height: 120px;
-            object-fit: scale-down;
         }
     }
 }
