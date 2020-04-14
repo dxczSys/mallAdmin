@@ -5,35 +5,38 @@
             <div style="font-weight: 600;">广告位管理</div>
         </div>
         <div class="apply-button">
-            <el-button type="primary" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
+            <el-button type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
         </div>
         <div class="ad-list-box">
             <el-row :gutter="10">
                 <el-col :span="6" v-for="(item, index) in adList" :key="index">
                     <el-card class="ad-list-item" :body-style="{ padding: '0px' }">
-                        <img class="card-image" :src="item.url">
+                        <img class="card-image" :src="item.advertType == '1'? urlTop : urlSale">
                         <div style="padding: 14px;">
-                            <span>{{ item.adType == '1' ? '置顶广告位' : '促销广告位' }}</span>
+                            <div class="card-title">{{ item.advertType == '1' ? '置顶广告位' : '促销广告位' }}</div>
                             <div class="current-state">
-                                <span v-if="item.expireNum != 0 && item.applyState == 0" class="el-icon-time" :class="{'reminder-expires': item.expireNum < 3 }">
-                                    <span>剩余时长:{{item.expireNum}}天0小时</span>
-                                    <span style="font-size: 12px;">即将到期,请及时续费</span>
+                                <span v-if="item.advertExpireTime && item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" 
+                                    class="el-icon-time" :class="{'reminder-expires': getOverDay(item.advertExpireTime) < 3 }">
+                                    <span>剩余时长:{{getOverDay(item.advertExpireTime)}}天</span>
+                                    <span v-if="getOverDay(item.advertExpireTime) < 3" style="font-size: 12px;">即将到期,请及时续费</span>
                                 </span>
-                                <span v-if="item.expireNum == 0 && item.applyState == 0" class="haved-expires">已到期</span>
-                                <span v-if="item.applyState == 1" class="haved-expires">申请失败：{{item.faildReason}}</span>
-                                <span v-if="item.applyState == 2">申请已受理,审核中...</span>
+                                <span v-if="item.advertIsExpire == '1'" class="haved-expires">已到期</span>
+                                <span v-if="item.advertApprovalStatus == '3'" class="haved-expires">申请失败：{{item.advertRefuseInfo}}</span>
+                                <span v-if="item.advertApprovalStatus == '1'">审核中...</span>
                             </div>
-                            <div class="bottom clearfix">
-                                <el-button @click="deleteAd" v-if="item.expireNum == 0" type="text" style="color: #F56C6C;">删除</el-button>
-                                <el-button v-if="item.applyState == 1" type="text">重新申请</el-button>
-                                <el-button v-if="item.applyState == 2" type="text">查看</el-button>
-                                <el-button v-if="item.expireNum < 3 && item.applyState == 0" type="text">续费</el-button>
+                            <div class="bottom-operate">
+                                <el-button @click="deleteAd" v-if="item.advertIsExpire == '1' || item.advertApprovalStatus == '5'" type="text" style="color: #F56C6C;">删除</el-button>
+                                <el-button @click="viewDetail(item)" type="text">查看</el-button>
+                                <el-button v-if="item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" type="text">续费</el-button>
                             </div>
                         </div>
                     </el-card>
                 </el-col>
                
             </el-row>
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :hide-on-single-page="total % pageSize < 1"
+                :page-sizes="[8, 16, 24]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            </el-pagination>
         </div>
     </div>
 </template>
@@ -42,62 +45,69 @@
 export default {
     data() {
         return {
-            adList: []
+            adList: [],
+            currentPage: 1,
+            pageSize: 8,
+            total: 0,
+            urlTop: require("@/assets/img/zhiding-ad.png"),
+            urlSale: require("@/assets/img/cuxiao-ad.png"),
         }
     },
     methods: {
-        dealAdList(arr) {
-            let _arr = arr || []
-            _arr.forEach(item => {
-                item.url = item.adType == '1'? require("@/assets/img/zhiding-ad.png") : require("@/assets/img/cuxiao-ad.png")
-                item.expireNum = this.getOverDay(item.expireDate)
-            })
-            this.adList = _arr
+        handleCurrentChange(v) {
+            this.currentPage = v
+            this.getTableData()
+        },
+        handleSizeChange(v) {
+            this.pageSize = v
+            this.getTableData()
         },
         //计算剩余天数
         getOverDay(time) {
             let curtime = new Date(), stopTime = new Date(time), str = ''
-            let num = Math.floor((stopTime - curtime)/1000/60/60/24)
-            return num > 0 ? num : 0
+            let num = (stopTime - curtime)/1000/60/60/24 
+            if (num > 0) {
+                if (num < 1) {
+                    return 1
+                }else {
+                    return Math.floor(num)
+                }
+            }else {
+                return 0
+            }
+        },
+        viewDetail(item) {
+            this.$router.push({ name: 'user-apply-ad', query: { id: item.id, type: 1 } })
         },
         deleteAd() {
             this.$confirm('确认删除此记录?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
                 }).then(() => {
                 }).catch(() => {         
             });
-        }
+        },
+        getTableData() {
+            this.http({
+                url: 'merchant/advert/selByPageAndUser',
+                method: 'post',
+                data: {
+                    currentPage: this.currentPage,
+                    pagesize: this.pageSize
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.total = res.data.data.total
+                    this.adList = res.data.data.rows
+                }else {
+                    this.$message.error(res.data.msg)
+                }
+            })
+        },
     },
     mounted() {
-        this.dealAdList([{
-                adType: '1',
-                expireDate: '2020/04/01',
-                applyState: 1,
-                faildReason: '图片使用不当图片使用不当图片使用不当图片使用不当'
-            },
-            {
-                adType: '1',
-                expireDate: '202/04/01',
-                applyState: 0,
-                faildReason: ''
-            },{
-                adType: '1',
-                expireDate: '2020/04/01',
-                applyState: 0,
-                faildReason: ''
-            },{
-                adType: '1',
-                expireDate: '2020/04/01',
-                applyState: 2,
-                faildReason: ''
-            },{
-                adType: '2',
-                expireDate: '2020/04/01',
-                applyState: 0,
-                faildReason: ''
-            }])
+        this.getTableData()
     }
 }
 </script>
@@ -106,6 +116,7 @@ export default {
 .ad-list-box{
     margin-top: 20px;
     .current-state{
+        font-size: 13px;
         padding: 5px 0;
         color: #409eff;
         width: 100%;
@@ -123,10 +134,17 @@ export default {
 .ad-list-item{
     margin-bottom: 10px;
 }
+.card-title{
+    text-align: center;
+    padding: 5px 0;
+}
 .card-image{
     height: 200px;
     width: 100%;
-    padding-top: 5px;
+    padding-top: 10px;
     object-fit: contain;
+}
+.bottom-operate{
+    text-align: right;
 }
 </style>

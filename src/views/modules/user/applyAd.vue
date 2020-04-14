@@ -14,7 +14,7 @@
         <div class="apply-form">
             <el-form ref="applyForm" :model="applyForm" :rules="rules" label-width="120px">
                 <el-form-item label="广告位类型" required>
-                    <el-select v-model="applyForm.adType" placeholder="请选择广告位类型">
+                    <el-select :disabled="type == '1'" v-model="applyForm.adType" placeholder="请选择广告位类型">
                         <el-option v-for="(item, index) in adTypeList" :key="index" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
@@ -30,23 +30,75 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="申请时长" prop="timeType" required>
-                    <el-radio-group v-model="applyForm.timeType">
+                    <el-radio-group v-model="applyForm.timeType" :disabled="type == '1'">
                         <el-radio v-for="(item, index) in timeTypeList" :key="index" :label="item.id">{{item.advertPrice}}元/{{item.advertDay}}天</el-radio>
                     </el-radio-group>
                 </el-form-item>
+                <el-form-item v-if="type == 1 && (detailData.advertApprovalStatus == '1' || detailData.advertApprovalStatus == '3')" label="申请时间">
+                    <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertCreateTime)}}</span>
+                </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2'" label="上架时间">
+                    <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertApprovalTime)}}</span>
+                </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2'" label="到期时间">
+                    <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertExpireTime)}}</span>
+                </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '3'" label="拒绝原因">
+                    <span>{{detailData.advertRefuseInfo}}</span>
+                </el-form-item>
                 <el-form-item>
-                    <el-button @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
-                    <el-button type="primary" @click="handleApply">提交申请</el-button>
+                    <el-button v-if="type == '1'" @click="$router.push({ name: 'user-ad-manager' })">返回</el-button>
+                    <el-button v-if="type == '0'" @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
+                    <el-button v-if="type == '0'" type="primary" @click="handleApply">提交申请</el-button>
                 </el-form-item>
             </el-form>
         </div>
 
-        <el-dialog class="pay-wrapper" fullscreen :visible.sync="dialogVisible" :close-on-click-modal="false" 
-            :close-on-press-escape="false" top="0" width="100%">
+        <el-dialog class="pay-wrapper" fullscreen lock-scroll :visible.sync="dialogVisible" :close-on-click-modal="false" 
+            :before-close="beforeDialogClose" :close-on-press-escape="false" top="0" width="100%">
+            <div class="alipy-logo-box">
+                <img src="~@/assets/img/aliply_logo.png" alt="支付宝">
+                <div class="divider-box">
+                    <div></div>
+                </div>
+                <div>支付宝收银台</div>
+            </div>
             <div class="pay-box">
-                <vue-qr :text="qrcode.url" :margin="0" colorDark="#333" :logoMargin="2" :logoCornerRadius="2"
-                    colorLight="#fff" :logoSrc="qrcode.icon" :logoScale="0.18" :size="200">
-                </vue-qr>
+                <div class="alipy-content">
+                    <div class="alipy-content-left">
+                        <div class="sweep-title">
+                            <span>扫一扫付款</span>
+                            <span>{{qrcode.price}}(元)</span>
+                        </div>
+                        <vue-qr :text="qrcode.url" :margin="0" colorDark="#333" :logoMargin="2" :logoCornerRadius="2"
+                            colorLight="#fff" :logoSrc="qrcode.icon" :logoScale="0.1" :size="230">
+                        </vue-qr>
+                        <div style="padding-top: 15px;">打开手机支付宝扫描二维码支付</div>
+                        <div style="color: #0ae; padding-top: 15px;">请您在提交订单后5分钟内完成支付，否则订单会自动取消</div>
+                        <div>
+                            <span>{{Math.floor(timeNum/60)}}分</span>
+                            <span>{{timeNum%60}}秒</span>
+                        </div>
+                    </div>
+                    <div class="content-divider">
+                        <div></div>
+                    </div>
+                    <div class="alipy-content-right">
+                        <div style="line-height: 50px; margin-top: 40px;">
+                            <label>订单号：</label>
+                            <span style="color: #0ae;">{{qrcode.orderId}}</span>
+                        </div>
+                        <div style="line-height: 30px;">
+                            <label>合计金额：</label>
+                            <span style="padding-left: 5px;">{{qrcode.price}}(元)</span>
+                        </div>
+                        <div style="margin-top: 206px;">
+                            <img style="width: 20px;" src="~@/assets/img/weixin.png">
+                            <label>客服：</label>
+                            <span>18629399197</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </el-dialog>
     </div>
@@ -83,10 +135,16 @@ export default {
             },
             qrcode: {
                 url: '',
-                icon: require('@/assets/img/logo.png'),
+                icon: require('@/assets/img/logo_small.png'),
                 orderId: '',
                 price: '',
-            }
+            },
+            timer: null,
+            countTimer: null,
+            timeNum: 0,
+            approvalId: '',
+            type: 0,
+            detailData: {}
         }
     },
     watch: {
@@ -125,17 +183,110 @@ export default {
                             this.qrcode.orderId = res.data.data.orderId
                             this.qrcode.price = res.data.data.orderMoney
                             this.dialogVisible = true
+                            this.getAlipyResult()
+                            this.beginTiming()
                         }else {
                             this.$message.error(res.data.msg)
                         }
                     })
                 }
             })
+        },
+        beginTiming() {
+            this.timeNum = 299
+            this.countTimer = setInterval(() => {
+                if (this.timeNum > 0) {
+                    this.timeNum --
+                }else {
+                    this.$message.info('支付超时')
+                    clearInterval(this.countTimer)
+                    this.countTimer = null
+                    this.dialogVisible = false
+                }
+            }, 1000)
+        },
+        getAlipyResult() {
+            this.timer = setInterval(() => {
+                this.http({
+                    url: 'merchant/advert/advertFindByPayOrder',
+                    method: 'get',
+                    data: { orderId: this.qrcode.orderId}
+                }, res => {
+                    if (res.data.code == 0) {
+                    }else if (res.data.code == 1) {
+                        clearInterval(this.timer)
+                        this.timer = null
+                        let day = this.getDays()
+                        this.http({
+                            url: 'merchant/advert/advertApply',
+                            method: 'post',
+                            data: {
+                                advertType: this.applyForm.adType,
+                                advertGood: this.applyForm.goodsId,
+                                advertDuration: this.applyForm.timeType,
+                                advertOrderId: this.qrcode.orderId,
+                                advertDurationDayNums: day
+                            }
+                        }, saveRes => {
+                            if (saveRes.data.code == 200) {
+                                this.$message.success('申请成功，等待管理员审核...')
+                                this.$router.push({ name: 'user-ad-manager' })
+                            }else {
+                                this.$message.error(res.data.msg)
+                            }
+                        })
+                    }else {
+                        this.$message.error(res.data.msg)
+                    }
+                },err => {}, false)
+            }, 3000)
+        },
+        getDays() {
+            let day = 0
+            for (let i = 0; i < this.timeTypeList.length; i ++) {
+                if (this.timeTypeList[i].id == this.applyForm.timeType) {
+                    day = parseInt(this.timeTypeList[i].advertDay)
+                    break
+                }
+            }
+            return day
+        },
+        beforeDialogClose(done) {
+            this.$confirm('确认取消付款?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                clearInterval(this.countTimer)
+                this.countTimer = null
+                done()
+            }).catch(() => {})
+        },
+        getDetailData() {
+            this.http({
+                url: 'merchant/advert/advertSelById',
+                method: 'get',
+                data: { id: this.approvalId }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.applyForm.adType = res.data.data.advertType
+                    this.applyForm.timeType = res.data.data.advertDuration
+                    this.detailData = res.data.data
+                }else {
+                    this.$message.error(res.data.msg)
+                }
+            })
         }
+
     },
     mounted() {
         this.gettimeTypeList()
-    }
+        if (this.$route.query.id) {
+            this.approvalId = this.$route.query.id
+            this.type = this.$route.query.type
+            this.getDetailData()
+        }
+    },
 }
 </script>
 
@@ -163,9 +314,68 @@ export default {
     color: #999;
 }
 .pay-wrapper{
-
+    /deep/ .el-dialog__header{
+        padding-top: 10px;
+    }
+    /deep/ .el-dialog__headerbtn{
+        top: 12px;
+        .el-dialog__close{
+            font-size: 25px;
+            font-weight: 600;
+        }
+    }
+    /deep/ .el-dialog__body{
+        padding: 0;
+    }
+    .alipy-logo-box{
+        display: flex;
+        align-items: flex-end;
+        width: 800px;
+        margin: 0 auto;
+        margin-bottom: 5px;
+        .divider-box{
+            padding: 0 5px;
+            div{
+                border-left: 1px solid #999;
+                height: 14px;
+                margin-bottom: 6px;
+            }
+        }
+    }
 }
 .pay-box{
-    
+    height: 660px;
+    display: flex;
+    justify-content: center;
+    background-image: url('~@/assets/img/aliply_body_bg.jpg');
+    .alipy-content{
+        display: flex;
+        background-color: #fff;
+        margin: 35px 0;
+        border-radius: 4px;
+        width: 800px;
+        padding: 50px 30px;
+        .alipy-content-left{
+            text-align: center;
+            color: #333;
+            .sweep-title{
+                padding: 10px 0;
+                span:last-child{
+                    padding-left: 5px;
+                }
+            }
+        }
+        .content-divider{
+            padding: 0 50px;
+            div{
+                border-left: 1.5px dashed #eee;
+                height: 350px;
+                margin-top: 10px;
+            }
+        }
+        .alipy-content-right{
+            color: #333;
+        }
+    }
 }
 </style>

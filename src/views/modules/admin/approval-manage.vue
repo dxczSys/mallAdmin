@@ -101,7 +101,7 @@
 export default {
     data() {
         return {
-            index: 1,
+            index: 0,
             roleId: '',
             tableData: [],
             currentPage: 1,
@@ -127,7 +127,7 @@ export default {
             let obj = {}
             if (this.index != 3) {
                 obj.approvalStatus = 1
-                obj.approvalType = this.index
+                this.index == 0? obj.approvalType = undefined : obj.approvalType = this.index
             }
             if (this.roleId == 1) {
                 this.http({

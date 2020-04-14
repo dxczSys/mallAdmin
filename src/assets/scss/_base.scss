@@ -372,6 +372,15 @@ img {
   margin-right: 5px;
 }
 
+.el-textarea{
+  position: relative;
+  /deep/ .el-input__count{
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+  }
+}
+
 ::-webkit-scrollbar{  
   width: 5px;  
   height: 5px;  

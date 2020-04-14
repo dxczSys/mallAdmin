@@ -22,24 +22,27 @@ export function dateFormat(fmt, str) {
     return fmt
 }
 
-export function getHttp(params, callback, err = (e) => { console.log(e) }) {
+export function getHttp(params, callback, err = (e) => { console.log(e) }, isLoading = true) {
     let url = http.adornUrl(params.url)
-    let loadingInstance = Loading.service({
-        lock: true,
-        text: '拼命加载中...',
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.5)'
-    })
+    let loadingInstance = null
+    if (isLoading) {
+        loadingInstance = Loading.service({
+            lock: true,
+            text: '拼命加载中...',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.5)'
+        })
+    }
     if (params.method == 'get') {
         http({
             url: url,
             method: params.method,
             params: http.adornParams(params.data || {})
         }).then(data => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             callback(data)
         }).catch(error => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             Message({
                 message: '服务器开小差了...',
                 type: 'error',
@@ -53,10 +56,10 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
             method: params.method,
             data: http.adornData(params.data || {})
         }).then(data => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             callback(data)
         }).catch(error => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             Message({
                 message: '服务器开小差了...',
                 type: 'error',
@@ -71,10 +74,10 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
             data: http.adornData(params.data || {}, false, 'form'),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(data => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             callback(data)
         }).catch(error => {
-            loadingInstance.close()
+            isLoading && loadingInstance.close()
             Message({
                 message: '服务器开小差了...',
                 type: 'error',
@@ -85,14 +88,17 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }) {
     }
 }
 
-export function uploadFile(params, callback, err = (e) => { console.log(e) }) {
+export function uploadFile(params, callback, err = (e) => { console.log(e) }, isLoading = true) {
     let url = http.uploadUrl('')
-    let loadingInstance = Loading.service({
-        lock: true,
-        text: '拼命加载中...',
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.5)'
-    })
+    let loadingInstance = null
+    if (isLoading) {
+        loadingInstance = Loading.service({
+            lock: true,
+            text: '拼命加载中...',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.5)'
+        })
+    }
     let formData = new FormData()
     let file = params.data || []
     file.forEach(item => {
@@ -104,10 +110,10 @@ export function uploadFile(params, callback, err = (e) => { console.log(e) }) {
         data: formData,
         headers: { 'Content-Type': 'multipart/form-data' }
     }).then(data => {
-        loadingInstance.close()
+        isLoading && loadingInstance.close()
         callback(data)
     }).catch(error => {
-        loadingInstance.close()
+        isLoading && loadingInstance.close()
         Message({
             message: '服务器开小差了...',
             type: 'error',
