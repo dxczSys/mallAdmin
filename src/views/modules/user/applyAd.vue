@@ -5,10 +5,11 @@
             <div style="font-weight: 600;">广告位申请</div>
         </div>
         <div class="step-box">
-            <el-steps :active="0" align-center>
+            <el-steps :active="activityStatus" process-status="success" finish-status="wait" align-center>
                 <el-step title="申请" description="商户自主填写相关资料并付款"></el-step>
-                <el-step title="审核中" description="发送商城管理员审核"></el-step>
-                <el-step title="已上架" description="审核通过立即上线广告位"></el-step>
+                <el-step title="审核中" description="商城管理员正在审核中..."></el-step>
+                <el-step title="已上架" v-if="activityStatus < 3" description="广告位已上线"></el-step>
+                <el-step title="失败" v-else status="error" :description="detailData.advertRefuseInfo || '不通过'"></el-step>
             </el-steps>
         </div>
         <div class="apply-form">
@@ -43,11 +44,18 @@
                 <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2'" label="到期时间">
                     <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertExpireTime)}}</span>
                 </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2' && getOverDay(detailData.advertExpireTime) < 3" label="*温馨提示">
+                    <span style="color: #E6A23C;">您的广告位即将到期，为了不影响您的使用，请及时续费，否则到期之后会下线该广告</span>
+                </el-form-item>
                 <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '3'" label="拒绝原因">
                     <span>{{detailData.advertRefuseInfo}}</span>
                 </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '3'" label="退款详情">
+                    <span>申请费用已退回至原账户，请注意查收，如有为题，，请联系管理员。</span>
+                </el-form-item>
                 <el-form-item>
                     <el-button v-if="type == '1'" @click="$router.push({ name: 'user-ad-manager' })">返回</el-button>
+                    <el-button type="primary" v-if="type == '1' && detailData.advertIsExpire == '2'" @click="$router.push({ name: 'user-ad-manager' })">续费</el-button>
                     <el-button v-if="type == '0'" @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
                     <el-button v-if="type == '0'" type="primary" @click="handleApply">提交申请</el-button>
                 </el-form-item>
@@ -144,7 +152,8 @@ export default {
             timeNum: 0,
             approvalId: '',
             type: 0,
-            detailData: {}
+            detailData: {},
+            activityStatus: 0,
         }
     },
     watch: {
@@ -153,6 +162,19 @@ export default {
         }
     },
     methods: {
+        getOverDay(time) {
+            let curtime = new Date(), stopTime = new Date(time), str = ''
+            let num = (stopTime - curtime)/1000/60/60/24 
+            if (num > 0) {
+                if (num < 1) {
+                    return 1
+                }else {
+                    return Math.floor(num)
+                }
+            }else {
+                return 0
+            }
+        },
         gettimeTypeList() {
             this.http({
                 url: 'admin/TAdvertPriceType/tAdvertPriceTypeSelAll',
@@ -271,6 +293,7 @@ export default {
                 if (res.data.code == 200) {
                     this.applyForm.adType = res.data.data.advertType
                     this.applyForm.timeType = res.data.data.advertDuration
+                    this.activityStatus = parseInt(res.data.data.advertApprovalStatus)
                     this.detailData = res.data.data
                 }else {
                     this.$message.error(res.data.msg)

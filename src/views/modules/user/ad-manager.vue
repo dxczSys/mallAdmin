@@ -5,7 +5,25 @@
             <div style="font-weight: 600;">广告位管理</div>
         </div>
         <div class="apply-button">
-            <el-button type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
+            <div class="apply-button-left">
+                <div class="current-mall">当前商城：{{currentMall}}</div>
+                <div class="last-ad-num">
+                    <span>剩余广告位：</span>
+                    <div class="ad-last-box">
+                        <span class="green-light"></span>
+                        <span>置顶广告位：</span>
+                        <span>{{topAdTotal}}</span>
+                    </div>
+                    <div class="ad-last-box">
+                        <span class="red-light"></span>
+                        <span>促销广告位：</span>
+                        <span>{{saleAdTotal}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="apply-button-right">
+                <el-button type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
+            </div>
         </div>
         <div class="ad-list-box">
             <el-row :gutter="10">
@@ -14,6 +32,7 @@
                         <img class="card-image" :src="item.advertType == '1'? urlTop : urlSale">
                         <div style="padding: 14px;">
                             <div class="card-title">{{ item.advertType == '1' ? '置顶广告位' : '促销广告位' }}</div>
+                            <div style="font-size: 12px; text-align: center;">申请时间：{{_dateFormat('YYYY-mm-dd HH:MM', item.advertCreateTime)}}</div>
                             <div class="current-state">
                                 <span v-if="item.advertExpireTime && item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" 
                                     class="el-icon-time" :class="{'reminder-expires': getOverDay(item.advertExpireTime) < 3 }">
@@ -21,11 +40,12 @@
                                     <span v-if="getOverDay(item.advertExpireTime) < 3" style="font-size: 12px;">即将到期,请及时续费</span>
                                 </span>
                                 <span v-if="item.advertIsExpire == '1'" class="haved-expires">已到期</span>
-                                <span v-if="item.advertApprovalStatus == '3'" class="haved-expires">申请失败：{{item.advertRefuseInfo}}</span>
+                                <span v-if="item.advertApprovalStatus == '3'" class="haved-expires">失败：费用已退至原账户</span>
+                                <span v-if="item.advertApprovalStatus == '4'" class="haved-expires">强制下线</span>
                                 <span v-if="item.advertApprovalStatus == '1'">审核中...</span>
                             </div>
                             <div class="bottom-operate">
-                                <el-button @click="deleteAd" v-if="item.advertIsExpire == '1' || item.advertApprovalStatus == '5'" type="text" style="color: #F56C6C;">删除</el-button>
+                                <el-button @click="deleteAd(item, index)" v-if="item.advertIsExpire == '1' || item.advertApprovalStatus == '3'" type="text" style="color: #F56C6C;">删除</el-button>
                                 <el-button @click="viewDetail(item)" type="text">查看</el-button>
                                 <el-button v-if="item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" type="text">续费</el-button>
                             </div>
@@ -34,7 +54,7 @@
                 </el-col>
                
             </el-row>
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :hide-on-single-page="total % pageSize < 1"
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :hide-on-single-page="total / pageSize < 1"
                 :page-sizes="[8, 16, 24]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
@@ -45,18 +65,22 @@
 export default {
     data() {
         return {
+            currentMall: sessionStorage.getItem('mallName') || '易码商城',
             adList: [],
             currentPage: 1,
             pageSize: 8,
             total: 0,
             urlTop: require("@/assets/img/zhiding-ad.png"),
             urlSale: require("@/assets/img/cuxiao-ad.png"),
+            topAdTotal: 0,
+            saleAdTotal: 0,
         }
     },
     methods: {
         handleCurrentChange(v) {
             this.currentPage = v
             this.getTableData()
+            
         },
         handleSizeChange(v) {
             this.pageSize = v
@@ -79,12 +103,24 @@ export default {
         viewDetail(item) {
             this.$router.push({ name: 'user-apply-ad', query: { id: item.id, type: 1 } })
         },
-        deleteAd() {
-            this.$confirm('确认删除此记录?', '提示', {
+        deleteAd(item, index) {
+            this.$confirm('确认删除此广告位?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
+                    this.http({
+                        url: 'merchant/advert/advertDelById',
+                        method: 'get',
+                        data: { id: item.id }
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.adList.splice(index, 1)
+                            this.$message.success('删除成功！')
+                        }else {
+                            this.$message.error(res.data.msg)
+                        }
+                    })
                 }).catch(() => {         
             });
         },
@@ -105,8 +141,22 @@ export default {
                 }
             })
         },
+        getLastAd() {
+            this.http({
+                url: 'merchant/advert/selAdvertCountByUserShopMall',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    this.topAdTotal = res.data.data.countA
+                    this.saleAdTotal = res.data.data.countB
+                }else {
+                    this.$message.error(res.data.msg || '')
+                }
+            })
+        }
     },
     mounted() {
+        this.getLastAd()
         this.getTableData()
     }
 }
@@ -117,7 +167,7 @@ export default {
     margin-top: 20px;
     .current-state{
         font-size: 13px;
-        padding: 5px 0;
+        padding: 10px 0;
         color: #409eff;
         width: 100%;
         text-overflow: ellipsis;
@@ -146,5 +196,14 @@ export default {
 }
 .bottom-operate{
     text-align: right;
+    /deep/ .el-button{
+        padding: 2px 0;
+    }
+}
+.apply-button{
+    display: flex;
+}
+.ad-last-box{
+    display: flex;
 }
 </style>

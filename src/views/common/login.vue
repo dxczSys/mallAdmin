@@ -64,7 +64,8 @@ export default {
                         }
                     }, res => {
                         if (res.data.code == 200) {
-                            let _data = res.data.data   
+                            let _data = res.data.data.user, mall = res.data.data.shopMall, 
+                                shop = res.data.data.shop, floor = res.data.data.shopFloor
                             this.$cookie.set('token', _data.userToken)
                             sessionStorage.setItem('userId', _data.id)
                             sessionStorage.setItem('roleId', _data.roleLists[0].id)
@@ -74,6 +75,14 @@ export default {
                             sessionStorage.setItem('realUserName', _data.realUserName || '') 
                             sessionStorage.setItem('phone', _data.userTel)
                             sessionStorage.setItem('url', _data.userPic || '')
+                            sessionStorage.setItem('mallData', JSON.stringify(mall))
+                            sessionStorage.setItem('mallName', mall.shopName)
+                            sessionStorage.setItem('mallId', mall.id)
+                            sessionStorage.setItem('floorName', floor.shopName)
+                            sessionStorage.setItem('floorId', floor.id)
+                            sessionStorage.setItem('shopData', JSON.stringify(shop))
+                            sessionStorage.setItem('shopName', shop.shopName)
+                            sessionStorage.setItem('shopId', shop.id)
                             this.$router.push({ name: 'home' })
                         }else {
                             this.$message.info(res.data.msg)
