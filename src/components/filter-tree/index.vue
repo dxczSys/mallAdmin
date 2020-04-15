@@ -1,13 +1,14 @@
 <template>
     <div class="filter-tree-wrapper" v-clickoutside="handleClose">
         <div class="drop-list-input-box" @click="handleFocus">
-            <el-input readonly v-model="selectedLabel" :placeholder="placeholder" @blur="handleBlur"
+            <el-input v-model="selectedLabel" :placeholder="placeholder" @blur="handleBlur" @keydown.enter.native="filterTree"
                 ref="reference" class="drop-list-input" :style="{'width' : width + 'px'}" :prefix-icon="iconName">
             </el-input>
+            <el-button @click="filterTree">搜索</el-button>
         </div>
         <transition name="el-zoom-in-top" @after-leave="doDestroy">
             <dropDown ref="popper" v-show="visible" :defaultProps="defaultProps" :append-to-body="popperAppendToBody"
-                :data="data" :showCheckbox="showCheckbox" @checkChange="handleCheckChange">
+                :data="data" :showCheckbox="showCheckbox" @checkChange="handleCheckChange" @selectChange="handleSelectChange">
             </dropDown>
         </transition>   
     </div>
@@ -22,7 +23,7 @@ export default {
         data : { type : Array, default : [] },
         popperAppendToBody: { type: Boolean, default: true },
         width : { default : 200},
-        placeholder : { type : String, default : '请选择'},
+        placeholder : { default : '请选择'},
         value : { },
         iconName: { type: String, default: 'el-icon-search'},
         defaultProps: {
@@ -67,7 +68,7 @@ export default {
     },
     methods : {
         handleFocus(event) {
-            this.visible = !this.visible
+            this.visible = true
         },
         handleBlur(event) {
             // this.visible = false;
@@ -76,11 +77,21 @@ export default {
             this.$refs.popper && this.$refs.popper.doDestroy();
         },
         handleClose() {
-            this.visible = false;
+            this.visible = false
         },
         handleCheckChange(arr, value) {
             this.selectedLabel = arr.join(',')
             this.selectValue = value
+        },
+        handleSelectChange(label, id) {
+            this.selectedLabel = label
+            this.selectValue = id
+            this.visible = false
+        },
+        filterTree() {
+            if (this.selectedLabel) {
+                this.$refs.popper.handleFilter(this.selectedLabel)
+            }
         }
     },
 }

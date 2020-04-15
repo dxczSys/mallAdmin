@@ -1,7 +1,8 @@
 <template>
     <div class="drop-down el-select-dropdown el-popper" :style="{'width' : $parent.width + 'px'}">
-        <el-tree class="filter-tree" :data="data" :props="defaultProps" :show-checkbox="showCheckbox" 
-            ref="filterTree" @check-change="handleCheckChange">
+        <el-tree class="filter-tree" :data="data" node-key="id" :props="defaultProps" :show-checkbox="showCheckbox" 
+            ref="filterTree" :filter-node-method="filterNode" :expand-on-click-node="false"
+            @check-change="handleCheckChange" @node-click="treeNodeClick">
         </el-tree>
     </div>
 </template>
@@ -60,6 +61,18 @@ export default {
             })
             this.$emit('checkChange', labelName, value)
         },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.label.indexOf(value) !== -1;
+        },
+        handleFilter(val) {
+            this.$refs.filterTree.filter(val)
+        },
+        treeNodeClick(data, node, el) {
+            if (node.level > 1) {
+                this.$emit('selectChange', data.label, data.id)
+            }
+        },
     },
 
     mounted() {
@@ -78,7 +91,9 @@ export default {
 <style lang="scss" scoped>
 .drop-down{
     min-height: 200px;
+    max-height: 400px;
     overflow: auto;
+    padding: 10px 5px;
 }
 ::-webkit-scrollbar{  
     width: 5px;  

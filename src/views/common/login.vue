@@ -65,24 +65,34 @@ export default {
                     }, res => {
                         if (res.data.code == 200) {
                             let _data = res.data.data.user, mall = res.data.data.shopMall, 
-                                shop = res.data.data.shop, floor = res.data.data.shopFloor
+                                shop = res.data.data.shop, floor = res.data.data.shopFloor,
+                                _roleids = [], _roleNames = [], roleLists = res.data.data.user.roleLists || []
+                                roleLists.forEach(item => {
+                                    _roleids.push(item.id)
+                                    _roleNames.push(item.roleName)
+                                })
                             this.$cookie.set('token', _data.userToken)
                             sessionStorage.setItem('userId', _data.id)
-                            sessionStorage.setItem('roleId', _data.roleLists[0].id)
-                            sessionStorage.setItem('roleName', _data.roleLists[0].roleName)
-                            sessionStorage.setItem('roleIdentify', _data.roleLists[0].roleIdentify)
+                            sessionStorage.setItem('roleId', JSON.stringify(_roleids))
+                            sessionStorage.setItem('roleName',JSON.stringify(_roleNames))
                             sessionStorage.setItem('userName', _data.userName || '')
                             sessionStorage.setItem('realUserName', _data.realUserName || '') 
                             sessionStorage.setItem('phone', _data.userTel)
                             sessionStorage.setItem('url', _data.userPic || '')
-                            sessionStorage.setItem('mallData', JSON.stringify(mall))
-                            sessionStorage.setItem('mallName', mall.shopName)
-                            sessionStorage.setItem('mallId', mall.id)
-                            sessionStorage.setItem('floorName', floor.shopName)
-                            sessionStorage.setItem('floorId', floor.id)
-                            sessionStorage.setItem('shopData', JSON.stringify(shop))
-                            sessionStorage.setItem('shopName', shop.shopName)
-                            sessionStorage.setItem('shopId', shop.id)
+                            if (mall) {
+                                sessionStorage.setItem('mallData', JSON.stringify(mall))
+                                sessionStorage.setItem('mallName', mall.shopName)
+                                sessionStorage.setItem('mallId', mall.id)
+                            }
+                            if (floor) {
+                                sessionStorage.setItem('floorName', floor.shopName)
+                                sessionStorage.setItem('floorId', floor.id)
+                            }
+                            if (shop) {
+                                sessionStorage.setItem('shopData', JSON.stringify(shop))
+                                sessionStorage.setItem('shopName', shop.shopName)
+                                sessionStorage.setItem('shopId', shop.id)
+                            }
                             this.$router.push({ name: 'home' })
                         }else {
                             this.$message.info(res.data.msg)

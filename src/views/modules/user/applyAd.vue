@@ -8,14 +8,15 @@
             <el-steps :active="activityStatus" process-status="success" finish-status="wait" align-center>
                 <el-step title="申请" description="商户自主填写相关资料并付款"></el-step>
                 <el-step title="审核中" description="商城管理员正在审核中..."></el-step>
-                <el-step title="已上架" v-if="activityStatus < 3" description="广告位已上线"></el-step>
-                <el-step title="失败" v-else status="error" :description="detailData.advertRefuseInfo || '不通过'"></el-step>
+                <el-step title="已上架" v-if="activityStatus == 2 || activityStatus == 1" description="广告位已上线"></el-step>
+                <el-step title="失败" v-if="activityStatus == 3" :description="detailData.advertRefuseInfo || '不通过'"></el-step>
+                <el-step title="强制下架" v-if="activityStatus == 4" description="已被强制下架"></el-step>
             </el-steps>
         </div>
         <div class="apply-form">
             <el-form ref="applyForm" :model="applyForm" :rules="rules" label-width="120px">
                 <el-form-item label="广告位类型" required>
-                    <el-select :disabled="type == '1'" v-model="applyForm.adType" placeholder="请选择广告位类型">
+                    <el-select :disabled="type != 0" v-model="applyForm.adType" placeholder="请选择广告位类型">
                         <el-option v-for="(item, index) in adTypeList" :key="index" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
@@ -35,13 +36,13 @@
                         <el-radio v-for="(item, index) in timeTypeList" :key="index" :label="item.id">{{item.advertPrice}}元/{{item.advertDay}}天</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item v-if="type == 1 && (detailData.advertApprovalStatus == '1' || detailData.advertApprovalStatus == '3')" label="申请时间">
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus != '2'" label="申请时间">
                     <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertCreateTime)}}</span>
                 </el-form-item>
-                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2'" label="上架时间">
+                <el-form-item v-if="type != 0 && (detailData.advertApprovalStatus == '2' || detailData.advertApprovalStatus == '4')" label="上架时间">
                     <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertApprovalTime)}}</span>
                 </el-form-item>
-                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2'" label="到期时间">
+                <el-form-item v-if="type != 0 && (detailData.advertApprovalStatus == '2' || detailData.advertApprovalStatus == '4')" label="到期时间">
                     <span>{{_dateFormat('YYYY-mm-dd HH:MM', detailData.advertExpireTime)}}</span>
                 </el-form-item>
                 <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '2' && getOverDay(detailData.advertExpireTime) < 3" label="*温馨提示">
@@ -50,14 +51,19 @@
                 <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '3'" label="拒绝原因">
                     <span>{{detailData.advertRefuseInfo}}</span>
                 </el-form-item>
+                <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '4'" label="下架原因">
+                    <span>{{detailData.advertIsUpperInfo}}</span>
+                </el-form-item>
                 <el-form-item v-if="type == 1 && detailData.advertApprovalStatus == '3'" label="退款详情">
-                    <span>申请费用已退回至原账户，请注意查收，如有为题，，请联系管理员。</span>
+                    <span>申请费用已退回至原账户，请注意查收。如有为题，请联系管理员。</span>
                 </el-form-item>
                 <el-form-item>
-                    <el-button v-if="type == '1'" @click="$router.push({ name: 'user-ad-manager' })">返回</el-button>
-                    <el-button type="primary" v-if="type == '1' && detailData.advertIsExpire == '2'" @click="$router.push({ name: 'user-ad-manager' })">续费</el-button>
-                    <el-button v-if="type == '0'" @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
-                    <el-button v-if="type == '0'" type="primary" @click="handleApply">提交申请</el-button>
+                    <el-button v-if="type == 1" @click="$router.push({ name: 'user-ad-manager' })">返回</el-button>
+                    <el-button type="primary" v-if="type == 1 && detailData.advertIsExpire == '2' && detailData.advertApprovalStatus == '2'"
+                        @click="type = 2, applyForm.timeType = ''">续费</el-button>
+                    <el-button v-if="type != 1" @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
+                    <el-button v-if="type == 2" type="primary" @click="handleApply">立即续费</el-button>
+                    <el-button v-if="type == 0" type="primary" @click="handleApply">提交申请</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -124,13 +130,7 @@ export default {
                 goodsId: '',
                 timeType: '',
             },
-            adTypeList: [{
-                value: '1',
-                label: '置顶广告位'
-            },{
-                value: '2',
-                label: '促销广告位'
-            }],
+            adTypeList: [],
             goodsList: [{
                 id: '1',
                 goodsNum: '599344673442',
@@ -214,6 +214,9 @@ export default {
                 }
             })
         },
+        handleTimeLong() {
+            
+        },
         beginTiming() {
             this.timeNum = 299
             this.countTimer = setInterval(() => {
@@ -232,31 +235,52 @@ export default {
                 this.http({
                     url: 'merchant/advert/advertFindByPayOrder',
                     method: 'get',
-                    data: { orderId: this.qrcode.orderId}
+                    data: { orderId: this.qrcode.orderId }
                 }, res => {
                     if (res.data.code == 0) {
                     }else if (res.data.code == 1) {
                         clearInterval(this.timer)
                         this.timer = null
                         let day = this.getDays()
-                        this.http({
-                            url: 'merchant/advert/advertApply',
-                            method: 'post',
-                            data: {
-                                advertType: this.applyForm.adType,
-                                advertGood: this.applyForm.goodsId,
-                                advertDuration: this.applyForm.timeType,
-                                advertOrderId: this.qrcode.orderId,
-                                advertDurationDayNums: day
-                            }
-                        }, saveRes => {
-                            if (saveRes.data.code == 200) {
-                                this.$message.success('申请成功，等待管理员审核...')
-                                this.$router.push({ name: 'user-ad-manager' })
-                            }else {
-                                this.$message.error(res.data.msg)
-                            }
-                        })
+                        //续费
+                        if (this.type == 2) {
+                            this.http({
+                                url: 'merchant/advert/advertRenew',
+                                method: 'post',
+                                data: {
+                                    id: this.approvalId,
+                                    advertOrderId: this.qrcode.orderId,
+                                    advertDuration: this.applyForm.timeType,
+                                    advertDurationDayNums: day
+                                }
+                            }, saveRes => {
+                                if (saveRes.data.code == 200) {
+                                    this.$message.success('续费成功！')
+                                    this.$router.push({ name: 'user-ad-manager' })
+                                }else {
+                                    this.$message.error(res.data.msg)
+                                }
+                            })
+                        }else {
+                            this.http({
+                                url: 'merchant/advert/advertApply',
+                                method: 'post',
+                                data: {
+                                    advertType: this.applyForm.adType,
+                                    advertGood: this.applyForm.goodsId,
+                                    advertDuration: this.applyForm.timeType,
+                                    advertOrderId: this.qrcode.orderId,
+                                    advertDurationDayNums: day
+                                }
+                            }, saveRes => {
+                                if (saveRes.data.code == 200) {
+                                    this.$message.success('申请成功，等待管理员审核...')
+                                    this.$router.push({ name: 'user-ad-manager' })
+                                }else {
+                                    this.$message.error(res.data.msg)
+                                }
+                            })
+                        }
                     }else {
                         this.$message.error(res.data.msg)
                     }
@@ -292,17 +316,35 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     this.applyForm.adType = res.data.data.advertType
-                    this.applyForm.timeType = res.data.data.advertDuration
+                    this.type == 1 && (this.applyForm.timeType = res.data.data.advertDuration)
                     this.activityStatus = parseInt(res.data.data.advertApprovalStatus)
                     this.detailData = res.data.data
                 }else {
                     this.$message.error(res.data.msg)
                 }
             })
+        },
+        getLastAd() {
+            this.http({
+                url: 'merchant/advert/selAdvertCountByUserShopMall',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    if (res.data.data.countA < 20) {
+                        this.adTypeList.push({ value: '1', label: '置顶广告位' })
+                    }
+                    if (res.data.data.countB < 30) {
+                        this.adTypeList.push({ value: '2', label: '促销广告位' })
+                    }
+                }else {
+                    this.$message.error(res.data.msg || '')
+                }
+            })
         }
 
     },
     mounted() {
+        this.getLastAd()
         this.gettimeTypeList()
         if (this.$route.query.id) {
             this.approvalId = this.$route.query.id

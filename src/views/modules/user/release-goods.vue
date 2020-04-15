@@ -1,36 +1,33 @@
 <template>
     <div class="release-goods-wrapper">
-        <el-form ref="releaseForm" :model="releaseForm" label-width="120px">
+        <el-form ref="releaseForm" :model="releaseForm" :rules="rules" label-width="120px">
             <div style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                <div style="font-weight: 600;">基本信息</div>
+                <div style="font-weight: 600;">发布商品</div>
             </div>
             <div class="base-mess-box">
-                <el-form-item label="商品类目" required>
-                    <filter-tree :data="kindsList" width="360"></filter-tree>
+                <el-form-item label="商品类目" prop="kindsId" required>
+                    <filter-tree v-model="releaseForm.kindsId" :data="kindsTree" placeholder="类目搜索" width="400"></filter-tree>
+                    <div class="wran-word">*提示：请选择商品类目，获取要发布商品的规格条件</div>
                 </el-form-item>
-                <el-form-item label="商品标题" required>
-                    <el-input v-model="releaseForm.goodsTitle" placeholder="最多允许输入60个汉字" style="width:600px;" maxlength="60"></el-input>
-                    <span style="color: #999;">*标题和描述关键词请避免违规</span>
+                <el-form-item label="商品标题" prop="goodsTitle" required>
+                    <el-input v-model="releaseForm.goodsTitle" placeholder="最多允许输入60个汉字" 
+                        style="width:560px;" maxlength="60" show-word-limit></el-input>
+                    <div class="wran-word">*温馨提示：标题请勿使用敏感词，否则会被强制下架</div>
                 </el-form-item>
-                <el-form-item label="商品主图" required>
-                    <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false"
-                        :on-success="handleUploadSuccess" :before-upload="beforeUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
+                <el-form-item label="商品主图" prop="mainUrl" required>
+                    <upload-file :filelist="releaseForm.mainUrl"></upload-file>
                 </el-form-item>
-                <el-form-item label="商品图片" required>
-                    <el-upload action="https://jsonplaceholder.typicode.com/posts/" list-type="picture-card" multiple>
-                        <i class="el-icon-plus"></i>
-                    </el-upload>
+                <el-form-item label="商品图片">
+                    <upload-file :filelist="releaseForm.assistUrls" :multiple="true" :limit="5"></upload-file>
                 </el-form-item>
             </div>
-            <div style="display: flex;align-items: center;">
+            <div v-if="releaseForm.kindsId" style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                 <div style="font-weight: 600;">销售信息</div>
+                <div style="margin-left: 20px;" class="wran-word">*提示：销售信息是根据商品类目下的规格条件来组装数据，请依据必填项，填写所有信息，方可发布商品</div>
             </div>
-            <div class="base-mess-box">
+            <div v-if="releaseForm.kindsId" class="base-mess-box">
                 <el-form-item label="颜色分类" v-if="formatList.isColorPicker == 1" required>
                     <div class="color-picker-custom">
                         <div class="color-picker-custom-item" v-for="(item, index) in colorPickerTable" :key="index">
@@ -39,22 +36,24 @@
                             <el-button @click="addOneColorTable" type="primary" :disabled="!item.nomalColor && !item.customColors" icon="el-icon-plus"></el-button>
                         </div>
                     </div>
+                    <div class="wran-word">*温馨提示：请尽量选择标准色系，如果自定义颜色，请谨慎，以免客户难以辨识</div>
                 </el-form-item>
                 <el-form-item required v-for="(item, index) in formatList.formatArr" :key="index" :label="item.formatName">
                     <el-checkbox-group v-model="item.modelValue">
-                        <el-checkbox v-for="(i, j) in item.valueList" :key="j" :label="i.label"></el-checkbox>
+                        <el-checkbox v-for="(i, j) in item.valueList" :key="j" :label="i.name"></el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
                 <el-form-item label="商品销售规格" v-if="assemTableData.length">
                     <el-table :data="assemTableData" style="width: 100%;" border>
-                        <el-table-column v-for="(item, index) in coloumNameArr" :key="index" :prop="item.value" :label="item.label" width="180">
+                        <el-table-column v-for="(item, index) in coloumNameArr" :key="index" 
+                            :prop="item.value" :label="item.label" width="180">
                         </el-table-column>
-                        <el-table-column header-align="center" align="center" label="价格(元)" width="150">
+                        <el-table-column header-align="center" align="center" label="*价格(元)" width="150">
                             <template slot-scope="scpoe">
                                 <el-input type="number" v-model="scpoe.row.price" placeholder="价格"></el-input>
                             </template>
                         </el-table-column>
-                        <el-table-column header-align="center" align="center" prop="amount" label="数量(件)" width="150">
+                        <el-table-column header-align="center" align="center" prop="amount" label="*数量(件)" width="150">
                             <template slot-scope="scpoe">
                                 <el-input type="number" v-model="scpoe.row.amount" placeholder="数量"></el-input>
                             </template>
@@ -66,19 +65,20 @@
                         </el-table-column>
                     </el-table>
                 </el-form-item>
-                <el-form-item label="一口价" required>
+                <el-form-item label="一口价" prop="onePrice" required>
                     <el-input type="number" v-model="releaseForm.onePrice" style="width: 360px;"></el-input>
                     <span>元</span>
+                    <div class="wran-word">*温馨提示：一口价一般是其中一件商品的最低价，博取客户的眼球</div>
                 </el-form-item>
-                <el-form-item label="总数量" required>
-                    <el-input type="number" v-model="releaseForm.total" style="width: 360px;"></el-input>
+                <el-form-item label="总数量" prop="total" required>
+                    <el-input :disabled="assemTableData.length != 0" type="number" v-model="releaseForm.total" style="width: 360px;"></el-input>
                     <span>件</span>
                 </el-form-item>
-                <el-form-item label="商品描述" required>
-                    <el-input type="textarea" v-model="releaseForm.description" rows="6" placeholder="商品描述" style="width: 500px;"></el-input>
+                <el-form-item label="商品描述" prop="description" required>
+                    <el-input type="textarea" v-model="releaseForm.description" rows="6" placeholder="商品简单描述" style="width: 500px;"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary">立即发布</el-button>
+                    <el-button @click="handleRelease" type="primary">立即发布</el-button>
                 </el-form-item>
             </div>
         </el-form>
@@ -88,15 +88,18 @@
 <script>
 import filterTree from '@/components/filter-tree'
 import colorPicker from '@/components/color-picker'
+import uploadFile from '@/components/upload-file'
 export default {
-    components: { filterTree, colorPicker },
+    components: { filterTree, colorPicker, uploadFile },
     data() {
         return {
             releaseForm: {
-                goodsType: '',
+                kindsId: '',
                 goodsTitle: '',
-                onePrice: 0,
-                total: 0,
+                mainUrl: [],
+                assistUrls: [],
+                onePrice: '',
+                total: '',
                 description: ''
             },
             colorPickerTable: [{
@@ -105,37 +108,28 @@ export default {
             }],
             formatList: {
                 isColorPicker: 1,
-                formatArr: [{
-                    formatName: '尺码',
-                    formatNameEN: 'sizeType',
-                    modelValue: [],
-                    valueList: [{
-                        id: '1',
-                        label: '40',
-                    },{
-                        id: '2',
-                        label: '40.5',
-                    }]
-                },{
-                    formatName: '重量',
-                    formatNameEN: 'weightType',
-                    modelValue: [],
-                    valueList: [{
-                        id: '1',
-                        label: '50g',
-                    },{
-                        id: '2',
-                        label: '100g',
-                    }]
-                }]
+                formatArr: []
             },
             coloumNameArr: [],
             assemTableData: [],
-            kindsList: [],
-            imageUrl: '',
+            kindsTree: [],
+            kindsTempData: [],
+            rules: {
+                kindsId: [ { required: true, message: '请选择类目', trigger: 'blur' } ],
+                goodsTitle: [ { required: true, message: '请填写商品标题', trigger: 'blur' } ],
+                mainUrl: [ { required: true, message: '请填写上传商品主图', trigger: 'blur' } ],
+                onePrice: [ { required: true, message: '请填写商品一口价', trigger: 'blur' } ],
+                total: [ { required: true, message: '请填写总数量', trigger: 'blur' } ],
+                description: [ { required: true, message: '请填写商品描述', trigger: 'blur' } ],
+            }
         }
     },
     watch: {
+        'releaseForm.kindsId'(n) {
+            if (n) {
+                this.findCondition(n)
+            }
+        },
         colorPickerTable: {
             handler(n) {
                 if (this.judgeIsSelect()) {
@@ -149,6 +143,16 @@ export default {
                 if (this.judgeIsSelect()) {
                     this.assembleTable()
                 }
+            },
+            deep: true
+        },
+        assemTableData: {
+            handler(n) {
+                let num = 0
+                n.forEach(item => {
+                    item.amount && (num = num + parseInt(item.amount))
+                })
+                this.releaseForm.total = num
             },
             deep: true
         }
@@ -222,41 +226,97 @@ export default {
             this.coloumNameArr = labelArr
             this.assemTableData = _tableData
             
+        },
+        //获取类目树
+        getKindsTree() {
+            this.http({
+                url: 'admin/tGoodCategory/selectTGoodCategoryAsTree',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    this.kindsTree = res.data.data
+                }
+            })
+        },
+        //根据类目id，查找规格条件
+        findCondition(id) {
+            this.http({
+                url: 'admin/tGoodCategory/selGoodSpecByShopCategory',
+                method: 'get',
+                data: { categoryId: id }
+            }, res => {
+                if (res.data.code) {
+                    let arr = res.data.data
+                    this.formatList.formatArr = []
+                    arr.forEach(item => {
+                        if (item.name == 'isColor') {
+                            this.formatList.isColorPicker = item.values[0].name
+                        }else {
+                            this.kindsTempData.push(item)
+                            let _obj = {}
+                            _obj.formatName = item.name
+                            _obj.formatNameEN = item.id
+                            _obj.modelValue = []
+                            _obj.valueList = item.values || []
+                            this.formatList.formatArr.push(_obj)
+                        }
+                    })
+                }
+            })
+        },
+        //校验数据
+        checkData() {
+            if (this.formatList.isColorPicker == 1 || this.formatList.formatArr.length) {
+                if (!this.assemTableData.length) {
+                    this.$message.info('请正确填写销售信息！')
+                    return false
+                }else {
+                    for (let i = 0; i < this.assemTableData.length; i ++) {
+                        if (!this.assemTableData[i].price || !this.assemTableData[i].amount) {
+                            this.$message.info('请正确填写商品销售规格表中各项值！')
+                            return false
+                        }
+                    }
+                    return true
+                }
+            }else {
+                return true
+            }
+        },
+        handleRelease() {
+            
+            this.$refs.releaseForm.validate(valid => {
+                if (valid) {
+                    if (this.checkData()) {
+                        this.http({
+                            url: '',
+                            method: 'post',
+                            data: {
+                                
+                            }
+                        }, res => {
+
+                        })
+                    }
+                }
+            })
         }
+    },
+    mounted() {
+        this.getKindsTree()
     }
 }
 </script>
 
 <style lang="scss" scoped>
 .base-mess-box{
-    margin-top: 10px;
+    margin-top: 20px;
 }
 .color-picker-custom-item{
     margin-bottom: 10px;
 }
-.avatar-uploader{
-    /deep/ .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        &:hover{
-            border-color: #409EFF;
-        }
-    }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 150px;
-        height: 150px;
-        line-height: 150px;
-        text-align: center;
-    }
-    .avatar {
-        width: 150px;
-        height: 150px;
-        display: block;
-    }
+.wran-word{
+    color: #E6A23C;
+    font-size: 13px;
 }
 </style>

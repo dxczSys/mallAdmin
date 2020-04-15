@@ -216,7 +216,7 @@ export default {
     data() {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
-            roleId: sessionStorage.getItem('roleId'),
+            roleId: JSON.parse(sessionStorage.getItem('roleId')),
             refreshTree: true,
             expandedId: ['a1'],
             filterText: '',
@@ -279,7 +279,7 @@ export default {
                             <span>{_label}&nbsp;&nbsp;{name}</span>
                         </span>
                         <span class="others-level-operate">
-                            {data.type == 'admin'? this.roleId == 1? <span title="取消授权" onClick={() => this.cancelAuthriod(data, node) } class="iconfont iconshouquan edit-tree-node"></span> :
+                            {data.type == 'admin'? this.roleId.includes('1')? <span title="取消授权" onClick={() => this.cancelAuthriod(data, node) } class="iconfont iconshouquan edit-tree-node"></span> :
                             <span></span> :
                             <span class="el-icon-delete delete-tree-node" onClick={() => this.deleteTreeNode(data.id, node) }></span>}
                         </span>

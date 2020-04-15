@@ -10,19 +10,21 @@
                 <div class="last-ad-num">
                     <span>剩余广告位：</span>
                     <div class="ad-last-box">
-                        <span class="green-light"></span>
+                        <span v-if="topAdTotal < 17" class="green-light"></span>
+                        <span v-else class="red-light"></span>
                         <span>置顶广告位：</span>
-                        <span>{{topAdTotal}}</span>
+                        <span>{{20 - topAdTotal}}</span>
                     </div>
                     <div class="ad-last-box">
-                        <span class="red-light"></span>
+                        <span v-if="topAdTotal < 27" class="green-light"></span>
+                        <span v-else class="red-light"></span>
                         <span>促销广告位：</span>
-                        <span>{{saleAdTotal}}</span>
+                        <span>{{30 - saleAdTotal}}</span>
                     </div>
                 </div>
             </div>
             <div class="apply-button-right">
-                <el-button type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
+                <el-button v-if="topAdTotal < 20 || saleAdTotal < 30" type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
             </div>
         </div>
         <div class="ad-list-box">
@@ -41,13 +43,13 @@
                                 </span>
                                 <span v-if="item.advertIsExpire == '1'" class="haved-expires">已到期</span>
                                 <span v-if="item.advertApprovalStatus == '3'" class="haved-expires">失败：费用已退至原账户</span>
-                                <span v-if="item.advertApprovalStatus == '4'" class="haved-expires">强制下线</span>
+                                <span v-if="item.advertApprovalStatus == '4'" class="haved-expires">强制下架</span>
                                 <span v-if="item.advertApprovalStatus == '1'">审核中...</span>
                             </div>
                             <div class="bottom-operate">
                                 <el-button @click="deleteAd(item, index)" v-if="item.advertIsExpire == '1' || item.advertApprovalStatus == '3'" type="text" style="color: #F56C6C;">删除</el-button>
                                 <el-button @click="viewDetail(item)" type="text">查看</el-button>
-                                <el-button v-if="item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" type="text">续费</el-button>
+                                <el-button @click="lengthenTime(item)" v-if="item.advertIsExpire == '2' && item.advertApprovalStatus == '2'" type="text">续费</el-button>
                             </div>
                         </div>
                     </el-card>
@@ -153,6 +155,9 @@ export default {
                     this.$message.error(res.data.msg || '')
                 }
             })
+        },
+        lengthenTime(item) {
+            this.$router.push({ name: 'user-apply-ad', query: { id: item.id, type: 2 } })
         }
     },
     mounted() {
@@ -202,8 +207,63 @@ export default {
 }
 .apply-button{
     display: flex;
+    align-items: flex-end;
+    .apply-button-left{
+        color: #606266;
+        margin-left: 10px;
+    }
+    .apply-button-right{
+        padding-bottom: 3px;
+    }
+}
+.current-mall{
+    line-height: 30px;
+}
+.last-ad-num{
+    display: flex;
+    line-height: 30px;
 }
 .ad-last-box{
     display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+.red-light{
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #F56C6C;
+    margin-right: 5px;
+    animation: breatheRed 1500ms infinite alternate;
+}
+.green-light{
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #67C23A;
+    margin-right: 5px;
+    animation: breathe 1500ms infinite alternate;
+}
+@keyframes breathe {
+    0% {
+        opacity: .6;
+        box-shadow: 0 1px 2px rgba(103, 194, 58, 0.4), 0 1px 1px rgba(103, 194, 58, 0.1) inset;
+    }
+
+    100% {
+        opacity: 1;
+        box-shadow: 0 1px 30px #54b324, 0 1px 20px #54b324 inset;
+    }
+}
+@keyframes breatheRed {
+    0% {
+        opacity: .6;
+        box-shadow: 0 1px 2px rgba(245, 108, 108, 0.4), 0 1px 1px rgba(245, 108, 108, 0.1) inset;
+    }
+
+    100% {
+        opacity: 1;
+        box-shadow: 0 1px 30px #F56C6C, 0 1px 20px #F56C6C inset;
+    }
 }
 </style>

@@ -102,7 +102,7 @@ export default {
     data() {
         return {
             index: 0,
-            roleId: '',
+            roleId: [],
             tableData: [],
             currentPage: 1,
             pageSize: 10,
@@ -129,7 +129,7 @@ export default {
                 obj.approvalStatus = 1
                 this.index == 0? obj.approvalType = undefined : obj.approvalType = this.index
             }
-            if (this.roleId == 1) {
+            if (this.roleId.includes('1')) {
                 this.http({
                     url: 'merchant/tShop/tApprovalDetailFindByPage',
                     method: 'post',
@@ -175,7 +175,7 @@ export default {
         }
     },
     mounted() {
-        this.roleId = sessionStorage.getItem('roleId')
+        this.roleId = JSON.parse(sessionStorage.getItem('roleId'))
         if (this.$route.query.index) {
             this.index = this.$route.query.index
         }
