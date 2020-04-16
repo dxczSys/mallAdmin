@@ -1,7 +1,7 @@
 <template>
     <aside class="site-sidebar" :class="'site-sidebar--' + sidebarLayoutSkin">
         <div class="site-sidebar__inner">
-            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#17B3A3" 
+            <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#3E8EF7" 
                 unique-opened :collapseTransition="false" class="site-sidebar__menu">
                 <el-menu-item index="home" @click="$router.push({ name: 'home' })">
                     <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>

@@ -5,6 +5,7 @@
                 ref="reference" class="drop-list-input" :style="{'width' : width + 'px'}" :prefix-icon="iconName">
             </el-input>
         </div>
+        <span @click="clearValue" class="el-icon-close"></span>
         <transition name="el-zoom-in-top" @after-leave="doDestroy">
             <dropDown ref="popper" v-show="visible" :append-to-body="popperAppendToBody" @colorPicker="colorPicker">
             </dropDown>
@@ -71,6 +72,10 @@ export default {
             this.selectedLabel = label
             this.selectValue = label
             this.visible = false
+        },
+        clearValue() {
+            this.selectedLabel = ''
+            this.selectValue = ''
         }
     },
 }
@@ -79,6 +84,24 @@ export default {
 <style lang="scss" scoped>
 .filter-tree-wrapper{
     display: inline-block;
+    position: relative;
+    &:hover{
+        .el-icon-close{
+            display: inline-block;
+        }
+    }
+    .el-icon-close{
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 5px;
+        z-index: 999;
+        font-size: 16px;
+        cursor: pointer;
+        &:hover{
+            color: #409eff;
+        }
+    }
 }
 .drop-list-input{
     /deep/ input{

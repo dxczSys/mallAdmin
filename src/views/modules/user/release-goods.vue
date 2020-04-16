@@ -80,9 +80,12 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-form-item label="商品编码">
+                    <el-input v-model="releaseForm.barCode" style="width: 360px;" placeholder="自主商品编码(如：YM355210012)"></el-input>
+                </el-form-item>
                 <el-form-item label="商品描述" prop="description" required>
                     <el-input type="textarea" v-model="releaseForm.description" rows="10" maxlength="1000"
-                        show-word-limit placeholder="商品简单描述"></el-input>
+                        show-word-limit placeholder="商品描述"></el-input>
                 </el-form-item>
                 <el-form-item label="特别说明">
                     <el-input type="textarea" v-model="releaseForm.specialDescription" rows="4" maxlength="200"
@@ -111,6 +114,7 @@ export default {
                 assistUrls: [],
                 onePrice: '',
                 total: '',
+                barCode: '',
                 description: '',
                 specialDescription: '',
             },
@@ -251,7 +255,7 @@ export default {
         //根据类目id，查找规格条件
         findCondition(id) {
             this.http({
-                url: 'admin/tGoodCategory/selGoodSpecByShopCategory',
+                url: 'merchant/tGoodAttrKey/selGoodSpecByShopCategory',
                 method: 'get',
                 data: { categoryId: id }
             }, res => {

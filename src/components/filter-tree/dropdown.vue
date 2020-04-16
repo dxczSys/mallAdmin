@@ -72,6 +72,8 @@ export default {
         },
         treeNodeClick(data, node, el) {
             if (node.level > 1) {
+                this.beforeLable = []
+                this.beforeIds = []
                 this.getBeforeTreeNode(node)
                 this.$emit('selectChange', this.beforeLable, this.beforeIds)
             }

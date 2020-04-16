@@ -122,7 +122,7 @@ export default {
 
         getConditionList() {
             this.http({
-                url: `admin/tGoodCategory/TGoodCategoryAttrSel?id=${this.currentId}`,
+                url: `merchant/tGoodAttrKey/TGoodCategoryAttrSel?id=${this.currentId}`,
                 method: 'get',
             }, res => {
                 if (res.data.code) {
@@ -273,7 +273,7 @@ export default {
         },
         handleSaveCondition() {
             this.http({
-                url: 'admin/tGoodCategory/TGoodAttrKeySave',
+                url: 'merchant/tGoodAttrKey/TGoodAttrKeySave',
                 method: 'post',
                 data: {
                     id: this.currentId,
