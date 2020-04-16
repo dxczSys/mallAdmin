@@ -39,6 +39,8 @@ export default {
 
     data() {
         return {
+            beforeLable: [],
+            beforeIds: [],
         }
     },
 
@@ -70,9 +72,19 @@ export default {
         },
         treeNodeClick(data, node, el) {
             if (node.level > 1) {
-                this.$emit('selectChange', data.label, data.id)
+                this.getBeforeTreeNode(node)
+                this.$emit('selectChange', this.beforeLable, this.beforeIds)
             }
         },
+        getBeforeTreeNode(node) {
+            if (node.level == 0) {
+                return 
+            }else {
+                this.beforeLable.unshift(node.data.label)
+                this.beforeIds.unshift(node.data.id)
+                return this.getBeforeTreeNode(node.parent)
+            }
+        }
     },
 
     mounted() {

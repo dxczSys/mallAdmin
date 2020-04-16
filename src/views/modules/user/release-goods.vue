@@ -65,17 +65,28 @@
                         </el-table-column>
                     </el-table>
                 </el-form-item>
-                <el-form-item label="一口价" prop="onePrice" required>
-                    <el-input type="number" v-model="releaseForm.onePrice" style="width: 360px;"></el-input>
-                    <span>元</span>
-                    <div class="wran-word">*温馨提示：一口价一般是其中一件商品的最低价，博取客户的眼球</div>
-                </el-form-item>
-                <el-form-item label="总数量" prop="total" required>
-                    <el-input :disabled="assemTableData.length != 0" type="number" v-model="releaseForm.total" style="width: 360px;"></el-input>
-                    <span>件</span>
-                </el-form-item>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="一口价" prop="onePrice" required>
+                            <el-input type="number" v-model="releaseForm.onePrice" style="width: 360px;"></el-input>
+                            <span>元</span>
+                            <div class="wran-word">*温馨提示：一口价一般是其中一件商品的最低价，博取客户的眼球</div>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="总数量" prop="total" required>
+                            <el-input :disabled="assemTableData.length != 0" type="number" v-model="releaseForm.total" style="width: 360px;"></el-input>
+                            <span>件</span>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <el-form-item label="商品描述" prop="description" required>
-                    <el-input type="textarea" v-model="releaseForm.description" rows="6" placeholder="商品简单描述" style="width: 500px;"></el-input>
+                    <el-input type="textarea" v-model="releaseForm.description" rows="10" maxlength="1000"
+                        show-word-limit placeholder="商品简单描述"></el-input>
+                </el-form-item>
+                <el-form-item label="特别说明">
+                    <el-input type="textarea" v-model="releaseForm.specialDescription" rows="4" maxlength="200"
+                        show-word-limit placeholder="商品特别说明，例如：尺码非标准尺码" style="width: 500px;"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button @click="handleRelease" type="primary">立即发布</el-button>
@@ -100,7 +111,8 @@ export default {
                 assistUrls: [],
                 onePrice: '',
                 total: '',
-                description: ''
+                description: '',
+                specialDescription: '',
             },
             colorPickerTable: [{
                 nomalColor: '',
@@ -127,7 +139,9 @@ export default {
     watch: {
         'releaseForm.kindsId'(n) {
             if (n) {
-                this.findCondition(n)
+                let arr = n.split(',')
+                let id = arr[arr.length - 1]
+                this.findCondition(id)
             }
         },
         colorPickerTable: {
@@ -158,15 +172,12 @@ export default {
         }
     },
     methods: {
-        handleUploadSuccess() {},
-        beforeUpload() {},
         addOneColorTable() {
             this.colorPickerTable.push({
                 nomalColor: '',
                 customColor: ''
             })
         },
-
         //判断每个属性都至少选了一个
         judgeIsSelect() {
             let isAll = true
@@ -178,7 +189,6 @@ export default {
             }
             return isAll
         },
-
         //组装数据
         assembleTable() {
             let _arr = [], resArr = [], labelArr = [], _tableData = []
@@ -283,19 +293,108 @@ export default {
                 return true
             }
         },
+        assembleGoodsData() {
+            let arr = [], ids = this.releaseForm.kindsId.split(','), self = this
+            this.assemTableData.forEach(item => {
+                let _arr1 = []
+                for (let key in item) {
+                    //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
+                    let _obj = {}
+                    if (key != 'colorType' && key != 'price' && key != 'amount' && key != 'coding') {
+                        //根据规格的key和value，查找规格属性的key
+                        for (let i = 0; i < self.kindsTempData.length; i ++) {
+                            let _kindsArr = self.kindsTempData[i].values
+                            if ( self.kindsTempData[i].id == key ) {
+                                for (let j = 0; j < _kindsArr.length; j ++) {
+                                    if (_kindsArr[j].name == item[key]) {
+                                        _obj.goodValue = _kindsArr[j].id
+                                    }
+                                }
+                            }
+                        }
+                        _obj.goodColor = item.colorType
+                        _obj.goodKey = key
+                        _arr1.push(_obj)
+                    }
+                   
+                }
+                arr.push({
+                    goodDetailName: '',
+                    goodDetailTitle: '',
+                    goodDetailSubheading: '',
+                    goodDetailPrice: parseFloat(item.price),
+                    goodDetailNumber: parseFloat(item.amount),
+                    goodDetailCode: item.coding,
+                    goodClassOne: ids[0],
+                    goodClassTwo: ids[1],
+                    goodClassThree: ids[2],
+                    tGoodDetailAttrKeyValues: _arr1
+                })
+            })
+            return arr
+        },
         handleRelease() {
-            
+            let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
                     if (this.checkData()) {
-                        this.http({
-                            url: '',
-                            method: 'post',
-                            data: {
-                                
-                            }
-                        }, res => {
-
+                        let mainUrl = new Promise((resolve, reject) => {
+                            this.$upload({
+                                data: [this.releaseForm.mainUrl[0].raw]
+                            }, res => {
+                                if (res.data.code == 200) {
+                                    resolve({name: 'mainUrl', url: res.data.data})
+                                }
+                            })
+                        })
+                        let assUrls = new Promise((resolve, reject) => {
+                            let _tempArr = []
+                            this.releaseForm.assistUrls.forEach(item => {
+                                _tempArr.push(item.raw)
+                            })
+                            this.$upload({
+                                data: _tempArr
+                            }, res => {
+                                if (res.data.code == 200) {
+                                    resolve({name: 'assUrls', url: res.data.data})
+                                }
+                            })
+                        })
+                        Promise.all([mainUrl, assUrls]).then(res => {
+                            let oneUrl = '', twoUrls = []
+                            res.forEach(value => {
+                                if (value.name == 'mainUrl') {
+                                    oneUrl = value.url
+                                }
+                                if (value.name == 'assUrls') {
+                                    twoUrls = value.url.split(',')
+                                }
+                            })
+                            let ids = this.releaseForm.kindsId.split(',')
+                            this.http({
+                                url: 'merchant/good/tGoodSave',
+                                method: 'post',
+                                data: {
+                                    goodClassOne: ids[0],
+                                    goodClassTwo: ids[1],
+                                    goodClassThree: ids[2],
+                                    goodTitle: this.releaseForm.goodsTitle,
+                                    goodPic: oneUrl,
+                                    listImg: twoUrls,
+                                    goodPrice: this.releaseForm.onePrice,
+                                    goodNumber: this.releaseForm.total,
+                                    goodShopMall: sessionStorage.getItem('mallId'),
+                                    goodShop: sessionStorage.getItem('shopId'),
+                                    goodShopFloor: sessionStorage.getItem('floorId'),
+                                    tGoodInfo: {
+                                        goodDescription: this.releaseForm.description,
+                                        goodSpecialDescription: this.releaseForm.specialDescription,
+                                    },
+                                    tGoodDetails: self.assembleGoodsData()
+                                }
+                            }, releaseRes => {
+                                console.log(releaseRes)
+                            })
                         })
                     }
                 }

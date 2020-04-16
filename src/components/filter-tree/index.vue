@@ -84,8 +84,8 @@ export default {
             this.selectValue = value
         },
         handleSelectChange(label, id) {
-            this.selectedLabel = label
-            this.selectValue = id
+            this.selectedLabel = label.join('>')
+            this.selectValue = id.join(',')
             this.visible = false
         },
         filterTree() {
