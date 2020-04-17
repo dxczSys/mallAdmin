@@ -1,6 +1,6 @@
 <template>
-    <aside class="site-sidebar" :class="'site-sidebar--' + sidebarLayoutSkin">
-        <div class="site-sidebar__inner">
+    <aside class="site-sidebar-wrapper" :class="{'side-folder': sidebarFold}">
+        <div class="site-sidebar__inner" :class="{'side-folder': sidebarFold}">
             <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#3E8EF7" 
                 unique-opened :collapseTransition="false" class="site-sidebar__menu">
                 <el-menu-item index="home" @click="$router.push({ name: 'home' })">
@@ -38,6 +38,10 @@
                 </el-submenu>
             </el-menu>
         </div>
+        <div class="collapse-box" @click="sidebarFold = !sidebarFold">
+            <icon-svg v-if="sidebarFold" name="right"></icon-svg>
+            <icon-svg v-else name="left"></icon-svg>
+        </div>
     </aside>
 </template>
 
@@ -59,7 +63,8 @@ export default {
             get () { return this.$store.state.common.sidebarLayoutSkin }
         },
         sidebarFold: {
-            get () { return this.$store.state.common.sidebarFold }
+            get () { return this.$store.state.common.sidebarFold },
+            set (val) { this.$store.commit('common/updateSidebarFold', val) }
         },
         menuList: {
             get () { return this.$store.state.common.menuList },
@@ -117,3 +122,41 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.site-sidebar-wrapper{
+    position: fixed;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    z-index: 1020;
+    width: 240px;
+    overflow: hidden;
+    background-color: #f1f4f5;
+}
+.site-sidebar__inner{
+    padding-top: 5px;
+    height: 100%;
+    width: 230px;
+    .site-sidebar__menu{
+        height: 100%;
+    }
+}
+.site-sidebar__menu-icon{
+    font-size: 16px;
+    margin-right: 3px;
+}
+.side-folder{
+    width: 73px !important;
+}
+.collapse-box{
+    position: absolute;
+    cursor: pointer;
+    top: 42%;
+    right: 2px;
+    z-index: 9999;
+    svg{
+        font-size: 18px;
+    }
+}
+</style>

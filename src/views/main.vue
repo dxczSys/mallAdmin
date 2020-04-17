@@ -5,6 +5,10 @@
             <main-sidebar />
             <div class="site-content__wrapper" :style="{ 'min-height': documentClientHeight + 'px' }">
                 <main-content v-if="!$store.state.common.contentIsNeedRefresh" />
+                <div class="main-copyright-box">
+                    <span>Copyright © 2020-2020 陕ICP备16012831号-2 版本：1.0.0</span>
+                    <span class="compony-yima">西安易码众城网络科技有限公司</span>
+                </div>
             </div>
         </template>
     </div>

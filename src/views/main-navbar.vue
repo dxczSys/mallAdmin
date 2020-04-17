@@ -1,35 +1,5 @@
 <template>
     <nav class="site-navbar-wrapper" :class="'site-navbar--' + navbarLayoutType">
-        <!-- <div class="site-navbar__header">
-            <div class="site-navbar__brand" @click="$router.push({ name: 'home' })">
-                <div class="site-navbar__brand-lg">
-                    <img class="site-navbar__brand-logo" src="~@/assets/img/logo.png">
-                    <font style="font-size: 18px;">易码商城</font>
-                </div>
-                <div class="site-navbar__brand-mini">
-                    <img class="site-navbar__brand-logo" src="~@/assets/img/logo.png">
-                </div>
-            </div>
-        </div>
-        <div class="site-navbar__body clearfix">
-            <el-menu class="site-navbar__menu" mode="horizontal">
-                <el-menu-item class="site-navbar__switch" index="0" @click="sidebarFold = !sidebarFold">
-                    <icon-svg name="zhedie"></icon-svg>
-                </el-menu-item>
-            </el-menu>
-            <el-menu class="site-navbar__menu site-navbar__menu--right" mode="horizontal">
-                <el-menu-item class="site-navbar__avatar" index="3">
-                    <el-dropdown :show-timeout="0" placement="bottom">
-                    <span class="el-dropdown-link">
-                        <img :src="avatarUrl" :alt="userName">{{ userName }}
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="logoutHandle()">退出</el-dropdown-item>
-                    </el-dropdown-menu>
-                    </el-dropdown>
-                </el-menu-item>
-            </el-menu>
-        </div> -->
         <div class="navbar-left">
             <div class="navbar-logo">
                 <img src="~@/assets/img/logo.png" alt="logo">
@@ -42,11 +12,11 @@
             <el-badge v-if="roleId.includes('1') || roleId.includes('2')" :value="approvalNum" class="mark-tip">
                 <icon-svg name="lingdang"></icon-svg>
             </el-badge>
-            <div class="navbar-avatar">
+            <div class="navbar-avatar" @click="$router.push({ name: 'setting-update-personInfo' })">
                 <img :src="avatarUrl" :alt="userName">
                 <span>{{ userName }}</span>
             </div>
-            <div class="navbar-logout">
+            <div class="navbar-logout" @click="logoutHandle">
                 <span class="iconfont iconicon-tuichu"></span>
             </div>
         </div>
@@ -79,29 +49,18 @@ export default {
             get () { return this.$store.state.user.name }
         }
     },
-methods: {
-    // 退出
-    logoutHandle () {
-        this.$confirm(`确定[退出]当前系统?`, '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(() => {
-            clearLoginInfo()
-            this.$router.push({ name: 'login' })
-            // this.http({
-            //     url: '',
-            //     method: 'post',
-            //     data: this.$http.adornData()
-            // }).then(res => {
-            //     if (res.code == 0) {
-            //         clearLoginInfo()
-            //         this.$router.push({ name: 'login' })
-            //     }
-            // })
-        })
+    methods: {
+        logoutHandle () {
+            this.$confirm(`确定[退出]当前系统?`, '退出', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                clearLoginInfo()
+                this.$router.push({ name: 'login' })
+            })
+        }
     }
-}
 }
 </script>
 
@@ -115,8 +74,9 @@ methods: {
     right: 0;
     z-index: 1030;
     height: 50px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    // background: linear-gradient(to right, rgb(74, 194, 154), rgb(189, 255, 243));
+    background: linear-gradient(to right, rgb(116, 235, 213), rgb(172, 182, 229));
 }
 .navbar-right{
     display: flex;
