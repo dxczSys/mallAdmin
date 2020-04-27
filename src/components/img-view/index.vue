@@ -1,8 +1,8 @@
 <template>
     <div class="img-view-wrapper">
-        <viewer title="点击预览" :images="images" @inited="inited" ref="viewer">
+        <viewer title="点击预览" :images="imgUrls" @inited="inited" ref="viewer">
             <div class="img-box" :style="{width: `${width}px`, height: `${height}px`}">
-                <img v-for="(item, index) in images" :src="item" :key="index">
+                <img v-for="(item, index) in imgUrls" :src="item" :key="index">
                 <div class="zoom-layer" @click="openZoom">
                     <span class="el-icon-zoom-in"></span>
                 </div>
@@ -18,11 +18,22 @@ import Vue from 'vue'
 Vue.use(Viewer)
 export default {
     props: {
-        images: { type: Array, default() {
-            return []
-        }},
+        images: [ Array, String],
         width: { default: 100 },
         height: { default: 120 }
+    },
+    computed: {
+        imgUrls() {
+            if (typeof this.images == 'string') {
+                if (this.images.indexOf('undefined') > -1) {
+                    return []
+                }else {
+                    return [this.images]
+                }
+            }else {
+                return this.images
+            }
+        }
     },
     methods: {
         inited (viewer) {

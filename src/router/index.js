@@ -73,28 +73,32 @@ router.beforeEach((to, from, next) => {
     if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
         next()
     }else {
-        getHttp({
-            url: 'user/findUserMenuLisByLoginUser',
-            method: 'get',
-        }, res => {
-            if (res.data.code == 200) {
-                fnAddDynamicMenuRoutes(res.data.data)
-                router.options.isAddDynamicMenuRoutes = true
-                sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
-                next({ ...to, replace: true })
-            }else {
-                sessionStorage.setItem('menuList', '[]')
-                Message({
-                    message: res.data.msg,
-                    type: 'error',
-                    duration: 1500
-                })
-                next()
-            }
-        }, err => {
-            clearLoginInfo()
-            router.push({ name: 'login' })
-        })
+        if (Vue.cookie.get('token')) {
+            getHttp({
+                url: 'user/findUserMenuLisByLoginUser',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    fnAddDynamicMenuRoutes(res.data.data)
+                    router.options.isAddDynamicMenuRoutes = true
+                    sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
+                    next({ ...to, replace: true })
+                }else {
+                    sessionStorage.setItem('menuList', '[]')
+                    Message({
+                        message: res.data.msg,
+                        type: 'error',
+                        duration: 1500
+                    })
+                    next()
+                }
+            }, err => {
+                clearLoginInfo()
+                router.push({ name: 'login' })
+            })
+        }else {
+            next()
+        }
     }
 })
   

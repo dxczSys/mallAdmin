@@ -45,12 +45,12 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="店铺标志">
-                            <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMess.shopSign]"></img-view>
+                            <img-view style="width: 100px; height: 120px;" :images="fileUrl + shopMess.shopSign"></img-view>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="营业执照">
-                            <img-view style="width: 100px; height: 120px;" :images="[fileUrl + shopMess.shopBusinessLicense]"></img-view>
+                            <img-view style="width: 100px; height: 120px;" :images="fileUrl + shopMess.shopBusinessLicense"></img-view>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -69,12 +69,12 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="身份证正面">
-                            <img-view :images="[fileUrl + shopMess.idCardPicPositive]"></img-view>
+                            <img-view :images="fileUrl + shopMess.idCardPicPositive"></img-view>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="身份证反面">
-                            <img-view :images="[fileUrl + shopMess.idCardPicSide]"></img-view>
+                            <img-view :images="fileUrl + shopMess.idCardPicSide"></img-view>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -143,18 +143,27 @@
                     <span>{{tAdvertOrder.orderMoney}}元</span>
                 </el-form-item>
             </div>
-            <el-form-item label="审批">
+            <el-form-item v-if="type == '1'" label="审批">
+                <el-radio :disabled="shopMess.shopApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="2">通过</el-radio>
+                <el-radio :disabled="shopMess.shopApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="3">拒绝</el-radio>
+            </el-form-item>
+            <el-form-item v-if="type == '2'" label="审批">
                 <el-radio :disabled="tAdvert.advertApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="2">通过</el-radio>
                 <el-radio :disabled="tAdvert.advertApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="3">拒绝</el-radio>
             </el-form-item>
-            <el-form-item v-if="detailForm.approvalStutas == 3" label="拒绝原因" prop="rejectReason" required>
+            <el-form-item v-if="type == '1' && detailForm.approvalStutas == 3" label="拒绝原因" prop="rejectReason" required>
+                <el-input :disabled="shopMess.shopApprovalStatus != '1'" type="textarea" maxlength="100" show-word-limit
+                    rows="4" v-model="detailForm.rejectReason" placeholder="拒绝原因：包含非法信息，最多100字">
+                </el-input>
+            </el-form-item>
+            <el-form-item v-if="type == '2' && detailForm.approvalStutas == 3" label="拒绝原因" prop="rejectReason" required>
                 <el-input :disabled="tAdvert.advertApprovalStatus != '1'" type="textarea" maxlength="100" show-word-limit
                     rows="4" v-model="detailForm.rejectReason" placeholder="拒绝原因：包含非法信息，最多100字">
                 </el-input>
             </el-form-item>
             <el-form-item>
                 <el-button @click="$router.push({ name: 'admin-approval-manage', query: { index: index }})">返回</el-button>
-                <el-button v-if="tAdvert.advertApprovalStatus == 1" @click="dealApproval" type="primary">批复</el-button>
+                <el-button v-if="shopMess.shopApprovalStatus == '1' || tAdvert.advertApprovalStatus == '1'" @click="dealApproval" type="primary">批复</el-button>
             </el-form-item>
         </el-form>     
     </div>

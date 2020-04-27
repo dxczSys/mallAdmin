@@ -280,6 +280,8 @@ export default {
                         if (approvalRes.data.code == 200) {
                             this.$message.success('申请已发送，等待管理员审核中...')
                             this.getApprovalData()
+                        }else {
+                            this.$message.info('网络异常，请刷新重试')
                         }
                     })
                 })
