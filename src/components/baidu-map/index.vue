@@ -50,8 +50,9 @@ export default {
             let local = new BMap.LocalSearch(this.map, { renderOptions: { map: this.map, autoViewport: true } })
             local.search(v)
             local.setSearchCompleteCallback(res => {
-                if (res.Uq) {
-                    this.addressResult = res.Uq || []
+                console.log(res)
+                if (res.Uq || res.Pq) {
+                    this.addressResult = res.Uq || res.Pq || []
                     this.isShowResult = true
                 }else {
                     this.addressResult = []

@@ -50,7 +50,7 @@
                         </el-table-column>
                         <el-table-column header-align="center" align="center" label="*价格(元)" width="150">
                             <template slot-scope="scpoe">
-                                <el-input type="number" v-model="scpoe.row.price" placeholder="价格"></el-input>
+                                <money-input v-model="scpoe.row.price"></money-input>
                             </template>
                         </el-table-column>
                         <el-table-column header-align="center" align="center" prop="amount" label="*数量(件)" width="150">
@@ -68,7 +68,7 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="一口价" prop="onePrice" required>
-                            <el-input type="number" v-model="releaseForm.onePrice" style="width: 360px;"></el-input>
+                            <money-input v-model="releaseForm.onePrice" style="width: 360px;"></money-input>
                             <span>元</span>
                             <div class="wran-word">*温馨提示：一口价一般是其中一件商品的最低价，博取客户的眼球</div>
                         </el-form-item>
@@ -80,9 +80,23 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-                <el-form-item label="商品编码">
-                    <el-input v-model="releaseForm.barCode" style="width: 360px;" placeholder="自主商品编码(如：YM355210012)"></el-input>
-                </el-form-item>
+                <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="邮费规则" required>
+                            <span>大于</span>
+                            <money-input v-model="releaseForm.postageMore"></money-input>
+                            <span>元免邮，否则收取</span>
+                            <money-input v-model="releaseForm.postage"></money-input>
+                            <span>元</span>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品编码">
+                            <el-input v-model="releaseForm.barCode" style="width: 360px;" placeholder="自主商品编码(如：YM355210012)"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                
                 <el-form-item label="商品描述" prop="description" required>
                     <el-input type="textarea" v-model="releaseForm.description" rows="10" maxlength="1000"
                         show-word-limit placeholder="商品描述"></el-input>
@@ -103,8 +117,9 @@
 import filterTree from '@/components/filter-tree'
 import colorPicker from '@/components/color-picker'
 import uploadFile from '@/components/upload-file'
+import moneyInput from '@/components/money-input'
 export default {
-    components: { filterTree, colorPicker, uploadFile },
+    components: { filterTree, colorPicker, uploadFile, moneyInput },
     data() {
         return {
             releaseForm: {
@@ -115,6 +130,8 @@ export default {
                 onePrice: '',
                 total: '',
                 barCode: '',
+                postageMore: '',
+                postage: '',
                 description: '',
                 specialDescription: '',
             },
@@ -136,6 +153,8 @@ export default {
                 mainUrl: [ { required: true, message: '请填写上传商品主图', trigger: 'blur' } ],
                 onePrice: [ { required: true, message: '请填写商品一口价', trigger: 'blur' } ],
                 total: [ { required: true, message: '请填写总数量', trigger: 'blur' } ],
+                postageMore: [ { required: true, message: '请填写邮费规则', trigger: 'blur' } ],
+                postage: [ { required: true, message: '请填写邮费规则', trigger: 'blur' } ],
                 description: [ { required: true, message: '请填写商品描述', trigger: 'blur' } ],
             }
         }
@@ -387,6 +406,8 @@ export default {
                                     listImg: twoUrls,
                                     goodPrice: this.releaseForm.onePrice,
                                     goodNumber: this.releaseForm.total,
+                                    goodPostage: this.releaseForm.postage,
+                                    goodIsPostage: this.releaseForm.postageMore,
                                     goodShopMall: sessionStorage.getItem('mallId'),
                                     goodShop: sessionStorage.getItem('shopId'),
                                     goodShopFloor: sessionStorage.getItem('floorId'),
