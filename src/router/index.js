@@ -48,6 +48,7 @@ const mainRoutes = {
         { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } },
         { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } },
         { path: '/admin-approval-detail', component: _import('modules/admin/approval-detail'), name: 'admin-approval-detail', meta: { title: '审批详情', isTab: false } },
+        { path: '/user-edit-goods', component: _import('modules/user/edit-goods'), name: 'user-edit-goods', meta: { title: '编辑商品', isTab: false } },
     ],
     beforeEnter (to, from, next) {
         let token = Vue.cookie.get('token')

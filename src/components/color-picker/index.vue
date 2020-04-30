@@ -50,6 +50,7 @@ export default {
         },
         value : {
             handler(n) {
+                this.selectedLabel = n
             },
             deep: true,
             immediate: true

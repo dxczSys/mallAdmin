@@ -25,7 +25,7 @@ export default {
         value: {
             immediate: true,
             handler (newValue, oldValue) {
-                
+                this.formattedValue = newValue
             }
         },
         formattedValue(n) {

@@ -3,11 +3,11 @@
         <el-form ref="releaseForm" :model="releaseForm" :rules="rules" label-width="120px">
             <div style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                <div style="font-weight: 600;">发布商品</div>
+                <div style="font-weight: 600;">商品管理--编辑</div>
             </div>
             <div class="base-mess-box">
                 <el-form-item label="商品类目" prop="kindsId" required>
-                    <filter-tree v-model="releaseForm.kindsId" :data="kindsTree" placeholder="类目搜索" width="400"></filter-tree>
+                    <filter-tree :disabled="true" v-model="releaseForm.kindsId" :data="kindsTree" placeholder="类目搜索" width="400"></filter-tree>
                     <div class="wran-word">*提示：请选择商品类目，获取要发布商品的规格条件</div>
                 </el-form-item>
                 <el-form-item label="商品标题" prop="goodsTitle" required>
@@ -106,7 +106,7 @@
                         show-word-limit placeholder="商品特别说明，例如：尺码非标准尺码"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button @click="handleRelease" type="primary">立即发布</el-button>
+                    <el-button @click="handleRelease" type="primary">立即修改</el-button>
                 </el-form-item>
             </div>
         </el-form>
@@ -122,6 +122,8 @@ export default {
     components: { filterTree, colorPicker, uploadFile, moneyInput },
     data() {
         return {
+            fileUrl: window.SITE_CONFIG.fileUrl,
+            goodId: '',
             releaseForm: {
                 kindsId: '',
                 goodsTitle: '',
@@ -156,12 +158,14 @@ export default {
                 postageMore: [ { required: true, message: '请填写邮费规则', trigger: 'blur' } ],
                 postage: [ { required: true, message: '请填写邮费规则', trigger: 'blur' } ],
                 description: [ { required: true, message: '请填写商品描述', trigger: 'blur' } ],
-            }
+            },
+            mainPic: '',
+            assisPics: ''
         }
     },
     watch: {
         'releaseForm.kindsId'(n) {
-            if (n) {
+            if (typeof n == 'string') {
                 let arr = n.split(',')
                 let id = arr[arr.length - 1]
                 this.findCondition(id)
@@ -285,23 +289,11 @@ export default {
             }else {
                 this.assemTableData = _tableData
             }
-            
         },
         getArrDifference(arr1, arr2) {
             return arr1.concat(arr2).filter(function(v, i, arr) {
                 return arr.indexOf(v) === arr.lastIndexOf(v)
             }).length
-        },
-        //获取类目树
-        getKindsTree() {
-            this.http({
-                url: 'admin/tGoodCategory/selectTGoodCategoryAsTree',
-                method: 'get',
-            }, res => {
-                if (res.data.code == 200) {
-                    this.kindsTree = res.data.data
-                }
-            })
         },
         //根据类目id，查找规格条件
         findCondition(id) {
@@ -312,18 +304,9 @@ export default {
             }, res => {
                 if (res.data.code) {
                     let arr = res.data.data
-                    this.formatList.formatArr = []
                     arr.forEach(item => {
-                        if (item.name == 'isColor') {
-                            this.formatList.isColorPicker = item.values[0].name
-                        }else {
+                        if (item.name != 'isColor') {
                             this.kindsTempData.push(item)
-                            let _obj = {}
-                            _obj.formatName = item.name
-                            _obj.formatNameEN = item.id
-                            _obj.modelValue = []
-                            _obj.valueList = item.values || []
-                            this.formatList.formatArr.push(_obj)
                         }
                     })
                 }
@@ -392,50 +375,105 @@ export default {
             let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
+                    debugger
                     if (this.checkData()) {
-                        let mainUrl = new Promise((resolve, reject) => {
-                            this.$upload({
-                                data: [this.releaseForm.mainUrl[0].raw]
-                            }, res => {
-                                if (res.data.code == 200) {
-                                    resolve({name: 'mainUrl', url: res.data.data})
-                                }
+                        let mainUrl = null, assUrls = null
+                        if (this.releaseForm.mainUrl[0].raw) {
+                            mainUrl = new Promise((resolve, reject) => {
+                                this.$upload({
+                                    data: [this.releaseForm.mainUrl[0].raw]
+                                }, res => {
+                                    if (res.data.code == 200) {
+                                        resolve({name: 'mainUrl', url: res.data.data})
+                                    }
+                                })
                             })
-                        })
-                        let assUrls = new Promise((resolve, reject) => {
-                            let _tempArr = []
-                            this.releaseForm.assistUrls.forEach(item => {
+                        }
+                        let _tempArr = [], noChange = []
+                        this.releaseForm.assistUrls.forEach(item => {
+                            if (item.raw) {
                                 _tempArr.push(item.raw)
-                            })
-                            this.$upload({
-                                data: _tempArr
-                            }, res => {
-                                if (res.data.code == 200) {
-                                    resolve({name: 'assUrls', url: res.data.data})
-                                }
-                            })
+                            }else {
+                                noChange.push(item.url.split('filename=')[1])
+                            }
                         })
-                        Promise.all([mainUrl, assUrls]).then(res => {
-                            let oneUrl = '', twoUrls = []
-                            res.forEach(value => {
-                                if (value.name == 'mainUrl') {
-                                    oneUrl = value.url
-                                }
-                                if (value.name == 'assUrls') {
-                                    twoUrls = value.url.split(',')
+                        if (_tempArr.length) {
+                            assUrls = new Promise((resolve, reject) => {
+                                if (_tempArr.length) {
+                                    this.$upload({
+                                        data: _tempArr
+                                    }, res => {
+                                        if (res.data.code == 200) {
+                                            resolve({name: 'assUrls', url: res.data.data})
+                                        }
+                                    })
                                 }
                             })
+                        }
+                        let pArr = []
+                        mainUrl && (pArr.push(mainUrl))
+                        assUrls && (pArr.push(assUrls))
+                        if (pArr.length) {
+                            Promise.all(pArr).then(res => {
+                                let oneUrl = '', twoUrls = []
+                                res.forEach(value => {
+                                    if (value.name == 'mainUrl') {
+                                        oneUrl = value.url
+                                    }
+                                    if (value.name == 'assUrls') {
+                                        twoUrls = value.url.split(',')
+                                    }
+                                })
+                                if (!oneUrl) {
+                                    oneUrl = this.mainPic
+                                }
+                                twoUrls = twoUrls.concat(noChange)
+
+                                let ids = this.releaseForm.kindsId.split(',')
+                                this.http({
+                                    url: 'merchant/good/tGoodUpd',
+                                    method: 'post',
+                                    data: {
+                                        id: this.goodId,
+                                        goodClassOne: ids[0],
+                                        goodClassTwo: ids[1],
+                                        goodClassThree: ids[2],
+                                        goodTitle: this.releaseForm.goodsTitle,
+                                        goodPic: oneUrl,
+                                        listImg: twoUrls,
+                                        goodPrice: this.releaseForm.onePrice,
+                                        goodNumber: this.releaseForm.total,
+                                        goodPostage: this.releaseForm.postage,
+                                        goodIsPostage: this.releaseForm.postageMore,
+                                        goodShopMall: sessionStorage.getItem('mallId'),
+                                        goodShop: sessionStorage.getItem('shopId'),
+                                        goodShopFloor: sessionStorage.getItem('floorId'),
+                                        tGoodInfo: {
+                                            goodDescription: this.releaseForm.description,
+                                            goodSpecialDescription: this.releaseForm.specialDescription,
+                                        },
+                                        tGoodDetails: self.assembleGoodsData()
+                                    }
+                                }, releaseRes => {
+                                    if (releaseRes.data.code == 200) {
+                                        this.$message.success('修改成功！')
+                                        this.$router.push({ name: 'user-goods-manager'})
+                                    }
+                                })
+                            })
+                        }else {
                             let ids = this.releaseForm.kindsId.split(',')
                             this.http({
-                                url: 'merchant/good/tGoodSave',
+                                url: 'merchant/good/tGoodUpd',
                                 method: 'post',
                                 data: {
+                                    id: this.goodId,
                                     goodClassOne: ids[0],
                                     goodClassTwo: ids[1],
                                     goodClassThree: ids[2],
                                     goodTitle: this.releaseForm.goodsTitle,
-                                    goodPic: oneUrl,
-                                    listImg: twoUrls,
+                                    goodPic: this.mainPic,
+                                    listImg: this.assisPics,
                                     goodPrice: this.releaseForm.onePrice,
                                     goodNumber: this.releaseForm.total,
                                     goodPostage: this.releaseForm.postage,
@@ -450,16 +488,65 @@ export default {
                                     tGoodDetails: self.assembleGoodsData()
                                 }
                             }, releaseRes => {
-                                console.log(releaseRes)
+                                if (releaseRes.data.code == 200) {
+                                    this.$message.success('修改成功！')
+                                    this.$router.push({ name: 'user-goods-manager'})
+                                }
                             })
-                        })
+                        }
+                        
                     }
+                }
+            })
+        },
+        getGoodInfo() {
+            this.http({
+                url: 'merchant/good/selectGoodAllById',
+                method: 'get',
+                data: {
+                    goodId: this.goodId
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    let obj = res.data.data
+                    this.releaseForm.kindsId = [{
+                        id: obj.goodClassOne,
+                        name: obj.goodClassOneName
+                    }, {
+                        id: obj.goodClassTwo,
+                        name: obj.goodClassTwoName
+                    }, {
+                        id: obj.goodClassThree,
+                        name: obj.goodClassThreeName
+                    }]
+                    this.releaseForm.goodsTitle = obj.goodTitle
+                    this.releaseForm.mainUrl = [{ url: this.fileUrl + obj.goodPic}]
+                    this.mainPic = obj.goodPic
+                    this.assisPics = obj.listImg
+                    let _img = []
+                    obj.listImg.forEach(item => {
+                        _img.push({
+                            url: this.fileUrl + item
+                        })
+                    })
+                    this.releaseForm.assistUrls = _img
+                    this.releaseForm.onePrice = obj.goodPrice
+                    this.releaseForm.total = obj.goodNumber
+                    this.releaseForm.postageMore = obj.goodIsPostage
+                    this.releaseForm.postage = obj.goodPostage
+                    this.releaseForm.barCode = obj.goodCode || ''
+                    this.releaseForm.description = obj.tGoodInfo.goodDescription
+                    this.releaseForm.specialDescription = obj.tGoodInfo.goodSpecialDescription || ''
+                    this.colorPickerTable = obj.bigGood.colorPickerTable
+                    this.assemTableData = obj.bigGood.assemTableData
+                    this.formatList = obj.bigGood.formatList
                 }
             })
         }
     },
     mounted() {
-        this.getKindsTree()
+        this.goodId = this.$route.query.id
+        this.getGoodInfo()
     }
 }
 </script>

@@ -46,8 +46,8 @@ export default {
                 password: ''
             },
             loginRules: {
-                username: [ { required: true, message: '手机号不能为空', trigger: 'blur'} ],
-                password: [ { required: true, message: '密码不能为空', trigger: 'blur'} ],
+                username: [ { required: true, message: '请输入手机号', trigger: 'blur'} ],
+                password: [ { required: true, message: '请输入密码', trigger: 'blur'} ],
             },
         }
     },

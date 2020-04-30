@@ -1,10 +1,10 @@
 <template>
     <div class="filter-tree-wrapper" v-clickoutside="handleClose">
         <div class="drop-list-input-box" @click="handleFocus">
-            <el-input v-model="selectedLabel" :placeholder="placeholder" @blur="handleBlur" @keydown.enter.native="filterTree"
+            <el-input :disabled="disabled" v-model="selectedLabel" :placeholder="placeholder" @blur="handleBlur" @keydown.enter.native="filterTree"
                 ref="reference" class="drop-list-input" :style="{'width' : width + 'px'}" :prefix-icon="iconName">
             </el-input>
-            <el-button @click="filterTree">搜索</el-button>
+            <el-button v-if="!disabled" @click="filterTree">搜索</el-button>
         </div>
         <transition name="el-zoom-in-top" @after-leave="doDestroy">
             <dropDown ref="popper" v-show="visible" :defaultProps="defaultProps" :append-to-body="popperAppendToBody"
@@ -34,7 +34,8 @@ export default {
                 }
             }
         },
-        showCheckbox: { type: Boolean, default: false}
+        showCheckbox: { type: Boolean, default: false},
+        disabled: { default: false }
     },
     data() {
         return {
@@ -61,6 +62,15 @@ export default {
         },
         value : {
             handler(n) {
+                if (typeof n == 'object') {
+                    let _label = [], ids = []
+                    n.forEach(item => {
+                        _label.push(item.name)
+                        ids.push(item.id)
+                    })
+                    this.handleSelectChange(_label, ids)
+                }
+                
             },
             deep: true,
             immediate: true
@@ -68,7 +78,7 @@ export default {
     },
     methods : {
         handleFocus(event) {
-            this.visible = true
+            !this.disabled && (this.visible = true)
         },
         handleBlur(event) {
             // this.visible = false;

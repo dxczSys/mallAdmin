@@ -23,12 +23,12 @@
                 <el-form-item label="广告位介绍">
                     <img v-if="applyForm.adType == '1'" class="ad-introduction" src="~@/assets/img/zhiding-ad.png">
                     <img v-if="applyForm.adType == '2'" class="ad-introduction" src="~@/assets/img/cuxiao-ad.png">
-                    <span v-if="applyForm.adType == '1'" class="ad-introduction-mess">*提示：该广告位位于易码商城小程序首页置顶位，如左图所示。首页是用户查看最多的地方，且该位置位于最醒目，用户操作最容易触及的地方，我们在此为广大商户设置了20个展示商户基本信息的广告位，快来加入吧！</span>
-                    <span v-if="applyForm.adType == '2'" class="ad-introduction-mess">*提示：该广告位位于易码商城小程序底部，如左图所示。该位置是用户最容易触及的地方，我们在此为广大商户设置了30个展示促销商品信息的广告位，可以大大提升自己的知名度，快来加入吧！</span>
+                    <span v-if="applyForm.adType == '1'" class="ad-introduction-mess">*广告位介绍：该广告位位于易码商城小程序首页置顶位，如左图所示。首页是用户查看最多的地方，且该位置位于最醒目，用户操作最容易触及的地方，我们在此为广大商户设置了20个展示商户基本信息的广告位，快来加入吧！</span>
+                    <span v-if="applyForm.adType == '2'" class="ad-introduction-mess">*广告位介绍：该广告位位于易码商城小程序底部，如左图所示。该位置是用户最容易触及的地方，我们在此为广大商户设置了30个展示促销商品信息的广告位，可以大大提升自己的知名度，快来加入吧！</span>
                 </el-form-item>
                 <el-form-item v-if="applyForm.adType == '2'" prop="goodsId" label="选择促销商品" required>
-                    <el-select v-model="applyForm.goodsId" placeholder="请选择本店促销商品">
-                        <el-option v-for="(item, index) in goodsList" :key="index" :label="`商品编码:${item.goodsNum}  ${item.goodsName}`" :value="item.id"></el-option>
+                    <el-select v-model="applyForm.goodsId" v-el-select-loadmore="handleChangePage" placeholder="请选择本店促销商品">
+                        <el-option v-for="(item, index) in goodsList" :key="index" :label="`商品编码:${item.goodNumber || '无'} -- ${item.goodTitle}`" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="申请时长" prop="timeType" required>
@@ -122,6 +122,26 @@
 import vueQr from 'vue-qr'
 export default {
     components: { vueQr },
+    directives: {
+        'el-select-loadmore': {
+            bind(el, binding) {
+                const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+                SELECTWRAP_DOM.addEventListener('scroll', function () {
+                    /**
+                    * scrollHeight 获取元素内容高度(只读)
+                    * scrollTop 获取或者设置元素的偏移值,常用于, 计算滚动条的位置, 当一个元素的容器没有产生垂直方向的滚动条, 那它的scrollTop的值默认为0.
+                    * clientHeight 读取元素的可见高度(只读)
+                    * 如果元素滚动到底, 下面等式返回true, 没有则返回false:
+                    * ele.scrollHeight - ele.scrollTop === ele.clientHeight;
+                    */
+                    const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+                    if (condition) {
+                        binding.value();
+                    }
+                });
+            }
+        }
+    },
     data() {
         return {
             dialogVisible: false,
@@ -131,11 +151,7 @@ export default {
                 timeType: '',
             },
             adTypeList: [],
-            goodsList: [{
-                id: '1',
-                goodsNum: '599344673442',
-                goodsName: 'Python代码代做代写网络爬虫数据抓取分析程序代写爬虫定制GUIweb'
-            }],
+            goodsList: [],
             timeTypeList: [],
             rules: {
                 goodsId: [ { required: true, message: '请选择本地促销商品', trigger: 'blur' } ],
@@ -154,11 +170,18 @@ export default {
             type: 0,
             detailData: {},
             activityStatus: 0,
+            currentPage: 1,
+            pagesize: 10
         }
     },
     watch: {
-        'applyForm.adType'() {
-            this.gettimeTypeList()
+        'applyForm.adType'(n) {
+            if (n == 1) {
+                this.gettimeTypeList()
+            }else {
+                this.gettimeTypeList()
+                this.getGoodsList()
+            }
         }
     },
     methods: {
@@ -213,9 +236,6 @@ export default {
                     })
                 }
             })
-        },
-        handleTimeLong() {
-            
         },
         beginTiming() {
             this.timeNum = 299
@@ -308,6 +328,8 @@ export default {
                 done()
             }).catch(() => {})
         },
+
+        //查看详情
         getDetailData() {
             this.http({
                 url: 'merchant/advert/advertSelById',
@@ -324,6 +346,8 @@ export default {
                 }
             })
         },
+
+        //获取剩余广告位
         getLastAd() {
             this.http({
                 url: 'merchant/advert/selAdvertCountByUserShopMall',
@@ -340,6 +364,28 @@ export default {
                     this.$message.error(res.data.msg || '')
                 }
             })
+        },
+        getGoodsList() {
+            this.http({
+                url: 'merchant/good/selGoodByShopId',
+                method: 'post',
+                data: {
+                    currentPage: this.currentPage,
+                    pagesize: this.pagesize,
+                    t: {
+                        goodShop: sessionStorage.getItem('shopId')
+                    }
+                }
+
+            }, res => {
+                if (res.data.code == 200) {
+                    this.goodsList = res.data.data
+                }
+            })
+        },
+        handleChangePage() {
+            this.pagesize += 10
+            this.getGoodsList()
         }
 
     },
@@ -377,6 +423,7 @@ export default {
     padding-left: 10px;
     width: 360px;
     color: #999;
+    margin-left: 10px;
 }
 .pay-wrapper{
     /deep/ .el-dialog__header{
