@@ -30,7 +30,7 @@ export default {
         return {
             avatarUrl: require('@/assets/img/avatar_default.png'),
             approvalNum: 0,
-            roleId: sessionStorage.getItem('roleId')
+            roleId: this.$cookie.get('roleId')
         }
     },
     computed: {
@@ -59,6 +59,11 @@ export default {
                 clearLoginInfo()
                 this.$router.push({ name: 'login' })
             })
+        }
+    },
+    mounted() {
+        if (this.$cookie.get('url')) {
+            this.avatarUrl = window.SITE_CONFIG.fileUrl + this.$cookie.get('url')
         }
     }
 }

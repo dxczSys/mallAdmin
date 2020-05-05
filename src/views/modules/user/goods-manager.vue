@@ -138,7 +138,7 @@ export default {
                         goodTitle: this.filterForm.goodsName,
                         goodIsUpperShelf: this.filterForm.sellState,
                         goodCode: this.filterForm.goodsNum,
-                        goodShop: sessionStorage.getItem('shopId')
+                        goodShop: this.$cookie.get('shopId')
                     }
                 }
             }, res => {

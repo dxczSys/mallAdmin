@@ -216,7 +216,7 @@ export default {
     data() {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
-            roleId: JSON.parse(sessionStorage.getItem('roleId')),
+            roleId: JSON.parse(this.$cookie.get('roleId')),
             refreshTree: true,
             expandedId: ['a1'],
             filterText: '',

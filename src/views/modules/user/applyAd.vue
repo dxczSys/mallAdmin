@@ -373,7 +373,7 @@ export default {
                     currentPage: this.currentPage,
                     pagesize: this.pagesize,
                     t: {
-                        goodShop: sessionStorage.getItem('shopId')
+                        goodShop: this.$cookie.get('shopId')
                     }
                 }
 

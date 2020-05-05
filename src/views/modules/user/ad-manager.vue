@@ -67,7 +67,7 @@
 export default {
     data() {
         return {
-            currentMall: sessionStorage.getItem('mallName') || '易码商城',
+            currentMall: this.$cookie.get('mallName') || '易码商城',
             adList: [],
             currentPage: 1,
             pageSize: 8,

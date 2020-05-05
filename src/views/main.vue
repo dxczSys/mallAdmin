@@ -74,8 +74,8 @@ export default {
         // 获取当前登录者信息
         getUserInfo () {
             this.loading = false
-            this.userId = sessionStorage.getItem('userId')
-            this.userName = sessionStorage.getItem('userName') || sessionStorage.getItem('realUserName')
+            this.userId = this.$cookie.get('userId')
+            this.userName = this.$cookie.get('userName') || this.$cookie.get('realUserName')
         }
     }
 }

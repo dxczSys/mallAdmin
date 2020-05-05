@@ -440,9 +440,9 @@ export default {
                                     goodNumber: this.releaseForm.total,
                                     goodPostage: this.releaseForm.postage,
                                     goodIsPostage: this.releaseForm.postageMore,
-                                    goodShopMall: sessionStorage.getItem('mallId'),
-                                    goodShop: sessionStorage.getItem('shopId'),
-                                    goodShopFloor: sessionStorage.getItem('floorId'),
+                                    goodShopMall: this.$cookie.get('mallId'),
+                                    goodShop: this.$cookie.get('shopId'),
+                                    goodShopFloor: this.$cookie.get('floorId'),
                                     tGoodInfo: {
                                         goodDescription: this.releaseForm.description,
                                         goodSpecialDescription: this.releaseForm.specialDescription,

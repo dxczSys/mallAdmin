@@ -142,7 +142,7 @@ export default {
                 url: 'admin/shopMall/findTShopMallAll',
                 method: 'post',
                 data: {
-                    roles: JSON.parse(sessionStorage.getItem('roleId'))
+                    roles: JSON.parse(this.$cookie.get('roleId'))
                 }
             }, res => {
                 if (res.data.code == 200) {
@@ -162,7 +162,7 @@ export default {
                         advertIsExpire: this.isExpired,
                         advertShopMall: this.mallId
                     },
-                    roles: JSON.parse(sessionStorage.getItem('roleId'))
+                    roles: JSON.parse(this.$cookie.get('roleId'))
                 }
             }, res => {
                 if (res.data.code == 200) {

@@ -175,7 +175,7 @@ export default {
         }
     },
     mounted() {
-        this.roleId = JSON.parse(sessionStorage.getItem('roleId'))
+        this.roleId = JSON.parse(this.$cookie.get('roleId'))
         if (this.$route.query.index) {
             this.index = this.$route.query.index
         }

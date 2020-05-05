@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import sha256 from 'js-sha256'
 export default {
     data() {
         return {
@@ -60,7 +61,7 @@ export default {
                         method: 'form',
                         data: {
                             username: this.loginForm.username,
-                            password: this.loginForm.password
+                            password: sha256(this.loginForm.password)
                         }
                     }, res => {
                         if (res.data.code == 200) {
@@ -72,26 +73,26 @@ export default {
                                     _roleNames.push(item.roleName)
                                 })
                             this.$cookie.set('token', _data.userToken)
-                            sessionStorage.setItem('userId', _data.id)
-                            sessionStorage.setItem('roleId', JSON.stringify(_roleids))
-                            sessionStorage.setItem('roleName',JSON.stringify(_roleNames))
-                            sessionStorage.setItem('userName', _data.userName || '')
-                            sessionStorage.setItem('realUserName', _data.realUserName || '') 
-                            sessionStorage.setItem('phone', _data.userTel)
-                            sessionStorage.setItem('url', _data.userPic || '')
+                            this.$cookie.set('userId', _data.id)
+                            this.$cookie.set('roleId', JSON.stringify(_roleids))
+                            this.$cookie.set('roleName',JSON.stringify(_roleNames))
+                            this.$cookie.set('userName', _data.userName || '')
+                            this.$cookie.set('realUserName', _data.realUserName || '') 
+                            this.$cookie.set('phone', _data.userTel)
+                            this.$cookie.set('url', _data.userPic || '')
                             if (mall) {
-                                sessionStorage.setItem('mallData', JSON.stringify(mall))
-                                sessionStorage.setItem('mallName', mall.shopName)
-                                sessionStorage.setItem('mallId', mall.id)
+                                this.$cookie.set('mallData', JSON.stringify(mall))
+                                this.$cookie.set('mallName', mall.shopName)
+                                this.$cookie.set('mallId', mall.id)
                             }
                             if (floor) {
-                                sessionStorage.setItem('floorName', floor.shopName)
-                                sessionStorage.setItem('floorId', floor.id)
+                                this.$cookie.set('floorName', floor.shopName)
+                                this.$cookie.set('floorId', floor.id)
                             }
                             if (shop) {
-                                sessionStorage.setItem('shopData', JSON.stringify(shop))
-                                sessionStorage.setItem('shopName', shop.shopName)
-                                sessionStorage.setItem('shopId', shop.id)
+                                this.$cookie.set('shopData', JSON.stringify(shop))
+                                this.$cookie.set('shopName', shop.shopName)
+                                this.$cookie.set('shopId', shop.id)
                             }
                             this.$router.push({ name: 'home' })
                         }else {

@@ -2,28 +2,28 @@
     <div class="update-person-info-wrapper">
         <div style="display: flex;align-items: center;">
             <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-            <div style="font-weight: 600;">基础信息</div>
+            <div style="font-weight: 600;">个人资料</div>
         </div>
         <div class="avatar-box">
             <div class="avatar-left">
                 <el-card>
-                    <img class="avatar-left-img" src="~@/assets/img/avatar.png">
-                    <div style="text-align: center;">
-                        <el-upload action="https://jsonplaceholder.typicode.com/posts/">
-                            <el-button type="text">修改头像</el-button>
-                        </el-upload>
-                    </div>
+                    <upload-file class="avatar-left-img" :size="2" limitTip="" :filelist="avatar"></upload-file>
                 </el-card>
             </div>
             <el-card class="deptment-right">
-                <div>身份：商户</div>
+                <div>
+                    <span>身份：</span>
+                    <span v-for="(item, index) in roleLists" :key="index">
+                        <span>{{item.roleName}}</span>
+                        <span v-if="index < roleLists.length - 1">、</span>
+                    </span>
+                </div>
                 <div style="padding-top: 30px;">
                     <span>昵称：</span>
                     <span v-if="!isEdit">{{nikeName}}</span>
-                    <span v-if="!nikeName && !isEdit" style="color: #999;">您尚未设置昵称</span>
+                    <span v-if="!nikeName && !isEdit" style="color: #999; font-size: 13px;">您尚未设置昵称</span>
                     <el-input v-if="isEdit" v-model="nikeName" placeholder="请输入昵称" maxlength="10" style="width: 260px;"></el-input>
-                    <span class="el-icon-edit-outline" v-if="!isEdit" @click="isEdit = !isEdit" style="color: #17B3A3;cursor: pointer; font-size: 18px;"></span>
-                    <span class="el-icon-check" v-if="isEdit" style="color: #17B3A3;cursor: pointer;font-size: 18px;padding-top: 5px;"></span>
+                    <span class="el-icon-edit-outline" v-if="!isEdit" @click="isEdit = !isEdit"></span>
                 </div>
                 <div v-if="isEdit" style="color: #999; font-size: 12px;padding-left: 46px; padding-top: 5px;">*昵称最多10个字</div> 
             </el-card>
@@ -40,23 +40,28 @@
             </div>
             <div class="row-box">
                 <label class="row-label">绑定微信</label>
-                <div v-if="!chat && !isEditChat" style="color: #999;">未绑定</div>
+                <div v-if="!chat && !isEditChat" style="color: #999; font-size: 13px;">未绑定</div>
                 <div v-if="chat && !isEditChat">{{chat}}</div>
                 <el-input v-if="isEditChat" v-model="chat" placeholder="微信号" style="width: 260px;"></el-input>
                 <el-button v-if="!isEditChat" type="text" @click="isEditChat = !isEditChat">修改绑定</el-button>
-                <el-button v-if="isEditChat" type="text">保存</el-button>
             </div>
             <div style="display: flex;align-items: center; margin-bottom: 20px;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                <div style="font-weight: 600;">个人信息</div>
+                <div style="font-weight: 600;">基础信息</div>
             </div>
             <div class="row-box">
                 <label class="row-label">真实姓名</label>
-                <el-input v-model="realName" placeholder="真实姓名" style="width: 360px;"></el-input>
+                <span v-if="!isEditName">{{realName}}</span>
+                <span v-if="!realName && !isEditName" style="color: #999; font-size: 13px;">您尚未设置真实姓名</span>
+                <el-input v-if="isEditName" v-model="realName" placeholder="真实姓名" maxlength="10" style="width: 360px;"></el-input>
+                <span class="el-icon-edit-outline" v-if="!isEditName" @click="isEditName = !isEditName"></span>
             </div>
             <div class="row-box">
                 <label class="row-label">邮箱</label>
-                <el-input v-model="email" placeholder="您未设置邮箱" style="width: 360px;"></el-input>
+                <span v-if="!isEditEmail">{{email}}</span>
+                <span v-if="!isEditEmail && !email" style="color: #999; font-size: 13px;">您尚未设置邮箱</span>
+                <el-input v-if="isEditEmail" v-model="email" placeholder="真实姓名" maxlength="10" style="width: 360px;"></el-input>
+                <span class="el-icon-edit-outline" v-if="!isEditEmail" @click="isEditEmail = !isEditEmail"></span>
             </div>
             <div class="row-box">
                 <label class="row-label">性别</label>
@@ -64,13 +69,14 @@
                 <el-radio v-model="sex" label="2">女</el-radio>
             </div>
             <div style="padding-left: 92px;">
-                <el-button type="primary">保存</el-button>
+                <el-button @click="handleSaveInfo" type="primary">保存</el-button>
             </div>
         </div>
+
         <el-dialog title="手机绑定" :visible.sync="dialogVisible" width="400px">
             <div v-if="!nextStep">
                 <div style="font-size: 13px;">您正在更改您之前绑定的手机</div>
-                <div style="font-size: 13px;">易码商城讲给您{{hiddenPhone}}的手机发送验证码，请您填写，24小时内有效</div>
+                <div style="font-size: 13px;">易码商城将给您{{hiddenPhone}}的手机发送验证码，请您填写，24小时内有效</div>
                 <div style="margin-top: 10px;">
                     <label style="margin-right: 10px;">验证码</label>
                     <el-input v-model="code" placeholder="验证码" style="width: 150px;" :disabled="codeTiming > 0"></el-input>
@@ -102,15 +108,22 @@
 </template>
 
 <script>
+import uploadFile from '@/components/upload-file'
 export default {
+    components: { uploadFile },
     data() {
         return {
+            fileUrl: window.SITE_CONFIG.fileUrl,
             isEdit: false,
             isEditChat: false,
+            isEditName: false,
+            isEditEmail: false,
             dialogVisible: false,
             nextStep: false,
+            roleLists: '',
             nikeName: '',
-            phone: '15294649922',
+            avatar: [],
+            phone: '',
             chat: '',
             email: '',
             realName: '',
@@ -142,7 +155,77 @@ export default {
                     timer = null
                 }
             }, 1000)
+        },
+        getPersonInfo() {
+            this.http({
+                url: 'user/getUserIByUserId',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    let user = res.data.data.user
+                    this.roleLists = user.roleLists
+                    if (user.userPic) {
+                        this.avatar = [{ url: this.fileUrl + user.userPic }]
+                    }else {
+                        this.avatar = [{ url: require('@/assets/img/avatar_default.png')}]
+                    }
+                    this.nikeName = user.userName
+                    this.phone = user.userTel
+                    this.chat = user.uerVx
+                    this.realName = user.realUserName || ''
+                    this.email = user.userEmail || ''
+                    this.sex = user.userSex || ''
+                }
+            })
+        },
+        handleSaveInfo() {
+            if (this.avatar[0].raw) {
+                this.$upload({
+                    data: [this.avatar[0].raw]
+                }, imgres => {
+                    if (imgres.data.code == 200) {
+                        this.http({
+                            url: 'user/userUpdateById',
+                            method: 'post',
+                            data: {
+                                id: this.$cookie.get('userId'),
+                                userName: this.nikeName,
+                                userPic: imgres.data.data,
+                                realUserName: this.realName,
+                                userEmail: this.email,
+                                userSex: this.sex
+                            }
+                        }, res => {
+                            if (res.data.code == 200) {
+                                this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
+                                this.$cookie.set('url', imgres.data.data)
+                                this.$message.success('更新成功！')
+                            }
+                        })
+                    }
+                })
+            }else {
+                this.http({
+                    url: 'user/userUpdateById',
+                    method: 'post',
+                    data: {
+                        id: this.$cookie.get('userId'),
+                        userName: this.nikeName,
+                        realUserName: this.realName,
+                        userEmail: this.email,
+                        userSex: this.sex
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
+                        this.$message.success('更新成功！')
+                    }
+                })
+            }
         }
+    },
+    mounted() {
+        this.getPersonInfo()
     }
 }
 </script>
@@ -153,10 +236,25 @@ export default {
     margin-top: 20px;
 }
 .avatar-left-img{
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: contain;
+    /deep/ .img-item{
+        width: 100px;
+        height: 100px;
+        border: none;
+        img{
+            border-radius: 50%;
+            object-fit: fill;
+        }
+    }
+    /deep/ .avatar-uploader-icon{
+        width: 100px !important;
+        height: 100px !important;
+        line-height: 100px !important;
+    }
+    /deep/ .delete-layer{
+        width: 100px !important;
+        height: 100px !important;
+        line-height: 100px !important;
+    }
 }
 .deptment-right{
     flex-grow: 1;
@@ -178,5 +276,11 @@ export default {
             margin-right: 10px;
         }
     }
+}
+.el-icon-edit-outline{
+    color: #17B3A3;
+    cursor: pointer; 
+    font-size: 18px;
+    padding-left: 5px;
 }
 </style>
