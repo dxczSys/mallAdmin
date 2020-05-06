@@ -437,6 +437,7 @@ export default {
                                     goodPic: oneUrl,
                                     listImg: twoUrls,
                                     goodPrice: this.releaseForm.onePrice,
+                                    goodCode: this.releaseForm.barCode,
                                     goodNumber: this.releaseForm.total,
                                     goodPostage: this.releaseForm.postage,
                                     goodIsPostage: this.releaseForm.postageMore,

@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import sha256 from 'js-sha256'
 export default {
     data() {
         let checkPhone = (rule, value, callback) => {
@@ -113,7 +114,7 @@ export default {
                             method: 'post',
                             data: {
                                 userTel: this.registerForm.phone,
-                                userPassWord: this.registerForm.password,
+                                userPassWord: sha256(this.registerForm.password),
                                 code: this.registerForm.code
                             }
                         }, res => {

@@ -124,6 +124,7 @@ export default {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
             goodId: '',
+            tempObj: {},
             releaseForm: {
                 kindsId: '',
                 goodsTitle: '',
@@ -375,7 +376,6 @@ export default {
             let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
-                    debugger
                     if (this.checkData()) {
                         let mainUrl = null, assUrls = null
                         if (this.releaseForm.mainUrl[0].raw) {
@@ -435,6 +435,13 @@ export default {
                                     method: 'post',
                                     data: {
                                         id: this.goodId,
+                                        goodCreateTime: this.tempObj.goodCreateTime,
+                                        goodIsUpperShelf: this.tempObj.goodIsUpperShelf,
+                                        goodSales: this.tempObj.goodSales,
+                                        goodShopMall: this.$cookie.get('mallId'),
+                                        goodShop: this.$cookie.get('shopId'),
+                                        goodShopFloor: this.$cookie.get('floorId'),
+                                        goodUser: this.tempObj.goodUser,
                                         goodClassOne: ids[0],
                                         goodClassTwo: ids[1],
                                         goodClassThree: ids[2],
@@ -442,12 +449,10 @@ export default {
                                         goodPic: oneUrl,
                                         listImg: twoUrls,
                                         goodPrice: this.releaseForm.onePrice,
+                                        goodCode: this.releaseForm.barCode,
                                         goodNumber: this.releaseForm.total,
                                         goodPostage: this.releaseForm.postage,
                                         goodIsPostage: this.releaseForm.postageMore,
-                                        goodShopMall: this.$cookie.get('mallId'),
-                                        goodShop: this.$cookie.get('shopId'),
-                                        goodShopFloor: this.$cookie.get('floorId'),
                                         tGoodInfo: {
                                             goodDescription: this.releaseForm.description,
                                             goodSpecialDescription: this.releaseForm.specialDescription,
@@ -468,6 +473,13 @@ export default {
                                 method: 'post',
                                 data: {
                                     id: this.goodId,
+                                    goodCreateTime: this.tempObj.goodCreateTime,
+                                    goodIsUpperShelf: this.tempObj.goodIsUpperShelf,
+                                    goodSales: this.tempObj.goodSales,
+                                    goodShopMall: this.$cookie.get('mallId'),
+                                    goodShop: this.$cookie.get('shopId'),
+                                    goodShopFloor: this.$cookie.get('floorId'),
+                                    goodUser: this.tempObj.goodUser,
                                     goodClassOne: ids[0],
                                     goodClassTwo: ids[1],
                                     goodClassThree: ids[2],
@@ -475,12 +487,10 @@ export default {
                                     goodPic: this.mainPic,
                                     listImg: this.assisPics,
                                     goodPrice: this.releaseForm.onePrice,
+                                    goodCode: this.releaseForm.barCode,
                                     goodNumber: this.releaseForm.total,
                                     goodPostage: this.releaseForm.postage,
                                     goodIsPostage: this.releaseForm.postageMore,
-                                    goodShopMall: this.$cookie.get('mallId'),
-                                    goodShop: this.$cookie.get('shopId'),
-                                    goodShopFloor: this.$cookie.get('floorId'),
                                     tGoodInfo: {
                                         goodDescription: this.releaseForm.description,
                                         goodSpecialDescription: this.releaseForm.specialDescription,
@@ -509,6 +519,7 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     let obj = res.data.data
+                    this.tempObj = obj
                     this.releaseForm.kindsId = [{
                         id: obj.goodClassOne,
                         name: obj.goodClassOneName

@@ -81,7 +81,7 @@ export default {
                             this.$cookie.set('phone', _data.userTel)
                             this.$cookie.set('url', _data.userPic || '')
                             if (mall) {
-                                this.$cookie.set('mallData', JSON.stringify(mall))
+                                sessionStorage.setItem('mallData', JSON.stringify(mall))
                                 this.$cookie.set('mallName', mall.shopName)
                                 this.$cookie.set('mallId', mall.id)
                             }
@@ -90,7 +90,7 @@ export default {
                                 this.$cookie.set('floorId', floor.id)
                             }
                             if (shop) {
-                                this.$cookie.set('shopData', JSON.stringify(shop))
+                                sessionStorage.setItem('shopData', JSON.stringify(shop))
                                 this.$cookie.set('shopName', shop.shopName)
                                 this.$cookie.set('shopId', shop.id)
                             }

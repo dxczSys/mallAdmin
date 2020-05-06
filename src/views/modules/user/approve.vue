@@ -57,6 +57,7 @@
                     <el-col :span="12">
                         <el-form-item label="微信" prop="chat" required>
                             <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
+                            <div style="color: #E6A23C; font-size: 12px;">提醒:请务必绑定微信号，而不是手机号，否则无法正常划账</div>
                         </el-form-item>
                     </el-col>
                 </el-row>

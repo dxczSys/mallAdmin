@@ -12,14 +12,14 @@
             </div>
             <el-card class="deptment-right">
                 <div>
-                    <span>身份：</span>
+                    <span>身份:</span>
                     <span v-for="(item, index) in roleLists" :key="index">
                         <span>{{item.roleName}}</span>
                         <span v-if="index < roleLists.length - 1">、</span>
                     </span>
                 </div>
                 <div style="padding-top: 30px;">
-                    <span>昵称：</span>
+                    <span>昵称:</span>
                     <span v-if="!isEdit">{{nikeName}}</span>
                     <span v-if="!nikeName && !isEdit" style="color: #999; font-size: 13px;">您尚未设置昵称</span>
                     <el-input v-if="isEdit" v-model="nikeName" placeholder="请输入昵称" maxlength="10" style="width: 260px;"></el-input>
@@ -44,6 +44,7 @@
                 <div v-if="chat && !isEditChat">{{chat}}</div>
                 <el-input v-if="isEditChat" v-model="chat" placeholder="微信号" style="width: 260px;"></el-input>
                 <el-button v-if="!isEditChat" type="text" @click="isEditChat = !isEditChat">修改绑定</el-button>
+                <div style="color: #E6A23C; font-size: 12px; margin-left: 10px;">提醒:请务必绑定微信号，而不是手机号，否则无法正常划账</div>
             </div>
             <div style="display: flex;align-items: center; margin-bottom: 20px;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
@@ -60,7 +61,7 @@
                 <label class="row-label">邮箱</label>
                 <span v-if="!isEditEmail">{{email}}</span>
                 <span v-if="!isEditEmail && !email" style="color: #999; font-size: 13px;">您尚未设置邮箱</span>
-                <el-input v-if="isEditEmail" v-model="email" placeholder="真实姓名" maxlength="10" style="width: 360px;"></el-input>
+                <el-input v-if="isEditEmail" v-model="email" placeholder="邮箱" style="width: 360px;"></el-input>
                 <span class="el-icon-edit-outline" v-if="!isEditEmail" @click="isEditEmail = !isEditEmail"></span>
             </div>
             <div class="row-box">
@@ -73,18 +74,18 @@
             </div>
         </div>
 
-        <el-dialog title="手机绑定" :visible.sync="dialogVisible" width="400px">
+        <el-dialog title="手机绑定" :visible.sync="dialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" width="400px">
             <div v-if="!nextStep">
                 <div style="font-size: 13px;">您正在更改您之前绑定的手机</div>
-                <div style="font-size: 13px;">易码商城将给您{{hiddenPhone}}的手机发送验证码，请您填写，24小时内有效</div>
+                <div style="font-size: 13px;">易码商城将给您{{hiddenPhone}}的手机发送验证码，请您填写，5分钟内有效</div>
                 <div style="margin-top: 10px;">
                     <label style="margin-right: 10px;">验证码</label>
-                    <el-input v-model="code" placeholder="验证码" style="width: 150px;" :disabled="codeTiming > 0"></el-input>
-                    <el-button type="primary" @click="getCode(0)" v-if="codeTiming == 0">获取验证码</el-button>
+                    <el-input v-model="code" placeholder="验证码" style="width: 150px;"></el-input>
+                    <el-button type="primary" @click="getCode(0)" v-if="codeTiming == 0" size="small">获取验证码</el-button>
                     <span style="color: #999; margin-left: 5px;" v-else>重新发送({{codeTiming}}s)</span>
                 </div>
                 <div style="padding-left: 55px; margin-top: 20px;">
-                    <el-button type="primary" @click="handleNext">下一步</el-button>
+                    <el-button :disabled="code.length != 6" type="primary" size="small" @click="handleNext">下一步</el-button>
                 </div>
             </div>
             <div v-if="nextStep">
@@ -92,7 +93,7 @@
                 <div style="margin-bottom: 20px;">
                     <label style="margin-right: 10px;">手机号</label>
                     <el-input v-model="newPhone" placeholder="手机号" style="width: 150px;" :disabled="codeTiming > 0"></el-input>
-                    <el-button type="primary" @click="getCode(1)" v-if="codeTiming == 0">获取验证码</el-button>
+                    <el-button type="primary" @click="getCode(1)" v-if="codeTiming == 0" size="small">获取验证码</el-button>
                     <span style="color: #999; margin-left: 5px;" v-else>重新发送({{codeTiming}}s)</span>
                 </div>
                 <div style="margin-bottom: 20px;">
@@ -100,7 +101,7 @@
                     <el-input v-model="newCode" placeholder="验证码" style="width: 150px;"></el-input>
                 </div>
                 <div style="padding-left: 55px;">
-                    <el-button type="primary">保存</el-button>
+                    <el-button :disabled="newCode.length != 6" type="primary" @click="updatePhone" size="small">修改绑定</el-button>
                 </div>
             </div>
         </el-dialog>
@@ -109,6 +110,7 @@
 
 <script>
 import uploadFile from '@/components/upload-file'
+import { clearLoginInfo } from '@/utils'
 export default {
     components: { uploadFile },
     data() {
@@ -141,11 +143,37 @@ export default {
     },
     methods: {
         handleNext() {
-            this.nextStep = true
-            this.codeTiming = 0
+            if (this.code.length == 6) {
+                this.http({
+                    url: 'user/checkSendMessageWithUpdTel',
+                    method: 'get',
+                    data: {
+                        userTel: this.phone,
+                        newCode: this.code
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.nextStep = true
+                        this.codeTiming = 0
+                    }else {
+                        this.$message.info(res.data.msg)
+                    }
+                })
+            }else {
+                this.$message.info('请输入正确验证码')
+            }
         },
-        getCode() {
-            //获取验证码
+        getCode(num) {
+            let phone = ''
+            if (num == 1 && !/^1[3456789]\d{9}$/.test(this.newPhone)) {
+                this.$message.info('请输入正确的手机号')
+                return false
+            }
+            if (num == 0) {
+                phone = this.phone
+            }else {
+                phone = this.newPhone
+            }
             this.codeTiming = 59
             let timer = setInterval(() => {
                 if (this.codeTiming > 0) {
@@ -155,6 +183,18 @@ export default {
                     timer = null
                 }
             }, 1000)
+            this.http({
+                url: 'user/SendMessageWithUpdTel',
+                method: 'get',
+                data: {
+                    phone: phone
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.$message.success('验证码已发送')
+                }
+            })
+            
         },
         getPersonInfo() {
             this.http({
@@ -178,50 +218,95 @@ export default {
                 }
             })
         },
+        checkEmail() {
+            let reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
+            if (this.email && !reg.test(this.email)) {
+                this.$message.info('邮箱格式不正确!')
+                return false
+            }
+            return true
+        },
         handleSaveInfo() {
             if (this.avatar[0].raw) {
                 this.$upload({
                     data: [this.avatar[0].raw]
                 }, imgres => {
                     if (imgres.data.code == 200) {
-                        this.http({
-                            url: 'user/userUpdateById',
-                            method: 'post',
-                            data: {
-                                id: this.$cookie.get('userId'),
-                                userName: this.nikeName,
-                                userPic: imgres.data.data,
-                                realUserName: this.realName,
-                                userEmail: this.email,
-                                userSex: this.sex
-                            }
-                        }, res => {
-                            if (res.data.code == 200) {
-                                this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
-                                this.$cookie.set('url', imgres.data.data)
-                                this.$message.success('更新成功！')
-                            }
-                        })
+                        if (this.checkEmail()) {
+                            this.http({
+                                url: 'user/userUpdateById',
+                                method: 'post',
+                                data: {
+                                    id: this.$cookie.get('userId'),
+                                    userName: this.nikeName,
+                                    userPic: imgres.data.data,
+                                    uerVx: this.chat,
+                                    realUserName: this.realName,
+                                    userEmail: this.email,
+                                    userSex: this.sex
+                                }
+                            }, res => {
+                                if (res.data.code == 200) {
+                                    this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
+                                    this.isEditChat && (this.isEditChat = false)
+                                    this.isEditName && (this.$cookie.set('realUserName', this.realName), this.isEditName = false)
+                                    this.isEditEmail && (this.isEditEmail = false)
+                                    this.$cookie.set('url', imgres.data.data)
+                                    this.$message.success('更新成功！')
+                                }
+                            })
+                        }
                     }
                 })
             }else {
-                this.http({
-                    url: 'user/userUpdateById',
-                    method: 'post',
-                    data: {
-                        id: this.$cookie.get('userId'),
-                        userName: this.nikeName,
-                        realUserName: this.realName,
-                        userEmail: this.email,
-                        userSex: this.sex
-                    }
-                }, res => {
-                    if (res.data.code == 200) {
-                        this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
-                        this.$message.success('更新成功！')
-                    }
-                })
+                if (this.checkEmail()) {
+                    this.http({
+                        url: 'user/userUpdateById',
+                        method: 'post',
+                        data: {
+                            id: this.$cookie.get('userId'),
+                            userName: this.nikeName,
+                            realUserName: this.realName,
+                            userEmail: this.email,
+                            userSex: this.sex
+                        }
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.isEdit && (this.$cookie.set('userName', this.nikeName), this.isEdit = false)
+                            this.isEditChat && (this.isEditChat = false)
+                            this.isEditName && (this.$cookie.set('realUserName', this.realName), this.isEditName = false)
+                            this.isEditEmail && (this.isEditEmail = false)
+                            this.$message.success('更新成功！')
+                        }
+                    })
+                }
             }
+        },
+        updatePhone() {
+            this.http({
+                url: 'user/userUpdateById',
+                method: 'post',
+                data: {
+                    id: this.$cookie.get('userId'),
+                    userTel: this.newPhone,
+                    code: this.newCode
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.dialogVisible = false
+                    this.$message.success('已成功换绑,请重新登录')
+                    clearLoginInfo()
+                    this.$router.push({ name: 'login' })
+                }else {
+                    this.$message.info(res.data.msg)
+                }
+                this.dialogVisible = false
+                this.code = ''
+                this.newCode = ''
+                this.newPhone = ''
+                this.nextStep = false
+                this.codeTiming = 0
+            })
         }
     },
     mounted() {
