@@ -48,7 +48,9 @@ export default {
                         self.pickerMinDate = ''
                     }
                 }
-            }
+            },
+            starTime: '',
+            endTime: ''
         }
     },
     methods: {
@@ -179,10 +181,14 @@ export default {
         },
         formmatDay(num) {
             let arr = [], i = 0
+            this.starTime = new Date()
             while(i < num) {
                 let time = new Date().getTime() - i * 1000 * 60 * 60 * 24,
                     month = new Date(time).getMonth() + 1,
                     currDate = new Date(time).getDate()
+                if (i == (num -1)) {
+                    this.endTime = new Date(time)
+                }
                 arr.unshift(`${month}月${currDate}日`)
                 i ++
             }
@@ -200,16 +206,39 @@ export default {
             return arr
         },
         switchTime(num) {
+            
             if (num == 15 || num == 30) {
-                // this.http()
-                this.initChatBar(this.formmatDay(num), [], [])
+                let timeArr = this.formmatDay(num)
+                // this.http({
+                //     url: '',
+                //     method: '',
+                //     data: {
+                //         starTime: this.starTime,
+                //         endTime: this.endTime,
+                //         fType: 1
+                //     }
+                // }, res => {
+                //     if (res.data.code == 200) {
+                //         this.initChatBar(timeArr, [], [])
+                //     }
+                // }) 
             }else if (num == 1) {
-                this.initChatBar(this.formmateYear(), [], [])
+                // this.http({
+                //     url: '',
+                //     method: '',
+                //     data: {
+                //         fType: 2
+                //     }
+                // }, res => {
+                //     if (res.data.code == 200) {
+                //         this.initChatBar(this.formmateYear(), [], [])
+                //     }
+                // })
             }
         },
     },
     mounted() {
-        this.initChatBar(this.formmatDay(10, [], []))
+        this.initChatBar(this.formmatDay(10), [], [])
         this.initOrderChat([], [])
     }
 }
