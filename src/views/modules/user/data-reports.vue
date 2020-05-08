@@ -5,9 +5,16 @@
             <div style="font-weight: 600;">销售报表</div>
         </div>
         <el-card class="chat-box">
+            <div class="filter-by-time">
+                <span class="fix-option" @click="switchTime(15)">近15天</span>
+                <span class="fix-option" @click="switchTime(30)">近30天</span>
+                <span class="fix-option" @click="switchTime(1)" style="margin-right: 10px;">近1年</span>
+                <el-date-picker v-model="timeRange" type="daterange" range-separator="——" size="small"
+                    :picker-options="pickerOptions" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+            </div>
             <div id="sales-total" class="sales-total"></div>
         </el-card>
-        <el-card class="chat-box">
+        <el-card class="chat-box order-chat">
             <div id="good-rank" class="good-rank"></div>
         </el-card>
     </div>
@@ -17,16 +24,40 @@
 import echarts from 'echarts'
 export default {
     data() {
+        let self = this
         return {
             chartBar: null,
+            orderChat: null,
+            timeRange: [],
+            pickerMinDate: '',
+            pickerOptions: {
+                disabledDate(time) {
+                    if (self.pickerMinDate !== '') {
+                        const day30 = (30 - 1) * 24 * 3600 * 1000
+                        let maxTime = self.pickerMinDate + day30
+                        if (maxTime > new Date()) {
+                            maxTime = new Date()
+                        }
+                        return time.getTime() > maxTime
+                    }
+                    return time.getTime() > Date.now()
+                },
+                onPick({ maxDate, minDate }) {
+                    self.pickerMinDate = minDate.getTime()
+                    if (maxDate) {
+                        self.pickerMinDate = ''
+                    }
+                }
+            }
         }
     },
     methods: {
-        initChatBar() {
+        initChatBar(date = [], salesNum = [], ordersNum = []) {
             let option = {
+                color: ['#6faaf7', '#c23531'],
                 title: {
                     text: '销售额-订单量',
-                    subtext: '近10天'
+                    subtext: '近10天',
                 },
                 tooltip: {
                     trigger: 'axis',
@@ -41,13 +72,17 @@ export default {
                         saveAsImage: {show: true}
                     }
                 },
+                grid: {
+                    top: 80,
+                    bottom: 20
+                },
                 legend: {
                     data: ['销售额', '订单量']
                 },
                 xAxis: [
                     {
                         type: 'category',
-                        data: this.formmatTenDay(),
+                        data: date,
                         axisPointer: {
                             type: 'line'
                         }
@@ -79,13 +114,13 @@ export default {
                     {
                         name: '销售额',
                         type: 'bar',
-                        data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0]
+                        data: salesNum
                     },
                     {
                         name: '订单量',
                         type: 'line',
                         yAxisIndex: 1,
-                        data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5]
+                        data: ordersNum
                     }
                 ]
             }
@@ -95,9 +130,56 @@ export default {
                 this.chartBar.resize()
             })
         },
-        formmatTenDay() {
+        initOrderChat(goods = [], orders = []) {
+            let option = {
+                title: {
+                    text: '商品销售排名前十',
+                    subtext: '按订单量排名'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: []
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} 单'
+                    },
+                    boundaryGap: [0, 0.01]
+                },
+                yAxis: {
+                    type: 'category',
+                    data: goods
+                },
+                series: [
+                    {
+                        name: '',
+                        type: 'bar',
+                        data: orders
+                    }
+                ]
+            }
+            this.orderChat = echarts.init(document.getElementById('good-rank'))
+            this.orderChat.setOption(option)
+            window.addEventListener('resize', () => {
+                this.orderChat.resize()
+            })
+
+        },
+        formmatDay(num) {
             let arr = [], i = 0
-            while(i < 10) {
+            while(i < num) {
                 let time = new Date().getTime() - i * 1000 * 60 * 60 * 24,
                     month = new Date(time).getMonth() + 1,
                     currDate = new Date(time).getDate()
@@ -106,9 +188,29 @@ export default {
             }
             return arr
         },
+        formmateYear() {
+            let arr = [], data = new Date(), i = 0
+            data.setMonth(data.getMonth() + 1, 1)
+            while (i < 12) {
+                data.setMonth(data.getMonth() - 1, 1)
+                let m = data.getMonth() + 1
+                arr.unshift(`${data.getFullYear()}/${m}`)
+                i ++
+            }
+            return arr
+        },
+        switchTime(num) {
+            if (num == 15 || num == 30) {
+                // this.http()
+                this.initChatBar(this.formmatDay(num), [], [])
+            }else if (num == 1) {
+                this.initChatBar(this.formmateYear(), [], [])
+            }
+        },
     },
     mounted() {
-        this.initChatBar()
+        this.initChatBar(this.formmatDay(10, [], []))
+        this.initOrderChat([], [])
     }
 }
 </script>
@@ -116,5 +218,24 @@ export default {
 <style lang="scss" scoped>
 .sales-total{
     height: 400px;
+}
+.good-rank{
+    height: 400px;
+}
+.filter-by-time{
+    padding-bottom: 15px;
+    .fix-option{
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        &:hover{
+            background-color: #6faaf7;
+            color: #fff;
+        }
+    }
+}
+.order-chat{
+    margin-top: 20px;
 }
 </style>
