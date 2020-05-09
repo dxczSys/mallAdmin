@@ -349,15 +349,16 @@ export default {
                                         _obj.goodValue = _kindsArr[j].id
                                     }
                                 }
+                                _obj.goodColor = item.colorType
+                                _obj.goodKey = key
+                                _arr1.push(_obj)
                             }
                         }
-                        _obj.goodColor = item.colorType
-                        _obj.goodKey = key
-                        _arr1.push(_obj)
                     }
-                   
                 }
                 arr.push({
+                    id: item.id,
+                    good: item.good,
                     goodDetailName: '',
                     goodDetailTitle: '',
                     goodDetailSubheading: '',
@@ -376,9 +377,10 @@ export default {
             let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
+                    debugger
                     if (this.checkData()) {
                         let mainUrl = null, assUrls = null
-                        if (this.releaseForm.mainUrl[0].raw) {
+                        if (self.releaseForm.mainUrl[0].raw) {
                             mainUrl = new Promise((resolve, reject) => {
                                 this.$upload({
                                     data: [this.releaseForm.mainUrl[0].raw]
@@ -485,7 +487,7 @@ export default {
                                     goodClassThree: ids[2],
                                     goodTitle: this.releaseForm.goodsTitle,
                                     goodPic: this.mainPic,
-                                    listImg: this.assisPics,
+                                    listImg: noChange,
                                     goodPrice: this.releaseForm.onePrice,
                                     goodCode: this.releaseForm.barCode,
                                     goodNumber: this.releaseForm.total,
