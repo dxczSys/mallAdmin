@@ -5,7 +5,7 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://192.168.3.3:9001/';
+  window.SITE_CONFIG['baseUrl'] = 'http://192.168.3.3:9001/api/';
   window.SITE_CONFIG['uploadUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/fileUploads'
   window.SITE_CONFIG['fileUrl'] = 'http://192.168.3.3:9004/' + 'filename='
 

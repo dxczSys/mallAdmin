@@ -58,7 +58,9 @@ export default {
     },
     methods : {
         handleFocus(event) {
-            this.visible = !this.visible
+            if (!this.selectedLabel) {
+                this.visible = !this.visible
+            }
         },
         handleBlur(event) {
             // this.visible = false;

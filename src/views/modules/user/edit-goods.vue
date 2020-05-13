@@ -263,33 +263,31 @@ export default {
             })
             this.coloumNameArr = labelArr
             if (this.assemTableData.length) {
-                let _tA = [], _att = []
+                let _att = []       //规格条件的属性
                 labelArr.forEach(a => {
                     _att.push(a.value)
                 })
-                _tableData.forEach(item => {
-                    let _v1 = [], _isnum = 9999
-                    _att.forEach(b => {
-                        _v1.push(item[b])
+                
+                //遍历老数组，是否在新数组中存在，存在加入，不存在跳过
+                this.assemTableData.forEach(oldItem => {
+                    let _v1 = []  //原数组规格条件值遍历
+                    _att.forEach(c => {
+                        _v1.push(oldItem[c])
                     })
-                    for (let i = 0; i < this.assemTableData.length; i ++) {
-                        let _v2 = []
+                    for (let i = 0; i < _tableData.length; i ++) {
+                        let _v2 = []  //原数组规格条件值遍历
                         _att.forEach(c => {
-                            _v2.push(this.assemTableData[i][c])
+                            _v2.push(_tableData[i][c])
                         })
                         if (this.getArrDifference(_v1, _v2) == 0) {
-                            _isnum = 0
+                            _tableData[i] = oldItem
                             break
                         }
                     }
-                    if (_isnum > 0) {
-                        _tA.push(item)
-                    }
+
                 })
-                this.assemTableData = this.assemTableData.concat(_tA)
-            }else {
-                this.assemTableData = _tableData
             }
+            this.assemTableData = _tableData
         },
         getArrDifference(arr1, arr2) {
             return arr1.concat(arr2).filter(function(v, i, arr) {

@@ -118,6 +118,7 @@ import filterTree from '@/components/filter-tree'
 import colorPicker from '@/components/color-picker'
 import uploadFile from '@/components/upload-file'
 import moneyInput from '@/components/money-input'
+import { deepCompare } from '@/utils/tools'
 export default {
     components: { filterTree, colorPicker, uploadFile, moneyInput },
     data() {
@@ -167,8 +168,25 @@ export default {
                 this.findCondition(id)
             }
         },
-        colorPickerTable: {
-            handler(n) {
+        colorPickerTableCompute: {
+            handler(n, o) {
+                n.forEach((item, index) => {
+                    if (!deepCompare(item, o[index])) {
+                        let last = item.nomalColor || item.customColor
+                        if (last) {
+                            for (let i = 0; i < o.length; i ++) {
+                                if (o[i].nomalColor == last || (o[i].nomalColor == '' && o[i].customColor == last)) {
+                                    this.$nextTick(_ => {
+                                        this.colorPickerTable[index].nomalColor = ''
+                                        this.colorPickerTable[index].customColor = ''
+                                    })
+                                    break
+                                }
+                            }
+                        }
+                    }
+                })
+                
                 if (this.judgeIsSelect()) {
                     this.assembleTable()
                 }
@@ -194,6 +212,11 @@ export default {
             deep: true
         }
     },
+    computed: {
+        colorPickerTableCompute() {
+            return JSON.parse(JSON.stringify(this.colorPickerTable))
+        }
+    },
     methods: {
         addOneColorTable() {
             this.colorPickerTable.push({
@@ -214,8 +237,12 @@ export default {
         },
         //组装数据
         assembleTable() {
-            let _arr = [], resArr = [], labelArr = [], _tableData = []
-            if (this.formatList.isColorPicker == 1) {
+            let _arr = [], 
+                resArr = [],     //已选中的规格条件
+                labelArr = [],   //表格上的col属性名
+                _tableData = []  //表格数据
+            //遍历出所有颜色
+            if (this.formatList.isColorPicker == '1') {
                 labelArr.push({
                     label: '颜色分类',
                     value: 'colorType'
@@ -227,8 +254,9 @@ export default {
                     }
                 })
             }
-            
             resArr.push(_arr)
+
+            //遍历其他规格
             this.formatList.formatArr.forEach(value => {
                 labelArr.push({
                     label: value.formatName,
@@ -236,7 +264,8 @@ export default {
                 })
                 resArr = resArr.concat([value.modelValue])
             })
-
+            
+            //组合出所有的可能
             let results = [], result = []
             let doExchange = (arr, index) => {
                 for (var i = 0; i < arr[index].length; i ++) {  
@@ -257,34 +286,33 @@ export default {
                 _tableData.push(obj)
             })
             this.coloumNameArr = labelArr
+            
             if (this.assemTableData.length) {
-                let _tA = [], _att = []
+                let _att = []       //规格条件的属性
                 labelArr.forEach(a => {
                     _att.push(a.value)
                 })
-                _tableData.forEach(item => {
-                    let _v1 = [], _isnum = 9999
-                    _att.forEach(b => {
-                        _v1.push(item[b])
+                
+                //遍历老数组，是否在新数组中存在，存在加入，不存在跳过
+                this.assemTableData.forEach(oldItem => {
+                    let _v1 = []  //原数组规格条件值遍历
+                    _att.forEach(c => {
+                        _v1.push(oldItem[c])
                     })
-                    for (let i = 0; i < this.assemTableData.length; i ++) {
-                        let _v2 = []
+                    for (let i = 0; i < _tableData.length; i ++) {
+                        let _v2 = []  //原数组规格条件值遍历
                         _att.forEach(c => {
-                            _v2.push(this.assemTableData[i][c])
+                            _v2.push(_tableData[i][c])
                         })
                         if (this.getArrDifference(_v1, _v2) == 0) {
-                            _isnum = 0
+                            _tableData[i] = oldItem
                             break
                         }
                     }
-                    if (_isnum > 0) {
-                        _tA.push(item)
-                    }
+
                 })
-                this.assemTableData = this.assemTableData.concat(_tA)
-            }else {
-                this.assemTableData = _tableData
             }
+            this.assemTableData = _tableData
             
         },
         getArrDifference(arr1, arr2) {
