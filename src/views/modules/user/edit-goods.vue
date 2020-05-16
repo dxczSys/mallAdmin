@@ -375,7 +375,6 @@ export default {
             let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
-                    debugger
                     if (this.checkData()) {
                         let mainUrl = null, assUrls = null
                         if (self.releaseForm.mainUrl[0].raw) {

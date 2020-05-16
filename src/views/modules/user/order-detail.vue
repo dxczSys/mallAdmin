@@ -1,7 +1,18 @@
 <template>
     <div class="order-detail-wrapper">
+        <div style="display: flex;align-items: center; margin-bottom: 15px;">
+            <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+            <div style="font-weight: 600;">订单管理--订单详情</div>
+        </div>
         <div class="state-box">
-            <div class="current-state">当前订单状态：{{orderState}}</div>
+            <div class="current-state">
+                <span>当前订单状态：</span>
+                <span v-if="orderState == '0'">待付款</span>
+                <span v-if="orderState == '1'">待发货</span>
+                <span v-if="orderState == '2'">待收货</span>
+                <span v-if="orderState == '3'">已完成</span>
+                <span v-if="orderState == '6'">退款中</span>
+            </div>
             <div class="state-tip">
                 <div></div>
                 <div>{{tipMess}}</div>
@@ -15,47 +26,40 @@
             <div class="order-info-box">
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="8">
-                        <label class="order-label">买家昵称</label>
-                        <span>你猜</span>
-                    </el-col>
-                    <el-col :span="8">
-                        <label class="order-label">联系电话</label>
-                        <span>15594649976</span>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
-                    <el-col :span="8">
                         <label class="order-label">订单编号</label>
-                        <span>763390232023802</span>
+                        <span>{{orderId}}</span>
                     </el-col>
                     <el-col :span="8">
-                        <label class="order-label">创建时间</label>
-                        <span>2020-02-04 15:23</span>
+                        <label class="order-label">买家账号</label>
+                        <span>{{customerTel}}</span>
                     </el-col>
                 </el-row>
                 <el-row :gutter="20" style="margin-bottom: 20px;">
+                    <el-col :span="8">
+                        <label class="order-label">下单时间</label>
+                        <span>{{createTime}}</span>
+                    </el-col>
                     <el-col :span="8">
                         <label class="order-label">发货时间</label>
-                        <span>2020-02-04 15:23</span>
+                        <span>{{deliveryTime? deliveryTime : '未发货'}}</span>
                     </el-col>
                 </el-row>
                 <el-table :data="orderTable" style="width: 100%" border>
                     <el-table-column header-align="center" align="center" type="index" width="50"></el-table-column>
-                    <el-table-column header-align="center" prop="goodsName" label="商品名称" min-width="200"></el-table-column>
-                    <el-table-column header-align="center" align="center" label="状态" width="200"></el-table-column>
-                    <el-table-column header-align="center" align="center" label="单价" width="150"></el-table-column>
-                    <el-table-column header-align="center" align="center" label="数量" width="150"></el-table-column>
+                    <el-table-column prop="goodTitle" header-align="center" label="商品名称" min-width="200"></el-table-column>
+                    <el-table-column prop="goodPrice" header-align="center" align="center" label="单价" width="150"></el-table-column>
+                    <el-table-column prop="goodNumber" header-align="center" align="center" label="数量" width="150"></el-table-column>
                     <el-table-column header-align="center" align="center" label="商品总价" width="200">
                         <template slot-scope="scope">
-                            <div>{{scope.row.totalPrice}}</div>
-                            <div>(快递:{{scope.row.deliveryCost}})</div>
+                            <div>{{scope.row.goodTotalPrice}}</div>
+                            <div>配送费:{{scope.row.goodPostge}}元</div>
                         </template>
                     </el-table-column>
                 </el-table>
-                <div style="padding: 10px; text-align: right;">实收款：<span style="color: #f40; font-size: 16px; font-weight: 600;">100.00</span>元</div>
+                <div style="padding: 10px; text-align: right;">实收款：<span style="color: #f40; font-size: 16px; font-weight: 600;">{{goodTotalPrice}}</span>元</div>
             </div>
         </div>
-        <div class="logistics-info">
+        <div v-if="orderState != '0'" class="logistics-info">
             <div style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                 <div style="font-weight: 600;">物流信息</div>
@@ -63,56 +67,143 @@
             <div class="logistics-info-box">
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="20">
+                        <label class="order-label">收件人</label>
+                        <span>{{addressPer}}</span>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20" style="margin-bottom: 20px;">
+                    <el-col :span="20">
+                        <label class="order-label">联系方式</label>
+                        <span>{{addressPerTel}}</span>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20" style="margin-bottom: 20px;">
+                    <el-col :span="20">
                         <label class="order-label">收货地址</label>
-                        <span>李中男，86-18434753564，北京 北京市 大兴区 北京经济技术开发区 经开壹中心达内教育大厦 ，000000</span>
+                        <span>{{address}}</span>
                     </el-col>
                 </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
-                    <el-col :span="20">
-                        <label class="order-label">运送方式</label>
-                        <span>快递</span>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
-                    <el-col :span="20">
-                        <label class="order-label">物流公司</label>
-                        <span>申通快递</span>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
-                    <el-col :span="20">
-                        <label class="order-label">运单号</label>
-                        <span>12643384846283738</span>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
-                    <el-col :span="20">
-                        <label class="order-label">运单照片</label>
-                        <img class="logistics-img" src="~@/assets/img/shoukuan.png">
-                    </el-col>
-                </el-row>
+                <div v-if="orderState != '0' && orderState != '1'">
+                    <el-row :gutter="20" style="margin-bottom: 20px;">
+                        <el-col :span="20">
+                            <label class="order-label">运送方式</label>
+                            <span v-if="deliverMethod == '1'">自提</span>
+                            <span v-if="deliverMethod == '2'">跑腿</span>
+                            <span v-if="deliverMethod == '3'">快递</span>
+                            <span v-if="deliverMethod == '4'">其他</span>
+                        </el-col>
+                    </el-row>
+                    <el-row v-if="deliverCompany" :gutter="20" style="margin-bottom: 20px;">
+                        <el-col :span="20">
+                            <label class="order-label">配送公司</label>
+                            <span>{{deliverCompany}}</span>
+                        </el-col>
+                    </el-row>
+                    <el-row v-if="deliverCode" :gutter="20" style="margin-bottom: 20px;">
+                        <el-col :span="20">
+                            <label class="order-label">运单号</label>
+                            <span>{{deliverCode}}</span>
+                        </el-col>
+                    </el-row>
+                    <el-row v-if="deliverPic" :gutter="20">
+                        <el-col :span="20">
+                            <label class="order-label">照片</label>
+                            <img-view style="display: inline-block;" :images="fileUrl + deliverPic"></img-view>
+                        </el-col>
+                    </el-row>
+                </div>
             </div>
         </div>
-        <div style="text-align: right;" @click="$router.push({ name: 'user-order-manage' })">
-            <el-button type="primary">返回</el-button>
+        <div style="text-align: right; margin-top: 20px;">
+            <el-button @click="$router.push({ name: 'user-order-manage' })">返回</el-button>
+            <el-button v-if="orderState == '1'" type="primary" @click="goSend">去发货</el-button>
         </div>
     </div>
 </template>
 
 <script>
+import imgView from '@/components/img-view'
 export default {
+    components: { imgView },
     data() {
         return {
-            orderState: '交易成功',
-            tipMess: '交易已成功，如果买家提出售后要求，请积极与买家协商，做好售后服务。',
-            orderTable: [
-                {
-                    goodsName: 'java软件爬虫C语言PHP软件定制',
-                    totalPrice: '100.00',
-                    deliveryCost: '0.01' 
-                }
-            ]
+            fileUrl: window.SITE_CONFIG.fileUrl,
+            priId: '',
+            orderState: '',
+            orderId: '',
+            customerTel: '',
+            createTime: '',
+            deliveryTime: '',
+            goodTotalPrice: '',
+            orderTable: [],
+            addressPer: '',
+            addressPerTel: '',
+            address: '',
+            deliverMethod: '',
+            deliverCompany: '',
+            deliverCode: '',
+            deliverPic: ''
         }
+    },
+    computed: {
+        tipMess() {
+            if (this.orderState == '0') {
+                return '通知或等待买家付款。'
+            }else if(this.orderState == '1') {
+                return '买家已下单，请按用户要求，即刻配送。'
+            }else if (this.orderState == '2') {
+                return '请等待买家收货。'
+            }else if (this.orderState == '3') {
+                return '交易已成功，如果买家提出售后要求，请积极与买家协商，做好售后服务。'
+            }
+        }
+    },
+    methods: {
+        getOrderDetail(id) {
+            this.http({
+                url: 'merchant/orderDetail/tCustomerOrderDetailInfoByOrderId',
+                method: 'get',
+                data: {
+                    orderId: id
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    let obj = res.data.data
+                    this.orderState = obj.orderStatus
+                    this.orderId = obj.orderId
+                    this.customerTel = obj.customerTel
+                    this.createTime = this._dateFormat('YYYY-mm-dd HH:MM', obj.createTime)
+                    obj.deliverTime? this.deliveryTime = this._dateFormat('YYYY-mm-dd HH:MM', obj.deliverTime) : ''
+                    this.orderTable = [{
+                        goodTitle: obj.goodTitle,
+                        goodPostge: obj.goodPostge,
+                        goodPrice: obj.goodPrice,
+                        goodNumber: obj.goodNumber,
+                        goodTotalPrice: obj.goodTotalPrice
+                    }]
+                    this.goodTotalPrice = obj.goodTotalPrice
+                    this.addressPer = obj.addressPer
+                    this.addressPerTel = obj.addressPerTel
+                    this.address = `${obj.address}${obj.addressInfo}`
+                    this.deliverMethod = obj.deliverMethod
+                    this.deliverCompany = obj.deliverCompany
+                    this.deliverCode = obj.deliverCode
+                    this.deliverPic = obj.deliverPic
+                }
+            })
+        },
+        goSend() {
+            this.$router.push({
+                name: 'user-sendout-goods',
+                query: {
+                    id: this.priId
+                }
+            })
+        }
+    },
+    mounted() {
+        this.priId = this.$route.query.id
+        this.getOrderDetail(this.$route.query.id)
     }
 }
 </script>

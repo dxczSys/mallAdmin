@@ -55,7 +55,7 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="微信" prop="chat" required>
+                        <el-form-item label="微信号" prop="chat" required>
                             <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
                             <div style="color: #E6A23C; font-size: 12px;">提醒:请务必绑定微信号，而不是手机号，否则无法正常划账</div>
                         </el-form-item>
@@ -69,6 +69,7 @@
                     <el-col :span="12">
                         <el-form-item label="店铺标志" prop="shopLogo" required>
                             <upload-file :disabled="isApproval" :filelist="infoForm.shopLogo"></upload-file>
+                            <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
