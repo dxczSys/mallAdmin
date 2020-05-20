@@ -97,6 +97,9 @@
                 </el-row>
             </div>
         </div>
+        <div class="bar-box">
+            <div id="ad-money" class="ad-money"></div>
+        </div>
     </div>
 </template>
 
@@ -110,7 +113,125 @@
                 totalUserCompareLast: -0.01,
                 totalAdMoney: '2003.08',
                 totalAdMoneyCompareLast: 0.001,
-                awaitApproval: 3
+                awaitApproval: 3,
+                dataMap: {},
+            }
+        },
+        methods: {
+            initChart() {
+                let option = {
+                    baseOption: {
+                        timeline: {
+                            axisType: 'category',
+                            autoPlay: true,
+                            playInterval: 1000,
+                            data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                        },
+                        title: {
+                            subtext: '所有商城总收入'
+                        },
+                        legend: {
+                            left: 'right',
+                            data: ['置顶广告位', '促销广告位']
+                        },
+                        calculable : true,
+                        grid: {
+                            top: 80,
+                            bottom: 100,
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow',
+                                    label: {
+                                        show: true,
+                                        formatter: function (params) {
+                                            return params.value.replace('\n', '');
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        xAxis: [
+                            {
+                                'type': 'category',
+                                'axisLabel': {'interval': 0},
+                                'data': ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                                splitLine: {show: false}
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: '广告收入(元)'
+                            }
+                        ],
+                        series: [
+                            {name: '置顶广告位', type: 'bar'},
+                            {name: '促销广告位', type: 'bar'},
+                            {
+                                name: 'GDP占比',
+                                type: 'pie',
+                                center: ['75%', '35%'],
+                                radius: '28%',
+                                z: 100
+                            }
+                        ]
+                    },
+                    options: [
+                        {
+                            title: {text: '2002全国宏观经济指标'},
+                            series: [
+                                {data: dataMap.dataGDP['2002']},
+                                {data: dataMap.dataFinancial['2002']},
+                                {data: dataMap.dataEstate['2002']},
+                                {data: dataMap.dataPI['2002']},
+                                {data: dataMap.dataSI['2002']},
+                                {data: dataMap.dataTI['2002']},
+                                {data: [
+                                    {name: '第一产业', value: dataMap.dataPI['2002sum']},
+                                    {name: '第二产业', value: dataMap.dataSI['2002sum']},
+                                    {name: '第三产业', value: dataMap.dataTI['2002sum']}
+                                ]}
+                            ]
+                        },
+                        {
+                            title : {text: '2003全国宏观经济指标'},
+                            series : [
+                                {data: dataMap.dataGDP['2003']},
+                                {data: dataMap.dataFinancial['2003']},
+                                {data: dataMap.dataEstate['2003']},
+                                {data: dataMap.dataPI['2003']},
+                                {data: dataMap.dataSI['2003']},
+                                {data: dataMap.dataTI['2003']},
+                                {data: [
+                                    {name: '第一产业', value: dataMap.dataPI['2003sum']},
+                                    {name: '第二产业', value: dataMap.dataSI['2003sum']},
+                                    {name: '第三产业', value: dataMap.dataTI['2003sum']}
+                                ]}
+                            ]
+                        }
+                    ]
+                };
+            },
+            dataFormatter(obj) {
+                let pList = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                let temp
+                for (let year = 2002; year <= 2011; year++) {
+                    var max = 0;
+                    var sum = 0;
+                    temp = obj[year];
+                    for (var i = 0, l = temp.length; i < l; i++) {
+                        max = Math.max(max, temp[i]);
+                        sum += temp[i];
+                        obj[year][i] = {
+                            name: pList[i],
+                            value: temp[i]
+                        };
+                    }
+                    obj[year + 'max'] = Math.floor(max / 100) * 100;
+                    obj[year + 'sum'] = sum;
+                }
+                return obj;
             }
         }
     }
@@ -154,5 +275,8 @@
     .compare-last{
         color: #999;
     }
+}
+.ad-money{
+    height: 460px;
 }
 </style>
