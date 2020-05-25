@@ -3,7 +3,7 @@
         <div class="top-box">
             <div class="info-block">
                 <el-row :gutter="20" justify="center">
-                    <el-col :span="6">
+                    <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)">
                         <el-card :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
                                 <div class="item-top">
@@ -53,7 +53,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)">
                         <el-card :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
                                 <div class="item-top">
@@ -78,7 +78,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)">
                         <el-card @click.native="toApproval" :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
                                 <div class="item-top">
@@ -94,25 +94,53 @@
                             </div>
                         </el-card>
                     </el-col>
+                    <el-col :span="6" v-if="roleIds.some(checkIsMechant)">
+                        <el-card :body-style="{ padding: '15px' }" class="card-item">
+                            <div class="info-item">
+                                <div class="item-top">
+                                    <div class="item-top-left">
+                                        <div class="block-title">本月成交订单量</div>
+                                        <div class="primary-info">{{totalOrders}}</div>
+                                    </div>
+                                    <div class="item-top-right">
+                                        <icon-svg name="orders"></icon-svg>
+                                    </div>
+                                </div>
+                                <div class="item-bottom">
+                                    <div class="scale-line" v-if="totalOrdersCompareLast >= 0">
+                                        <icon-svg name="zengzhang"></icon-svg>
+                                    </div>
+                                    <div class="scale-line" v-if="totalOrdersCompareLast < 0">
+                                        <icon-svg name="xiajiang"></icon-svg>
+                                    </div>
+                                    <div class="ratio-box">{{Math.floor(totalOrdersCompareLast*10000)/100}}%</div>
+                                    <div class="compare-last">同比上月</div>
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-col>
                 </el-row>
             </div>
         </div>
         <div class="bar-box">
-            <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" class="filter-box">
-                <div class="filter-row">
+            <div class="filter-box">
+                <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" class="filter-row">
                     <span>选择商城：</span>
                     <el-select v-model="mallId" placeholder="请选择商城" style="width: 200px;">
                         <el-option v-for="(item, index) in mallList" :key="index" :label="item.shopName" :value="item.id"></el-option>
                     </el-select>
                 </div>
                 <div class="filter-row" style="margin-left: 30px">
-                    <span>选择日期：</span>
+                    <span>选择月份：</span>
                     <el-date-picker v-model="monthList" type="monthrange" align="left" unlink-panels range-separator="至" style="width: 400px;"
                         :picker-options="pickerOptions" start-placeholder="开始月份" end-placeholder="结束月份"></el-date-picker>
                 </div>
             </div>
-            <div id="ad-money" class="ad-money"></div>
-            <div id="sales-users" class="sales-users"></div>
+            <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="ad-money" class="ad-money"></div>
+            <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
+        </div>
+        <div class="merchant-bar-box">
+            <div id="merchant-bar-line" class="merchant-bar-line"></div>
         </div>
     </div>
 </template>
@@ -132,6 +160,8 @@ export default {
             totalAdMoney: '2003.08',
             totalAdMoneyCompareLast: 0.001,
             awaitApproval: 3,
+            totalOrders: 201,
+            totalOrdersCompareLast: 0.1,
             chartBar: null,
             monthList: [],
             pickerOptions: {
@@ -153,6 +183,7 @@ export default {
                 }]
             },
             salesLine: null,
+            mechantBar: null,
         }
     },
     watch: {
@@ -510,6 +541,121 @@ export default {
                 this.salesLine.resize()
             })
         },
+        initMechant(start, end, sales, orders) {
+            let _date = this.initDate(start, end)
+            let option = {
+                title: {
+                    text: '交易额-订单量',
+                    x: 10,
+                    y: 10,
+                    textStyle:{
+                        color:'#B4B4B4',
+                        fontSize:16,
+                        fontWeight:'normal',
+                    },
+                    
+                },
+                backgroundColor: '#0d235e',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor:'rgba(255,255,255,0.1)',
+                    axisPointer: {
+                        type: 'shadow',
+                        label: {
+                            show: true,
+                            backgroundColor: '#7B7DDC'
+                        }
+                    }
+                },
+                legend: {
+                    data: ['交易额', '订单量'],
+                    textStyle: {
+                        color: '#B4B4B4'
+                    },
+                    top:'7%',
+                },
+                grid:{
+                    top: 60,
+                    bottom: 65,
+                    left: 120,
+                    right: 90,
+                },
+                xAxis: {
+                    data: _date,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#B4B4B4'
+                        }
+                    },
+                    axisTick:{
+                        show: false,
+                    },
+                },
+                yAxis: [{
+
+                    splitLine: {show: false},
+                    axisLine: {
+                        lineStyle: {
+                            color: '#B4B4B4',
+                        }
+                    },
+                    axisLabel:{
+                        formatter:'{value} 元',
+                    }
+                },
+                {
+                    splitLine: {show: false},
+                    axisLine: {
+                        lineStyle: {
+                            color: '#B4B4B4',
+                        }
+                    },
+                    axisLabel:{
+                        formatter:'{value} 单',
+                    }
+                }],
+                
+                series: [{
+                    name: '交易额',
+                    type: 'line',
+                    smooth: true,
+                    showAllSymbol: true,
+                    symbol: 'emptyCircle',
+                    symbolSize: 8,
+                    yAxisIndex: 1,
+                    itemStyle: {
+                            normal: {
+                            color:'#F02FC2'},
+                    },
+                    data: sales
+                }, 
+                
+                {
+                    name: '订单量',
+                    type: 'bar',
+                    barWidth: 10,
+                    itemStyle: {
+                        normal: {
+                            barBorderRadius: 5,
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#956FD4'},
+                                    {offset: 1, color: '#3EACE5'}
+                                ]
+                            )
+                        }
+                    },
+                    data: orders
+                }
+            ]
+            };
+            this.mechantBar = echarts.init(document.getElementById('merchant-bar-line'))
+            this.mechantBar.setOption(option)
+            window.addEventListener('resize', () => {
+                this.mechantBar.resize()
+            })
+        },
         toApproval() {
             this.$router.push({
                 name: 'admin-approval-manage'
@@ -541,16 +687,35 @@ export default {
             if (item == '2') {
                 return true
             }
+        },
+        checkIsMechant(item) {
+            if (item == '3') {
+                return true
+            }
+        },
+        getAdMoney() {
+            this.http({
+                url: `merchant/chart/advertStatistics?shopMallId=${this.mallId}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+
+                }
+            })
         }
     },
     mounted() {
         if (this.roleIds.some(this.checkIsSuperAdmin) || this.roleIds.some(this.checkIsAdmin)) {
             this.getMallList()
+            this.getAdMoney()
+            this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
+            this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
+            this.initChart(this.monthList[0], this.monthList[1])
+            this.initSales(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
         }
         this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
         this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
-        this.initChart(this.monthList[0], this.monthList[1])
-        this.initSales(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
+        this.initMechant(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
     }
 }
 </script>
@@ -607,5 +772,9 @@ export default {
 }
 .filter-box{
     display: flex;
+}
+.merchant-bar-line{
+    height: 500px;
+    margin-top: 20px;
 }
 </style>
