@@ -166,7 +166,7 @@ export default {
                                 }, permitRes => {
                                     if (permitRes.data.code == 200) {
                                         this.http({
-                                            url: 'admin/shopMall/tShopMallSave',
+                                            url: 'merchant/shopMall/tShopMallSave',
                                             method: 'post',
                                             data: {
                                                 shopName: this.mallForm.mallName,
@@ -226,7 +226,7 @@ export default {
                         }, permitRes => {
                             if (permitRes.data.code == 200) {
                                 this.http({
-                                    url: 'admin/shopMall/tShopMallSave',
+                                    url: 'merchant/shopMall/tShopMallSave',
                                     method: 'post',
                                     data: {
                                         id: this.mallId,
@@ -259,7 +259,7 @@ export default {
                 }, res => {
                     if (res.data.code == 200) {
                         this.http({
-                            url: 'admin/shopMall/tShopMallSave',
+                            url: 'merchant/shopMall/tShopMallSave',
                             method: 'post',
                             data: {
                                 id: this.mallId,
@@ -290,7 +290,7 @@ export default {
                 }, res => {
                     if (res.data.code == 200) {
                         this.http({
-                            url: 'admin/shopMall/tShopMallSave',
+                            url: 'merchant/shopMall/tShopMallSave',
                             method: 'post',
                             data: {
                                 id: this.mallId,
@@ -317,7 +317,7 @@ export default {
                 })
             }else {
                 this.http({
-                    url: 'admin/shopMall/tShopMallSave',
+                    url: 'merchant/shopMall/tShopMallSave',
                     method: 'post',
                     data: {
                         id: this.mallId,
@@ -344,7 +344,7 @@ export default {
         },
         getMall(id) {
             this.http({
-                url: `admin/shopMall/tShopMallSelById?id=${id}`,
+                url: `merchant/shopMall/tShopMallSelById?id=${id}`,
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {

@@ -200,7 +200,7 @@ export default {
         },
         gettimeTypeList() {
             this.http({
-                url: 'admin/TAdvertPriceType/tAdvertPriceTypeSelAll',
+                url: 'merchant/TAdvertPriceType/tAdvertPriceTypeSelAll',
                 method: 'get',
                 data: {
                     query: this.applyForm.adType

@@ -323,7 +323,7 @@ export default {
         //获取类目树
         getKindsTree() {
             this.http({
-                url: 'admin/tGoodCategory/selectTGoodCategoryAsTree',
+                url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree',
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {

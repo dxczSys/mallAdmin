@@ -178,7 +178,7 @@ export default {
     methods: {
         getMallList() {
             this.http({
-                url: 'admin/shopMall/tShopMallSelByAllAuthorization',
+                url: 'merchant/shopMall/tShopMallSelByAllAuthorization',
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {
@@ -188,7 +188,7 @@ export default {
         },
         getFloorList(id) {
             this.http({
-                url: `admin/shopMall/tShopMallFloorSelByShopId?shopId=${id}`,
+                url: `merchant/shopMall/tShopMallFloorSelByShopId?shopId=${id}`,
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {
@@ -198,7 +198,7 @@ export default {
         },
         getBussinessList() {
             this.http({
-                url: 'admin/tGoodCategory/selTGoodCategoryByGrade?grade=1',
+                url: 'merchant/tGoodCategory/selTGoodCategoryByGrade?grade=1',
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {

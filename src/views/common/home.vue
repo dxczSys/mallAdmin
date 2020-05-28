@@ -663,7 +663,7 @@ export default {
         },
         getMallList() {
             this.http({
-                url: 'admin/shopMall/findTShopMallAll',
+                url: 'merchant/shopMall/findTShopMallAll',
                 method: 'post',
                 data: {
                     roles: this.roleIds

@@ -152,7 +152,7 @@ export default {
                         type: 'warning'
                 }).then(() => {
                     this.http({
-                        url: `admin/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
+                        url: `merchant/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
                         method: 'get'
                     }, res => {
                         if (res.data.code == 200) {
@@ -175,7 +175,7 @@ export default {
             if (input.value) {
                 if (data.isNew) {
                     this.http({
-                        url: 'admin/tGoodCategory/tGoodCategorySave',
+                        url: 'merchant/tGoodCategory/tGoodCategorySave',
                         method: 'post',
                         data: {
                             categoryParent: node.parent.data.id? node.parent.data.id : undefined,
@@ -195,7 +195,7 @@ export default {
                 }else {
                     //保存
                     this.http({
-                        url: 'admin/tGoodCategory/tGoodCategoryUpd',
+                        url: 'merchant/tGoodCategory/tGoodCategoryUpd',
                         method: 'post',
                         data: {
                             id: data.id,
@@ -289,7 +289,7 @@ export default {
     },
     mounted() {
         this.http({
-            url: 'admin/tGoodCategory/selectTGoodCategoryAsTree',
+            url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree',
             method: 'get',
         }, res => {
             if (res.data.code == 200) {

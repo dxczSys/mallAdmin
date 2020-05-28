@@ -302,7 +302,7 @@ export default {
                 return resolve([{ id: 'a1', label: '易码商城' }])
             }else if (node.level === 1) {
                 this.http({
-                    url: `admin/shopMall/tShopMallSelTree?id=&type=1`,
+                    url: `merchant/shopMall/tShopMallSelTree?id=&type=1`,
                     method: 'get'
                 }, res => {
                     if (res.data.code == 200) {
@@ -312,7 +312,7 @@ export default {
                 })
             }else if (node.level === 2) {
                 this.http({
-                    url: `admin/shopMall/tShopMallSelTree?id=${node.data.id}&type=2`,
+                    url: `merchant/shopMall/tShopMallSelTree?id=${node.data.id}&type=2`,
                     method: 'get'
                 }, res => {
                     if (res.data.code == 200) {
@@ -355,7 +355,7 @@ export default {
                     type: 'warning'
                 }).then(() => {
                     this.http({
-                        url: `admin/shopMall/tShopMallDelById?id=${id}&type=${node.level - 1}`,
+                        url: `merchant/shopMall/tShopMallDelById?id=${id}&type=${node.level - 1}`,
                         method: 'get'
                     }, res => {
                         if (res.data.code == 200) {
@@ -373,7 +373,7 @@ export default {
             data.type == 'admin'? this.isAdmin = true : this.isAdmin = false
             if (node.level == 2) {
                 this.http({
-                    url: `admin/shopMall/selShopAllByShopMallId?shopMallId=${data.id}`,
+                    url: `merchant/shopMall/selShopAllByShopMallId?shopMallId=${data.id}`,
                     method: 'get',
                 }, res => {
                     if (res.data.code == 200) {
@@ -401,7 +401,7 @@ export default {
                 
             }else if (node.level == 4){
                 this.http({
-                    url: `admin/shopMall/selTShopInfoByShopId?shopId=${data.id}`,
+                    url: `merchant/shopMall/selTShopInfoByShopId?shopId=${data.id}`,
                     method: 'get',
                 }, res => {
                     if (res.data.code == 200) {
@@ -412,7 +412,7 @@ export default {
         },
         getAllMall() {
             this.http({
-                url: 'admin/shopMall/tShopMallSelByAllAuthorization',
+                url: 'merchant/shopMall/tShopMallSelByAllAuthorization',
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {
@@ -439,7 +439,7 @@ export default {
             this.$refs.authorizeForm.validate(valid => {
                 if (valid) {
                     this.http({
-                        url: `admin/shopMall/shopAuthorization?type=1&userId=${this.authorizeForm.userId}&shopId=${this.authorizeForm.mallId}`,
+                        url: `merchant/shopMall/shopAuthorization?type=1&userId=${this.authorizeForm.userId}&shopId=${this.authorizeForm.mallId}`,
                         method: 'get'
                     }, res => {
                         if (res.data.code == 200) {
@@ -470,7 +470,7 @@ export default {
                 beforeClose: (action, instance, done) => {
                     if (action === 'confirm') {
                         this.http({
-                            url: `admin/shopMall/shopAuthorization?type=2&userId=${data.id}&shopId=${node.parent.data.id}`,
+                            url: `merchant/shopMall/shopAuthorization?type=2&userId=${data.id}&shopId=${node.parent.data.id}`,
                             method: 'get',
                         }, res => {
                             if (res.data.code == 200) {

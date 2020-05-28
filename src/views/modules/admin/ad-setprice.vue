@@ -87,7 +87,7 @@ export default {
             }).then(() => {
                 if (scope.row.id) {
                     this.http({
-                        url: 'admin/TAdvertPriceType/tAdvertPriceTypeDelById',
+                        url: 'merchant/TAdvertPriceType/tAdvertPriceTypeDelById',
                         method: 'get',
                         data: { id: scope.row.id }
                     }, res => {
@@ -105,7 +105,7 @@ export default {
         },
         getTableData() {
             this.http({
-                url: 'admin/TAdvertPriceType/tAdvertPriceTypeSelAll',
+                url: 'merchant/TAdvertPriceType/tAdvertPriceTypeSelAll',
                 method: 'get',
                 data: {
                     query: this.adType
@@ -121,7 +121,7 @@ export default {
             if (row.advertDay && row.advertPrice && row.advertOrder) {
                 if (row.id) {
                     this.http({
-                        url: 'admin/TAdvertPriceType/tAdvertPriceTypeUpd',
+                        url: 'merchant/TAdvertPriceType/tAdvertPriceTypeUpd',
                         method: 'post',
                         data: {
                             id: row.id,
@@ -139,7 +139,7 @@ export default {
                     })
                 }else {
                     this.http({
-                        url: 'admin/TAdvertPriceType/tAdvertPriceTypeAdd',
+                        url: 'merchant/TAdvertPriceType/tAdvertPriceTypeAdd',
                         method: 'post',
                         data: {
                             advertType: this.adType,
