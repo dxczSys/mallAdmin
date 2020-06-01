@@ -139,7 +139,7 @@
             <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="ad-money" class="ad-money"></div>
             <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
         </div>
-        <div class="merchant-bar-box">
+        <div v-if="roleIds.some(checkIsMechant)" class="merchant-bar-box">
             <div id="merchant-bar-line" class="merchant-bar-line"></div>
         </div>
     </div>
@@ -153,13 +153,13 @@ export default {
             roleIds: JSON.parse(this.$cookie.get('roleId')),
             mallId: '',
             mallList: [],
-            totalMoney: '3500.00',
-            totalMoneyCompareLast: 0.035,
-            totalUser: 4352001,
-            totalUserCompareLast: -0.01,
-            totalAdMoney: '2003.08',
-            totalAdMoneyCompareLast: 0.001,
-            awaitApproval: 3,
+            totalMoney: '',
+            totalMoneyCompareLast: 0,
+            totalUser: 0,
+            totalUserCompareLast: 0,
+            totalAdMoney: '',
+            totalAdMoneyCompareLast: 0,
+            awaitApproval: 0,
             totalOrders: 201,
             totalOrdersCompareLast: 0.1,
             chartBar: null,
@@ -699,22 +699,87 @@ export default {
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {
+                    this.totalAdMoney = res.data.data.totalPrice
+                    this.totalAdMoneyCompareLast = res.data.data.totalMouthPrice
+                }
+            })
+        },
+        getTransaction() {
+            this.http({
+                url: `merchant/chart/orderStatistics?shopMallId=${this.mallId}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.totalMoney = res.data.data.totalPrice
+                    this.totalMoneyCompareLast = res.data.data.totalMouthPrice
+                }
+            })
+        },
+        getCustoms() {
+            this.http({
+                url: `merchant/chart/customerStatistics`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.totalUser = res.data.data.totalPrice
+                    this.totalUserCompareLast = res.data.data.totalMouthPrice
+                }
+            })
+        },
+        getApproval() {
+            this.http({
+                url: `merchant/chart/advertStatisticsData?shopMallId=${this.mallId}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.awaitApproval = res.data.data.length
+                }
+            })
+        },
+        //报表 广告位收入
+        getAdvertChartData() {
+            this.http({
+                url: 'merchant/chart/getAdvertChartData',
+                method: 'post',
+                data: {
+                    shopMallId: this.mallId,
+                    dates: this.monthList
+                }
+            }, res => {
+                if (res.data.code == 200) {
+
+                }
+            })
+        },
+        getSalesAndUsers() {
+            this.http({
+                url: 'merchant/chart/getOrderChartData',
+                method: 'post',
+                data: {
+                    shopMallId: this.mallId,
+                    dates: this.monthList
+                }
+            }, res => {
+                if (res.data.code == 200) {
 
                 }
             })
         }
     },
     mounted() {
+        this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
+        this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
         if (this.roleIds.some(this.checkIsSuperAdmin) || this.roleIds.some(this.checkIsAdmin)) {
             this.getMallList()
             this.getAdMoney()
-            this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
-            this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
+            this.getTransaction()
+            this.getCustoms()
+            this.getApproval()
+            this.getAdvertChartData()
+            this.getSalesAndUsers()
             this.initChart(this.monthList[0], this.monthList[1])
             this.initSales(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
         }
-        this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
-        this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
         this.initMechant(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
     }
 }

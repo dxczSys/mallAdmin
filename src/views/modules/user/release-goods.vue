@@ -479,7 +479,10 @@ export default {
                                     tGoodDetails: self.assembleGoodsData()
                                 }
                             }, releaseRes => {
-                                console.log(releaseRes)
+                                if (releaseRes.data.code == 200) {
+                                    this.$message.success('商品发布成功!')
+                                    this.$router.push({ name: 'user-goods-manager' })
+                                }
                             })
                         })
                     }
