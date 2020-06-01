@@ -71,7 +71,7 @@ export default {
                 }
             }, 1000)
             this.http({
-                url: 'user/sendPasswordMessage',
+                url: 'merchant/sendPasswordMessage',
                 method: 'get',
                 data: {
                     phone: this.updatePasswordForm.phone
@@ -87,7 +87,7 @@ export default {
                 if (valid) {
                     if (this.updatePasswordForm.password === this.updatePasswordForm.againPassword) {
                         this.http({
-                            url: 'user/updateUserPassWord',
+                            url: 'merchant/updateUserPassWord',
                             method: 'post',
                             data: {
                                 id: this.$cookie.get('userId'),

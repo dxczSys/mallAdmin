@@ -110,7 +110,7 @@ export default {
                 if (valid) {
                     if (this.registerForm.password === this.registerForm.passwordAgain) {
                         this.http({
-                            url: 'user/register',
+                            url: 'merchant/register',
                             method: 'post',
                             data: {
                                 userTel: this.registerForm.phone,
@@ -154,7 +154,7 @@ export default {
                     }
                 }, 1000)
                 this.http({
-                    url: `user/SendMessage?phone=${this.registerForm.phone}`,
+                    url: `merchant/SendMessage?phone=${this.registerForm.phone}`,
                     method: 'get',
                 }, res => {
                     if (res.data.code == 200) {

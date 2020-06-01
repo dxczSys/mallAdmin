@@ -47,17 +47,19 @@ export default {
 
     methods: {
         doSearch(v) {
-            let local = new BMap.LocalSearch(this.map, { renderOptions: { map: this.map, autoViewport: true } })
-            local.search(v)
-            local.setSearchCompleteCallback(res => {
-                console.log(res)
-                if (res.Uq || res.Pq) {
-                    this.addressResult = res.Uq || res.Pq || []
-                    this.isShowResult = true
-                }else {
-                    this.addressResult = []
+            let self = this
+            let local = new BMap.LocalSearch(this.map, { 
+                renderOptions: { map: this.map, autoViewport: true },
+                onSearchComplete(res) {
+                    let arr = []
+                    for (let i = 0; i < res.getCurrentNumPois(); i ++) {
+                        arr.push(res.getPoi(i))
+                    }
+                    self.addressResult = arr
+                    self.isShowResult = true
                 }
             })
+            local.search(v)
         },
         closeResult() {
             this.isShowResult = false

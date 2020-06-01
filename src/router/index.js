@@ -74,7 +74,7 @@ router.beforeEach((to, from, next) => {
     }else {
         if (Vue.cookie.get('token')) {
             getHttp({
-                url: 'user/findUserMenuLisByLoginUser',
+                url: 'merchant/findUserMenuLisByLoginUser',
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {

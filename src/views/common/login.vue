@@ -57,7 +57,7 @@ export default {
             this.$refs.loginForm.validate(valid => {
                 if (valid) {
                     this.http({
-                        url: 'user/login',
+                        url: 'merchant/login',
                         method: 'form',
                         data: {
                             username: this.loginForm.username,

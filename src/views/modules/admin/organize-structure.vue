@@ -383,7 +383,7 @@ export default {
             }else if(node.level == 3) {
                 if (data.type == 'admin') {
                     this.http({
-                        url: `user/selById?userId=${data.id}`,
+                        url: `merchant/selById?userId=${data.id}`,
                         method: 'get',
                     }, res => {
                         if (res.data.code == 200) {
@@ -424,7 +424,7 @@ export default {
         remoteMethod(query) {
             if (query) {
                 this.http({
-                    url: `user/dynamicFind?query=${query}`,
+                    url: `merchant/dynamicFind?query=${query}`,
                     method: 'get'
                 }, res => {
                     if (res.data.code == 200) {

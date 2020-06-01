@@ -145,7 +145,7 @@ export default {
         handleNext() {
             if (this.code.length == 6) {
                 this.http({
-                    url: 'user/checkSendMessageWithUpdTel',
+                    url: 'merchant/checkSendMessageWithUpdTel',
                     method: 'get',
                     data: {
                         userTel: this.phone,
@@ -184,7 +184,7 @@ export default {
                 }
             }, 1000)
             this.http({
-                url: 'user/SendMessageWithUpdTel',
+                url: 'merchant/SendMessageWithUpdTel',
                 method: 'get',
                 data: {
                     phone: phone
@@ -198,7 +198,7 @@ export default {
         },
         getPersonInfo() {
             this.http({
-                url: 'user/getUserIByUserId',
+                url: 'merchant/getUserIByUserId',
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {
@@ -234,7 +234,7 @@ export default {
                     if (imgres.data.code == 200) {
                         if (this.checkEmail()) {
                             this.http({
-                                url: 'user/userUpdateById',
+                                url: 'merchant/userUpdateById',
                                 method: 'post',
                                 data: {
                                     id: this.$cookie.get('userId'),
@@ -261,7 +261,7 @@ export default {
             }else {
                 if (this.checkEmail()) {
                     this.http({
-                        url: 'user/userUpdateById',
+                        url: 'merchant/userUpdateById',
                         method: 'post',
                         data: {
                             id: this.$cookie.get('userId'),
@@ -284,7 +284,7 @@ export default {
         },
         updatePhone() {
             this.http({
-                url: 'user/userUpdateById',
+                url: 'merchant/userUpdateById',
                 method: 'post',
                 data: {
                     id: this.$cookie.get('userId'),
