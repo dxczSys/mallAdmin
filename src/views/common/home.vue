@@ -188,9 +188,26 @@ export default {
         }
     },
     watch: {
+        mallId(n) {
+            if (this.monthList && this.monthList.length == 2) {
+                let dateArr = this.initDateList(this.monthList[0], this.monthList[1])
+                this.getAdvertChartData(dateArr)
+                this.getSalesAndUsers(dateArr)
+                this.getAdMoney()
+                this.getTransaction()
+                this.getCustoms()
+                this.getApproval()
+            }
+        },
         monthList(n) {
             if (n && n.length == 2) {
-                this.initChart(n[0], n[1])
+                let dateArr = this.initDateList(n[0], n[1])
+                if (this.roleIds.includes('1') || this.roleIds.includes('2')) {
+                    this.getAdvertChartData(dateArr)
+                    this.getSalesAndUsers(dateArr)
+                }else if (this.roleIds.includes('3')) {
+                    this.getMerchantSaleAndOrders(dateArr)
+                }
             }
         }
     },
@@ -787,7 +804,7 @@ export default {
             })
         },
 
-        //交易额和用户量   商户的
+        //交易额和用户量 
         getSalesAndUsers(dateArr) {
             this.http({
                 url: 'merchant/chart/getOrderChartData',
@@ -802,6 +819,23 @@ export default {
                     this.initSales(this.monthList[0], this.monthList[1], obj.customerChartData, obj.paramList)
                 }
             })
+        },
+
+        //交易额和订单量
+        getMerchantSaleAndOrders(dateArr) {
+            this.http({
+                url: 'merchant/chart/getChartData',
+                method: 'post',
+                data: {
+                    dates: dateArr,
+                    type: 1,
+                    shopId: this.$cookie.get('shopId')
+                }
+            }, res => {
+                if (res.data.code == 200) {
+                    this.initMechant(this.monthList[0], this.monthList[1], res.data.data.salesNum, res.data.data.ordersNum)
+                }
+            }) 
         }
     },
     mounted() {
@@ -818,7 +852,7 @@ export default {
             this.getSalesAndUsers(dateArr)
         }
         if (this.roleIds.some(this.checkIsMechant)) {
-            this.initMechant(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
+            this.getMerchantSaleAndOrders(dateArr)
         }
     }
 }

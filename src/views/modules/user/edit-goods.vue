@@ -12,7 +12,7 @@
                 </el-form-item>
                 <el-form-item label="商品标题" prop="goodsTitle" required>
                     <el-input v-model="releaseForm.goodsTitle" placeholder="最多允许输入60个汉字" 
-                        style="width:560px;" maxlength="60" show-word-limit></el-input>
+                        style="width:700px;" maxlength="60" show-word-limit></el-input>
                     <div class="wran-word">*温馨提示：标题请勿使用敏感词，否则会被强制下架</div>
                 </el-form-item>
                 <el-form-item label="商品主图" prop="mainUrl" required>

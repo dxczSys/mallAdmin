@@ -9,9 +9,9 @@
             </div>
         </div>
         <div class="navbar-right">
-            <el-badge v-if="roleId.includes('1') || roleId.includes('2')" :value="approvalNum" class="mark-tip">
+            <!-- <el-badge v-if="roleId.includes('1') || roleId.includes('2')" :value="approvalNum" class="mark-tip">
                 <icon-svg name="lingdang"></icon-svg>
-            </el-badge>
+            </el-badge> -->
             <div class="navbar-avatar" @click="$router.push({ name: 'setting-update-personInfo' })">
                 <el-image class="user-avatar" :src="avatarUrl">
                     <div slot="error" class="image-slot">
@@ -62,16 +62,6 @@ export default {
             }).then(() => {
                 clearLoginInfo()
                 this.$router.push({ name: 'login' })
-            })
-        },
-        getApproval() {
-            this.http({
-                url: `merchant/chart/advertStatisticsData?shopMallId=${this.mallId}`,
-                method: 'get'
-            }, res => {
-                if (res.data.code == 200) {
-                    this.awaitApproval = res.data.data.length
-                }
             })
         },
     },

@@ -80,11 +80,6 @@ export default {
                 applyTime: ''
             },
             tableData: [
-                {
-                    goodsName: 'Python代码代做代写网络爬虫数据抓取分析程序代写爬虫定制GUIweb',
-                    id: '599344673442',
-                    url: require('@/assets/img/goods.png'),
-                }
             ],
             currentPage: 1,
             pageSize: 10,
