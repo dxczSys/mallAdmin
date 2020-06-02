@@ -251,6 +251,8 @@ export default {
                             data: {
                                 approvalId: this.id,
                                 id: this.iidd,
+                                advertShop: this.tShop.id,
+                                advertType: this.tAdvert.advertType,
                                 advertApprovalStatus: this.detailForm.approvalStutas,
                                 advertDurationDayNums: parseInt(this.tAdvert.advertDurationDayNums),
                                 advertRefuseInfo: this.detailForm.rejectReason

@@ -7,7 +7,7 @@
                     <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree" v-if="refreshTree"
                         :load="loadTree" @node-click="treeNodeClick" :render-content="renderTree" :default-expanded-keys="expandedId">
                     </el-tree>
-                    <el-dropdown class="organize-left-bottom-dropdown">
+                    <el-dropdown v-if="roleId.includes('1')" class="organize-left-bottom-dropdown">
                         <span class="el-dropdown-link">
                             <i class="iconfont iconcaidan"></i>编辑
                         </span>

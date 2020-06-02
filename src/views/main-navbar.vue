@@ -63,7 +63,17 @@ export default {
                 clearLoginInfo()
                 this.$router.push({ name: 'login' })
             })
-        }
+        },
+        getApproval() {
+            this.http({
+                url: `merchant/chart/advertStatisticsData?shopMallId=${this.mallId}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.awaitApproval = res.data.data.length
+                }
+            })
+        },
     },
     mounted() {
         if (this.$cookie.get('url')) {

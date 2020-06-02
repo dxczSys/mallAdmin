@@ -3,12 +3,12 @@
         <div class="site-sidebar__inner" :class="{'side-folder': sidebarFold}">
             <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#3E8EF7" 
                 unique-opened :collapseTransition="false" class="site-sidebar__menu">
-                <el-menu-item index="home" @click="$router.push({ name: 'home' })">
+                <el-menu-item v-if="roles.indexOf('4') < 0" index="home" @click="$router.push({ name: 'home' })">
                     <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>
                     <span slot="title">首页</span>
                 </el-menu-item>
                 <sub-menu v-for="menu in menuList" :key="menu.menuId" :menu="menu" :dynamicMenuRoutes="dynamicMenuRoutes"></sub-menu>
-                <el-submenu index="设置">
+                <el-submenu index="设置" v-if="roles.indexOf('1') < 0">
                     <template slot="title">
                         <icon-svg name="shezhi" class="site-sidebar__menu-icon"></icon-svg>
                         <span>设置</span>
@@ -38,7 +38,8 @@ export default {
     data () {
         return {
             dynamicMenuRoutes: [],
-            openeds: ['1']
+            openeds: ['1', '2'],
+            roles: JSON.parse(this.$cookie.get('roleId'))
         }
     },
     components: {

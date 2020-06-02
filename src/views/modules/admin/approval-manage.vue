@@ -13,7 +13,7 @@
                                 <div class="count-box-top-left">
                                     <div>商户认证</div>
                                     <div>
-                                        <span>共3条</span>
+                                        <span>共{{merchantNum}}条</span>
                                         <span style="font-size: 14px; color: #999;">待审批</span>
                                     </div>
                                 </div>
@@ -31,7 +31,7 @@
                                 <div class="count-box-top-left">
                                     <div>广告位申请</div>
                                     <div>
-                                        <span>共3条</span>
+                                        <span>共{{adNum}}条</span>
                                         <span style="font-size: 14px; color: #999;">待审批</span>
                                     </div>
                                 </div>
@@ -48,7 +48,7 @@
                             <div class="count-box-top">
                                 <div class="count-box-top-left">
                                     <div>历史审批</div>
-                                    <div>共3条</div>
+                                    <div>共{{hisNum}}条</div>
                                 </div>
                                 <div class="count-box-top-right">
                                     <icon-svg name="dianji"></icon-svg>
@@ -102,6 +102,9 @@ export default {
     data() {
         return {
             index: 0,
+            merchantNum: 0,
+            adNum: 0,
+            hisNum: 0,
             roleId: [],
             tableData: [],
             currentPage: 1,
@@ -123,6 +126,8 @@ export default {
             this.pageSize = v
             this.getTableData()
         },
+
+        //查出列表 默认查所有待审批的
         getTableData() {
             let obj = {}
             if (this.index != 3) {
@@ -172,6 +177,19 @@ export default {
                     index: this.index
                 }
             })
+        },
+        getTypeNum() {
+            this.http({
+                url: 'merchant/tShop/countApprovalDetail',
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    let obj = res.data.data
+                    this.merchantNum = obj.shopNumber
+                    this.adNum = obj.advertNumber
+                    this.hisNum = obj.allDetailNumber
+                }
+            })
         }
     },
     mounted() {
@@ -179,6 +197,7 @@ export default {
         if (this.$route.query.index) {
             this.index = this.$route.query.index
         }
+        this.getTypeNum()
         this.getTableData()
     }
 }

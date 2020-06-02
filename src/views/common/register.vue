@@ -123,14 +123,14 @@ export default {
                                 let _data = res.data.data   
                                 this.$cookie.set('acc_token', _data.userToken)
                                 this.$cookie.set('userId', _data.id)
-                                this.$cookie.set('roleId', _data.roleLists[0].id)
+                                this.$cookie.set('roleId', JSON.stringify([_data.roleLists[0].id]))
                                 this.$cookie.set('roleName', _data.roleLists[0].roleName)
                                 this.$cookie.set('roleIdentify', _data.roleLists[0].roleIdentify)
                                 this.$cookie.set('userName', _data.userName || '')
                                 this.$cookie.set('realUserName', _data.realUserName || '')
                                 this.$cookie.set('phone',  _data.userTel)
                                 this.$cookie.set('url', _data.userPic || '')
-                                this.$router.push({ name: 'home' })
+                                this.$router.push({ name: 'user-approve' })
                             }else {
                                 this.$message.info(res.data.msg)
                             }
@@ -144,7 +144,7 @@ export default {
         getCode() {
             //获取验证码
             if (/^1[3456789]\d{9}$/.test(this.registerForm.phone)) {
-                this.codeTiming = 299
+                this.codeTiming = 59
                 let timer = setInterval(() => {
                     if (this.codeTiming > 0) {
                         -- this.codeTiming
@@ -158,7 +158,7 @@ export default {
                     method: 'get',
                 }, res => {
                     if (res.data.code == 200) {
-                        this.$message.success(res.data.msg)
+                        this.$message.success(res.data.msg || '验证码发送成功，请注意查收!')
                     }
                 })
             }else {

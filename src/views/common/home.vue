@@ -28,7 +28,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="6" v-if="!roleIds.some(checkIsTourist)">
                         <el-card :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
                                 <div class="item-top">
@@ -130,18 +130,19 @@
                         <el-option v-for="(item, index) in mallList" :key="index" :label="item.shopName" :value="item.id"></el-option>
                     </el-select>
                 </div>
-                <div class="filter-row" style="margin-left: 30px">
+                <div v-if="!roleIds.some(checkIsTourist)" class="filter-row" style="margin-left: 30px">
                     <span>选择月份：</span>
                     <el-date-picker v-model="monthList" type="monthrange" align="left" unlink-panels range-separator="至" style="width: 400px;"
                         :picker-options="pickerOptions" start-placeholder="开始月份" end-placeholder="结束月份"></el-date-picker>
                 </div>
             </div>
-            <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="ad-money" class="ad-money"></div>
-            <div v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
+            <div v-show="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="ad-money" class="ad-money"></div>
+            <div v-show="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
         </div>
-        <div v-if="roleIds.some(checkIsMechant)" class="merchant-bar-box">
+        <div v-show="roleIds.some(checkIsMechant)" class="merchant-bar-box">
             <div id="merchant-bar-line" class="merchant-bar-line"></div>
         </div>
+        <div v-if="roleIds.some(checkIsTourist)" class="welcome-tab"></div>
     </div>
 </template>
 
@@ -150,7 +151,7 @@ import echarts from 'echarts'
 export default {
     data() {
         return {
-            roleIds: JSON.parse(this.$cookie.get('roleId')),
+            roleIds: JSON.parse(this.$cookie.get('roleId')) || [],
             mallId: '',
             mallList: [],
             totalMoney: '',
@@ -194,8 +195,52 @@ export default {
         }
     },
     methods: {
-        initChart(start, end) {
-            let _date = this.initDate(start, end)
+        initDate(start, end) {
+            let s = new Date(start), e = new Date(end), arr = []
+            if (s.getFullYear() == e.getFullYear()) {
+                while(s <= e) {
+                    arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
+                    s.setMonth(s.getMonth() + 1)
+                }
+            }else {
+                while(s <= e) {
+                    arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
+                    if ((s.getMonth() + 1) > 11) {
+                        s.setFullYear(s.getFullYear() + 1)
+                        s.setMonth(0)
+                    }else {
+                        s.setMonth(s.getMonth() + 1)
+                    }
+                }
+            }
+            return arr
+        },
+
+        //计算出时间列表
+        initDateList(start, end) {
+            let s = new Date(start), e = new Date(end), arr = []
+            if (s.getFullYear() == e.getFullYear()) {
+                while(s <= e) {
+                    arr.push(new Date(`${s.getFullYear()}/${s.getMonth() + 1}/01 08:00:00`))
+                    s.setMonth(s.getMonth() + 1)
+                }
+            }else {
+                while(s <= e) {
+                    arr.push(new Date(`${s.getFullYear()}-${s.getMonth() + 1}-01 08:00:00`))
+                    if ((s.getMonth() + 1) > 11) {
+                        s.setFullYear(s.getFullYear() + 1)
+                        s.setMonth(0)
+                    }else {
+                        s.setMonth(s.getMonth() + 1)
+                    }
+                }
+            }
+            return arr
+        },
+
+        //广告位收入报表
+        initChart(start, end, topAd, proAd, topAdCopare, proAdCompare) {
+            let date = this.initDate(start, end)
             let option = {
                 title: [{
                     text: `${start.getFullYear()}年${start.getMonth() + 1}月-${end.getFullYear()}年${end.getMonth() + 1}月广告收入`,
@@ -238,7 +283,7 @@ export default {
                 xAxis : [
                     {
                         type : 'category',
-                        data : _date,
+                        data : date,
                         splitLine: {
                             show: false
                         },
@@ -285,7 +330,7 @@ export default {
                                 }
                             ])
                         },
-                        data:[120, 132.01, 101, 134, 90, 230, 210, 134, 90, 230, 210, 10]
+                        data: topAd
                     },
                     {
                         name:'促销广告位',
@@ -305,7 +350,7 @@ export default {
                                 }
                             ])
                         },
-                        data:[220, 182, 191, 234, 290, 330, 310, 1000, 200, 30, 2000, 20]
+                        data: proAd
                     },
                     {
                         type: 'pie',
@@ -317,7 +362,7 @@ export default {
                             }
                         },
                         data: [{
-                            value: 0.8,
+                            value: topAdCopare,
                             name: '置顶广告位',
                             tooltip: {
                                 trigger: 'item',
@@ -339,7 +384,7 @@ export default {
                                 }
                             }
                         }, {
-                            value: 0.2,
+                            value: proAdCompare,
                             name: '促销广告位',
                             tooltip: {
                                 trigger: 'item',
@@ -370,26 +415,8 @@ export default {
                 this.chartBar.resize()
             })
         },
-        initDate(start, end) {
-            let s = new Date(start), e = new Date(end), arr = []
-            if (s.getFullYear() == e.getFullYear()) {
-                while(s <= e) {
-                    arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
-                    s.setMonth(s.getMonth() + 1)
-                }
-            }else {
-                while(s <= e) {
-                    arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
-                    if ((s.getMonth() + 1) > 11) {
-                        s.setFullYear(s.getFullYear() + 1)
-                        s.setMonth(0)
-                    }else {
-                        s.setMonth(s.getMonth() + 1)
-                    }
-                }
-            }
-            return arr
-        },
+
+        //交易额 用户量
         initSales(start, end, sales, users) {
             let _date = this.initDate(start, end)
             let option = {
@@ -541,6 +568,8 @@ export default {
                 this.salesLine.resize()
             })
         },
+
+        //商户  交易额
         initMechant(start, end, sales, orders) {
             let _date = this.initDate(start, end)
             let option = {
@@ -693,6 +722,11 @@ export default {
                 return true
             }
         },
+        checkIsTourist(item) {
+            if (item == '4') {
+                return true
+            }
+        },
         getAdMoney() {
             this.http({
                 url: `merchant/chart/advertStatistics?shopMallId=${this.mallId}`,
@@ -737,31 +771,35 @@ export default {
             })
         },
         //报表 广告位收入
-        getAdvertChartData() {
+        getAdvertChartData(dateArr) {
             this.http({
                 url: 'merchant/chart/getAdvertChartData',
                 method: 'post',
                 data: {
                     shopMallId: this.mallId,
-                    dates: this.monthList
+                    mouths: dateArr
                 }
             }, res => {
                 if (res.data.code == 200) {
-
+                    let obj = res.data.data
+                    this.initChart(this.monthList[0], this.monthList[1], obj.topAvert, obj.advert, obj.topAvertZB, obj.advertZB)
                 }
             })
         },
-        getSalesAndUsers() {
+
+        //交易额和用户量   商户的
+        getSalesAndUsers(dateArr) {
             this.http({
                 url: 'merchant/chart/getOrderChartData',
                 method: 'post',
                 data: {
                     shopMallId: this.mallId,
-                    dates: this.monthList
+                    mouths: dateArr
                 }
             }, res => {
                 if (res.data.code == 200) {
-
+                    let obj = res.data.data
+                    this.initSales(this.monthList[0], this.monthList[1], obj.customerChartData, obj.paramList)
                 }
             })
         }
@@ -769,18 +807,19 @@ export default {
     mounted() {
         this.monthList.push(new Date(`${new Date().getFullYear()}/01`))
         this.monthList.push(new Date(`${new Date().getFullYear()}/12`))
+        let dateArr = this.initDateList(this.monthList[0], this.monthList[1])
         if (this.roleIds.some(this.checkIsSuperAdmin) || this.roleIds.some(this.checkIsAdmin)) {
             this.getMallList()
             this.getAdMoney()
             this.getTransaction()
             this.getCustoms()
             this.getApproval()
-            this.getAdvertChartData()
-            this.getSalesAndUsers()
-            this.initChart(this.monthList[0], this.monthList[1])
-            this.initSales(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
+            this.getAdvertChartData(dateArr)
+            this.getSalesAndUsers(dateArr)
         }
-        this.initMechant(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
+        if (this.roleIds.some(this.checkIsMechant)) {
+            this.initMechant(this.monthList[0], this.monthList[1], [1,2,3,4,5,6,7,8,9,10,11,12], [10,2,3,40,5,6,70,8,9,10,11,12])
+        }
     }
 }
 </script>
