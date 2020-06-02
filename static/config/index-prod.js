@@ -5,10 +5,12 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://demo.open.renren.io/renren-fast-server';
+  window.SITE_CONFIG['baseUrl'] = 'http://119.3.228.167:9001/api/';
+  window.SITE_CONFIG['uploadUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/fileUploads'
+  window.SITE_CONFIG['fileUrl'] = 'http://119.3.228.167:9004/' + 'filename='
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名
-  window.SITE_CONFIG['version'] = '';   // 版本号(年月日时分)
+  window.SITE_CONFIG['version'] = '1.0.0';   // 版本号(年月日时分)
   window.SITE_CONFIG['cdnUrl']  = window.SITE_CONFIG.domain + window.SITE_CONFIG.version;
 })();

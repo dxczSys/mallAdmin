@@ -126,7 +126,7 @@
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="20">
                         <label class="order-label">运单照片</label>
-                        <img class="logistics-img" src="~@/assets/img/shoukuan.png">
+                        <!-- <img class="logistics-img" src="~@/assets/img/shoukuan.png"> -->
                     </el-col>
                 </el-row>
             </div>

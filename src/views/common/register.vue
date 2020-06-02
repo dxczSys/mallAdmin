@@ -121,7 +121,7 @@ export default {
                             if (res.data.code == 200) {
                                 this.$message.success('注册成功!')
                                 let _data = res.data.data   
-                                this.$cookie.set('token', _data.userToken)
+                                this.$cookie.set('acc_token', _data.userToken)
                                 this.$cookie.set('userId', _data.id)
                                 this.$cookie.set('roleId', _data.roleLists[0].id)
                                 this.$cookie.set('roleName', _data.roleLists[0].roleName)

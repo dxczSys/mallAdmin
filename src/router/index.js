@@ -49,8 +49,8 @@ const mainRoutes = {
         { path: '/user-edit-goods', component: _import('modules/user/edit-goods'), name: 'user-edit-goods', meta: { title: '编辑商品', isTab: false } },
     ],
     beforeEnter (to, from, next) {
-        let token = Vue.cookie.get('token')
-        if (!token || !/\S/.test(token)) {
+        let acc_token = Vue.cookie.get('acc_token')
+        if (!acc_token || !/\S/.test(acc_token)) {
             clearLoginInfo()
             next({ name: 'login' })
         }
@@ -72,7 +72,7 @@ router.beforeEach((to, from, next) => {
     if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
         next()
     }else {
-        if (Vue.cookie.get('token')) {
+        if (Vue.cookie.get('acc_token')) {
             getHttp({
                 url: 'merchant/findUserMenuLisByLoginUser',
                 method: 'get',

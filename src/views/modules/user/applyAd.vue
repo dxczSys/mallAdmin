@@ -376,10 +376,9 @@ export default {
                         goodShop: this.$cookie.get('shopId')
                     }
                 }
-
             }, res => {
                 if (res.data.code == 200) {
-                    this.goodsList = res.data.data
+                    this.goodsList = res.data.data.rows
                 }
             })
         },

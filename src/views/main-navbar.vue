@@ -13,7 +13,11 @@
                 <icon-svg name="lingdang"></icon-svg>
             </el-badge>
             <div class="navbar-avatar" @click="$router.push({ name: 'setting-update-personInfo' })">
-                <img :src="avatarUrl" :alt="userName">
+                <el-image class="user-avatar" :src="avatarUrl">
+                    <div slot="error" class="image-slot">
+                        <img src="~@/assets/img/avatar_default.png">
+                    </div>
+                </el-image>
                 <span>{{ userName }}</span>
             </div>
             <div class="navbar-logout" @click="logoutHandle">
@@ -92,12 +96,14 @@ export default {
         align-items: center;
         margin-right: 15px;
         cursor: pointer;
-        img{
-            width: 30px;
-            height: 30px;
-            object-fit: cover;
-            border-radius: 50%;
-            margin-right: 8px;
+        .user-avatar{
+            /deep/ img{
+                width: 30px;
+                height: 30px;
+                object-fit: cover;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
         }
     }
     .mark-tip{

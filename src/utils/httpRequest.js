@@ -21,8 +21,8 @@ const http = axios.create({
  * 请求拦截
  */
 http.interceptors.request.use(config => {
-    config.headers['Authorization'] = Vue.cookie.get('token') // 请求头带上token
-    config.headers['sing'] = md5(`token=${Vue.cookie.get('token')}&private_sing=08c063bde1f64805875ff5a73f9f3404`).toUpperCase()
+    config.headers['Authorization'] = Vue.cookie.get('acc_token') // 请求头带上acc_token
+    config.headers['sing'] = md5(`token=${Vue.cookie.get('acc_token')}&private_sing=08c063bde1f64805875ff5a73f9f3404`).toUpperCase()
     return config
 }, error => {
     return Promise.reject(error)
@@ -32,7 +32,7 @@ http.interceptors.request.use(config => {
  * 响应拦截
  */
 http.interceptors.response.use(response => {
-    if (response.data && response.data.code === 401) { // 401, token失效
+    if (response.data && response.data.code === 401) { // 401, acc_token失效
         Message({
             message: '登录失效！',
             type: 'error',
