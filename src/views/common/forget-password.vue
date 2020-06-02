@@ -18,7 +18,7 @@
                             <span style="color: #999;" v-else>重新发送({{codeTiming}}s)</span>
                         </el-form-item>
                         <el-form-item prop="password">
-                            <el-input type="text" v-model="forgetPasswordForm.password" size="large" placeholder="重置密码" prefix-icon="iconfont iconmima"></el-input>
+                            <el-input type="password" v-model="forgetPasswordForm.password" size="large" placeholder="重置密码" prefix-icon="iconfont iconmima"></el-input>
                         </el-form-item>
                         <el-form-item prop="passwordAgain" style="margin-bottom: 10px;">
                             <el-input type="password" v-model="forgetPasswordForm.passwordAgain" placeholder="确认重置密码" size="large" prefix-icon="iconfont iconmima"></el-input>
@@ -36,7 +36,7 @@
 
         <div class="footer-copyright">
             <div class="copyright-box">
-                <span>Copyright © 2020-2020  陕ICP备16012831号-2  版本：1.0.0</span>
+                <span>Copyright © 2020-2020  陕ICP备000001号-1  版本：1.0.0</span>
                 <span>西安易码众城网络科技有限公司</span>
             </div>
             <div class="recommend-tips">推荐使用chrome浏览器访问</div>
@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import sha256 from 'js-sha256'
 export default {
     data() {
         let checkPhone = (rule, value, callback) => {
@@ -95,21 +96,56 @@ export default {
             //重置密码
             this.$refs.forgetPasswordForm.validate(valid => {
                 if (valid) {
-
+                    if (this.forgetPasswordForm.password === this.forgetPasswordForm.passwordAgain) {
+                        this.http({
+                            url: 'merchant/userPassWord',
+                            method: 'post',
+                            data: {
+                                userTel: this.forgetPasswordForm.phone,
+                                code: this.forgetPasswordForm.code,
+                                userPassWord: sha256(this.forgetPasswordForm.password)
+                            }
+                        }, res => {
+                            if (res.data.code == 200) {
+                                this.$message.success('修改成功')
+                                this.$router.push({ name: 'login' })
+                            }else {
+                                this.$message.info(res.data.msg)
+                            }
+                        })
+                    }else {
+                        this.$message.info('俩次密码输入不一致')
+                    }
                 }
             })
         },
         getCode() {
             //获取验证码
-            this.codeTiming = 59
-            let timer = setInterval(() => {
-                if (this.codeTiming > 0) {
-                    -- this.codeTiming
-                }else {
-                    clearTimeout(timer)
-                    timer = null
-                }
-            }, 1000)
+            if (/^1[3456789]\d{9}$/.test(this.forgetPasswordForm.phone)) {
+                this.codeTiming = 59
+                let timer = setInterval(() => {
+                    if (this.codeTiming > 0) {
+                        -- this.codeTiming
+                    }else {
+                        clearTimeout(timer)
+                        timer = null
+                    }
+                }, 1000)
+                this.http({
+                    url: 'merchant/sendPasswordMessage',
+                    method: 'get',
+                    data: {
+                        phone: this.forgetPasswordForm.phone
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$message.success('验证码已发送,请注意查收!')
+                    }
+                })
+            }else {
+                this.$message.info('请输入正确的手机号!')
+            }
+            
         }
     }
 }
