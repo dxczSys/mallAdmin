@@ -58,12 +58,14 @@
           如果您对于我们的个人信息处理行为存在任何投诉举报需求，请您联系所在商场管理人员。
           您还可以通过易码商城小程序提供的联系方式\客服系统与我们联系并作充分描述，我们将在验证您身份的15天内答复您的请求并尽力解决。如果您对我们的回复不满意，特别是认为我们的个人信息处理行为损害了您的合法权益，您还可以通过向被告住所地有管辖权的法院提起诉讼。
         </div>
+        <my-footer></my-footer>
     </div>
 </template>
 
 <script>
+import myFooter from './footer'
 export default {
-    
+    components: { myFooter },
 }
 </script>
 

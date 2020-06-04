@@ -29,19 +29,15 @@
             </div>
         </div>
 
-        <div class="footer-copyright">
-            <div class="copyright-box">
-                <span>Copyright © 2020-2020  陕ICP备16012831号-2  版本：1.0.0</span>
-                <span>西安易码众城网络科技有限公司</span>
-            </div>
-            <div class="recommend-tips">推荐使用chrome浏览器访问</div>
-        </div>
+        <my-footer></my-footer>
     </div>
 </template>
 
 <script>
 import sha256 from 'js-sha256'
+import myFooter from './footer'
 export default {
+    components: { myFooter },
     data() {
         return {
             loginForm: {
@@ -104,9 +100,6 @@ export default {
                 }
             })
         },
-    },
-    mounted() {
-        console.log(this.$options)
     }
 }
 </script>
@@ -144,19 +137,6 @@ export default {
             display: flex;
             flex-direction: column;
             justify-content: center;
-        }
-    }
-    .footer-copyright{
-        text-align: center;
-        .copyright-box{
-            padding-top: 20px;
-            padding-bottom: 5px;
-            span:last-child{
-                color: #409eff;
-            }
-        }
-        .recommend-tips{
-            font-size: 12px;
         }
     }
 }

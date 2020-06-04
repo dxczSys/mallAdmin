@@ -2,7 +2,7 @@
     <div class="home-wrapper">
         <div class="top-box">
             <div class="info-block">
-                <el-row :gutter="20" justify="center">
+                <el-row :gutter="20">
                     <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)">
                         <el-card :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
@@ -864,6 +864,8 @@ export default {
     &:hover{
         box-shadow: 0 5px 12px 0 rgba(23, 179, 163, .5);
     }
+    height: 114px;
+    margin-bottom: 10px;
 }
 .item-top{
     display: flex;
@@ -898,7 +900,7 @@ export default {
     }
 }
 .bar-box{
-    margin-top: 20px;
+    margin-top: 10px;
 }
 .ad-money{
     height: 560px;
