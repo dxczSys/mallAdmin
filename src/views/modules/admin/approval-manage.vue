@@ -24,7 +24,7 @@
                         </div>
                     </el-card>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="8" v-if="!roleIds.includes('2')">
                     <el-card :body-style="{ padding: '15px' }" @click.native="index=2" :class="{currentBox: index == 2}" class="card-item">
                         <div class="count-box">
                             <div class="count-box-top">
@@ -101,6 +101,7 @@
 export default {
     data() {
         return {
+            roleIds: JSON.parse(this.$cookie.get('roleId')) || [],
             index: 0,
             merchantNum: 0,
             adNum: 0,

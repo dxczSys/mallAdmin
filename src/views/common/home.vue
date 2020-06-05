@@ -816,7 +816,7 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     let obj = res.data.data
-                    this.initSales(this.monthList[0], this.monthList[1], obj.customerChartData, obj.paramList)
+                    this.initSales(this.monthList[0], this.monthList[1], obj.paramList, obj.customerChartData)
                 }
             })
         },
