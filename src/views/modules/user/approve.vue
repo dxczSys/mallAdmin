@@ -25,14 +25,20 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="所属商场" prop="shopCityName" required>
-                            <el-select v-model="infoForm.shopCityName" :disabled="isApproval" placeholder="所属商场">
-                                <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.shopName" :value="item.id"></el-option>
-                            </el-select>
+                        <el-form-item label="名称缩写">
+                            <el-input v-model="infoForm.abbreviation" :disabled="isApproval" maxlength="4" show-word-limit placeholder="名称缩写"></el-input>
+                            <div style="color: #E6A23C; font-size: 12px;">提醒:小程序最多显示4个字，请设置缩写</div>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
+                    <el-col :span="12">
+                        <el-form-item label="所属商场" prop="shopCityName" required>
+                            <el-select v-model="infoForm.shopCityName" filterable remote :remote-method="remoteMethod" :disabled="isApproval" placeholder="所属商场">
+                                <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.shopName" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
                     <el-col :span="12">
                         <el-form-item label="所在楼层" prop="floor" required>
                             <el-select v-model="infoForm.floor" :disabled="isApproval" placeholder="所在楼层">
@@ -40,6 +46,8 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                </el-row>
+                <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="所属行业">
                             <el-select v-model="infoForm.businessType" :disabled="isApproval" placeholder="所属行业">
@@ -47,13 +55,13 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="联系电话" prop="phone" required>
                             <el-input v-model="infoForm.phone" :disabled="isApproval" placeholder="联系电话"></el-input>
                         </el-form-item>
                     </el-col>
+                </el-row>
+                <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="微信号" prop="chat" required>
                             <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
@@ -70,6 +78,9 @@
                         <el-form-item label="店铺标志" prop="shopLogo" required>
                             <image-cropping :filelist="infoForm.shopLogo"></image-cropping>
                             <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
+                            <div v-if="isApproval && infoForm.shopLogo[0] && infoForm.shopLogo[0].raw">
+                                <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
+                            </div>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -124,8 +135,10 @@ export default {
             isApproval: false,
             shopApprovalStatus: 0,
             refuseInfo: '',
+            shopId: '',
             infoForm: {
                 shopName: '',
+                abbreviation: '',
                 shopCityName: '',
                 floor: '',
                 businessType: '',
@@ -164,6 +177,7 @@ export default {
                 introduction: [ { required: true, message: '商铺简介不能为空', trigger: 'blur'} ],
             },
             shopCityList: [],
+            shopCityListTemp: [],
             floorList: [],
             businessTypeList: [],
             
@@ -184,6 +198,7 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     this.shopCityList = res.data.data
+                    this.shopCityListTemp = JSON.parse(JSON.stringify(res.data.data))
                 }
             })
         },
@@ -266,6 +281,7 @@ export default {
                         method: 'post',
                         data: {
                             shopName: this.infoForm.shopName,
+                            abbreviation: this.infoForm.abbreviation,
                             shopToPart: this.infoForm.shopCityName,
                             shopToFloor: this.infoForm.floor,
                             shopToIndustry: this.infoForm.businessType,
@@ -297,10 +313,12 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     let obj = res.data.data
+                    this.shopId = obj.id
                     this.shopApprovalStatus = parseInt(obj.shopApprovalStatus)
                     this.refuseInfo = obj.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
                     this.isApproval = true
                     this.infoForm.shopName = obj.shopName
+                    this.infoForm.abbreviation = obj.abbreviation
                     this.infoForm.shopCityName = obj.shopToPart
                     this.infoForm.floor = obj.shopToFloor
                     this.infoForm.businessType = obj.shopToIndustry
@@ -317,6 +335,42 @@ export default {
                     this.isApproval = false
                 }
             })
+        },
+        updateLogo() {
+            this.$upload({
+                data: [this.infoForm.shopLogo[0].raw]
+            }, res => {
+                if (res.data.code == 200) {
+                    this.http({
+                        url: 'merchant/tShop/updateTShopByShopId',
+                        method: 'post',
+                        data: {
+                            id: this.shopId,
+                            shopSign: res.data.data,
+                        }
+                    }, resovel => {
+                        if (resovel.data.code == 200) {
+                            this.$message.success('修改成功!')
+                            this.getApprovalData()
+                        }
+                    })
+                }
+            })
+            
+        },
+        remoteMethod(query) {
+            if (query) {
+                this.http({
+                    url: `merchant/shopMall/selShopMallLikeName?shopMallName=${query}`,
+                    method: 'get',
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.shopCityList = res.data.data
+                    }
+                })
+            }else {
+                this.shopCityList = JSON.parse(JSON.stringify(this.shopCityListTemp))
+            }
         }
     },
     mounted() {
@@ -348,31 +402,6 @@ export default {
         /deep/ .el-form-item__content .el-textarea{
             width: 360px;
         }
-    }
-}
-.avatar-uploader{
-    /deep/ .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        &:hover{
-            border-color: #409EFF;
-        }
-    }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 148px;
-        height: 148px;
-        line-height: 148px;
-        text-align: center;
-    }
-    .avatar {
-        width: 148px;
-        height: 148px;
-        display: block;
     }
 }
 </style>

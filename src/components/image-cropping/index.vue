@@ -92,8 +92,8 @@ export default {
                 outputSize: 0.8,
                 outputType: 'png',
                 autoCrop: true,
-                autoCropWidth: 148,
-                autoCropHeight: 148,
+                autoCropWidth: 100,
+                autoCropHeight: 100,
                 fixedBox: true,
             },
             previews: '',
@@ -209,9 +209,9 @@ export default {
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 148px;
-        height: 148px;
-        line-height: 148px;
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
         text-align: center;
     }
 }
@@ -228,8 +228,8 @@ export default {
     box-sizing: border-box;
     margin: 0 8px 8px 0;
     cursor: pointer;
-    width: 148px;
-    height: 148px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     img{
         width: 100%;
@@ -245,8 +245,8 @@ export default {
         position: absolute;
         top: 0;
         left: -1px;
-        width: 148px;
-        height: 148px;
+        width: 100px;
+        height: 100px;
         border-radius: 6px;
         text-align: center;
         color: #fff;

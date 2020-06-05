@@ -8,77 +8,86 @@
                 </div>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="商铺名称">
-                            <span>{{shopMess.shopName}}</span>
-                        </el-form-item>
+                        <el-row :gutter="10">
+                            <el-col :span="12">
+                                <el-form-item label="商铺名称:">
+                                    <span>{{shopMess.shopName}}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="名称缩写:">
+                                    <span>{{shopMess.abbreviation}}</span>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="所属商场">
+                        <el-form-item label="所属商场:">
                             <span>{{shopMess.shopToPart}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="所在楼层">
+                        <el-form-item label="所在楼层:">
                             <span>{{shopMess.shopToFloor}}楼</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="所属行业">
+                        <el-form-item label="所属行业:">
                             <span>{{shopMess.shopToIndustry || '无'}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="联系电话">
+                        <el-form-item label="联系电话:">
                             <span>{{shopMess.shopTel}}</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="微信">
+                        <el-form-item label="微信:">
                             <span>{{shopMess.shopPersonVx}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="店铺标志">
+                        <el-form-item label="店铺标志:">
                             <img-view class="logo-box" :images="fileUrl + shopMess.shopSign"></img-view>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="营业执照">
+                        <el-form-item label="营业执照:">
                             <img-view style="width: 100px; height: 120px;" :images="fileUrl + shopMess.shopBusinessLicense"></img-view>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="法人/经营者">
+                        <el-form-item label="法人/经营者:">
                             <span>{{shopMess.shopLegalPerson}}</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="身份证号">
+                        <el-form-item label="身份证号:">
                             <span>{{shopMess.shopLegalPersonId}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="身份证正面">
+                        <el-form-item label="身份证正面:">
                             <img-view :images="fileUrl + shopMess.idCardPicPositive"></img-view>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="身份证反面">
+                        <el-form-item label="身份证反面:">
                             <img-view :images="fileUrl + shopMess.idCardPicSide"></img-view>
                         </el-form-item>
                     </el-col>
                 </el-row>
-                <el-form-item label="商铺简介">
+                <el-form-item label="商铺简介:">
                     <span>{{shopMess.shopInfo}}</span>
                 </el-form-item>
             </div>
@@ -89,48 +98,48 @@
                 </div>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="商铺名称">
+                        <el-form-item label="商铺名称:">
                             <span>{{tShop.shopName}}</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="所属商场">
+                        <el-form-item label="所属商场:">
                             <span>{{tShop.shopToPart}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="所在楼层">
+                        <el-form-item label="所在楼层:">
                             <span>{{tShop.shopToFloor}}楼</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="所属行业">
+                        <el-form-item label="所属行业:">
                             <span>{{tShop.shopToIndustry || '无'}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="法人/经营者">
+                        <el-form-item label="法人/经营者:">
                             <span>{{tShop.shopLegalPerson}}</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="联系电话">
+                        <el-form-item label="联系电话:">
                             <span>{{tShop.shopTel}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="广告位类型">
+                        <el-form-item label="广告位类型:">
                             <span>{{tAdvert.advertType == '1'? '置顶广告位' : '促销广告位'}}</span>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="申请时长">
+                        <el-form-item label="申请时长:">
                             <span>{{tAdvert.advertDurationDayNums}}天</span>
                         </el-form-item>
                     </el-col>
@@ -139,24 +148,24 @@
                     <img class="goods-img" :src="shopMess.goodsUrl">
                     <div class="goods-mess">{{shopMess.goodsDes}}</div>
                 </el-form-item> -->
-                <el-form-item label="已付款">
+                <el-form-item label="已付款:">
                     <span>{{tAdvertOrder.orderMoney}}元</span>
                 </el-form-item>
             </div>
-            <el-form-item v-if="type == '1'" label="审批">
+            <el-form-item v-if="type == '1'" label="审批:">
                 <el-radio :disabled="shopMess.shopApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="2">通过</el-radio>
                 <el-radio :disabled="shopMess.shopApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="3">拒绝</el-radio>
             </el-form-item>
-            <el-form-item v-if="type == '2'" label="审批">
+            <el-form-item v-if="type == '2'" label="审批:">
                 <el-radio :disabled="tAdvert.advertApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="2">通过</el-radio>
                 <el-radio :disabled="tAdvert.advertApprovalStatus != '1'" v-model="detailForm.approvalStutas" label="3">拒绝</el-radio>
             </el-form-item>
-            <el-form-item v-if="type == '1' && detailForm.approvalStutas == 3" label="拒绝原因" prop="rejectReason" required>
+            <el-form-item v-if="type == '1' && detailForm.approvalStutas == 3" label="拒绝原因:" prop="rejectReason" required>
                 <el-input :disabled="shopMess.shopApprovalStatus != '1'" type="textarea" maxlength="100" show-word-limit
                     rows="4" v-model="detailForm.rejectReason" placeholder="拒绝原因：包含非法信息，最多100字">
                 </el-input>
             </el-form-item>
-            <el-form-item v-if="type == '2' && detailForm.approvalStutas == 3" label="拒绝原因" prop="rejectReason" required>
+            <el-form-item v-if="type == '2' && detailForm.approvalStutas == 3" label="拒绝原因:" prop="rejectReason" required>
                 <el-input :disabled="tAdvert.advertApprovalStatus != '1'" type="textarea" maxlength="100" show-word-limit
                     rows="4" v-model="detailForm.rejectReason" placeholder="拒绝原因：包含非法信息，最多100字">
                 </el-input>
