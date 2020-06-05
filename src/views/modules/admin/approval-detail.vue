@@ -45,7 +45,7 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="店铺标志">
-                            <img-view style="width: 100px; height: 120px;" :images="fileUrl + shopMess.shopSign"></img-view>
+                            <img-view class="logo-box" :images="fileUrl + shopMess.shopSign"></img-view>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -303,5 +303,12 @@ export default {
     max-width: 300px;
     margin-top: 10px;
     line-height: 22px;
+}
+.logo-box{
+    width: 100px;
+    height: 120px;
+    /deep/ .img-box img{
+        border-radius: 50%;
+    }
 }
 </style>

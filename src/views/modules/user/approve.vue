@@ -68,7 +68,7 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="店铺标志" prop="shopLogo" required>
-                            <upload-file class="shop-logo" :disabled="isApproval" :filelist="infoForm.shopLogo"></upload-file>
+                            <image-cropping :filelist="infoForm.shopLogo"></image-cropping>
                             <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
                         </el-form-item>
                     </el-col>
@@ -115,8 +115,9 @@
 
 <script>
 import uploadFile from '@/components/upload-file'
+import imageCropping from '@/components/image-cropping'
 export default {
-    components: { uploadFile },
+    components: { uploadFile, imageCropping },
     data() {
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
