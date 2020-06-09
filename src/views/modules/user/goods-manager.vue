@@ -123,9 +123,11 @@ export default {
         },
         handleCurrentChange(v) {
             this.currentPage = v
+            this.getGoodsList()
         },
         handleSizeChange(v) {
             this.pageSize = v
+            this.getGoodsList()
         },
         getGoodsList() {
             this.http({
