@@ -11,10 +11,10 @@
                         <div class="box-title">登&nbsp;&nbsp;&nbsp;&nbsp;录</div>
                         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0px">
                             <el-form-item prop="username">
-                                <el-input v-model="loginForm.username" size="large" placeholder="手机号" prefix-icon="iconfont iconyonghu"></el-input>
+                                <el-input v-model="loginForm.username" size="large" placeholder="手机号" prefix-icon="iconfont iconyonghu" @keydown.enter.native="handleLogin"></el-input>
                             </el-form-item>
                             <el-form-item prop="password" style="margin-bottom: 10px;">
-                                <el-input type="password" v-model="loginForm.password" placeholder="密码" size="large" prefix-icon="iconfont iconmima"></el-input>
+                                <el-input type="password" v-model="loginForm.password" placeholder="密码" size="large" prefix-icon="iconfont iconmima" @keydown.enter.native="handleLogin"></el-input>
                             </el-form-item>
                             <div class="forget-register">
                                 <span tappable @click="$router.push({ name: 'forget-password'})">忘记密码?</span>

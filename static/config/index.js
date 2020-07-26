@@ -5,9 +5,10 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://119.3.228.167:9001/api/';
+  // window.SITE_CONFIG['baseUrl'] = 'http://192.168.3.10:9001/api/';
+  window.SITE_CONFIG['baseUrl'] = 'https://s.yimazhongcheng.com/api/';
   window.SITE_CONFIG['uploadUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/fileUploads'
-  window.SITE_CONFIG['fileUrl'] = 'http://119.3.228.167:9004/' + 'filename='
+  window.SITE_CONFIG['fileUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/filename='
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

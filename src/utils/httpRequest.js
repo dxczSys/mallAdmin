@@ -3,7 +3,7 @@ import axios from 'axios'
 import router from '@/router'
 import qs from 'qs'
 import merge from 'lodash/merge'
-import md5 from 'js-md5'
+import JSEncrypt from 'jsencrypt'
 import { clearLoginInfo } from '@/utils'
 import { Message } from 'element-ui'
 
@@ -17,16 +17,27 @@ const http = axios.create({
     }
 })
 
+var publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+dMddeM0s+NeHeJe5rCzi7WctKe6JPjG4lsvPjtwtIa3v37dpAR+cQzrPhoXvwARda1OMlqFSSvlouMIOpUJh1LwPZVM4D3/iR3rrbs3MM6LEXL62r2oNIcImGc44t1IdJnY5yhiHMJRVJEWi4fNIHOv/bZ+qgjUoYg1bmQtq7wIDAQAB'
+
 /**
  * 请求拦截
  */
 http.interceptors.request.use(config => {
     config.headers['Authorization'] = Vue.cookie.get('acc_token') // 请求头带上acc_token
-    config.headers['sing'] = md5(`token=${Vue.cookie.get('acc_token')}&private_sing=08c063bde1f64805875ff5a73f9f3404`).toUpperCase()
+    config.headers['sign'] = getUrl(config)
     return config
 }, error => {
     return Promise.reject(error)
 })
+
+function getUrl(config) {
+    let url = config.url.split('api/')[1].split('?')[0]
+    let encryptStr = new JSEncrypt();
+    encryptStr.setPublicKey(publicKey);
+    let data = encryptStr.encrypt(url);
+    console.log('地址：', url)
+    return data
+}
 
 /**
  * 响应拦截
