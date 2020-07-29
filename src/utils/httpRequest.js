@@ -35,7 +35,6 @@ function getUrl(config) {
     let encryptStr = new JSEncrypt();
     encryptStr.setPublicKey(publicKey);
     let data = encryptStr.encrypt(url);
-    console.log('地址：', url)
     return data
 }
 
