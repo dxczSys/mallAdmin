@@ -62,22 +62,39 @@
                     <el-button type="primary" v-if="type == 1 && detailData.advertIsExpire == '2' && detailData.advertApprovalStatus == '2'"
                         @click="type = 2, applyForm.timeType = ''">续费</el-button>
                     <el-button v-if="type != 1" @click="$router.push({ name: 'user-ad-manager' })">取消</el-button>
-                    <el-button v-if="type == 2" type="primary" @click="handleApply">立即续费</el-button>
-                    <el-button v-if="type == 0" type="primary" @click="handleApply">提交申请</el-button>
+                    <el-button v-if="type == 2" type="primary" @click="openPayType">立即续费</el-button>
+                    <el-button v-if="type == 0" type="primary" @click="openPayType">提交申请</el-button>
                 </el-form-item>
             </el-form>
         </div>
-
-        <el-dialog class="pay-wrapper" fullscreen lock-scroll :visible.sync="dialogVisible" :close-on-click-modal="false" 
+        <el-dialog v-if="typeDialogVisible" title="选择支付类型" :visible.sync="typeDialogVisible" width="400px">
+            <div class="pay-type">
+                <el-radio v-model="payType" label="1">
+                    微信支付
+                    <img src="~@/assets/img/weixin.png" alt="微信支付">
+                </el-radio>
+                <el-radio v-model="payType" label="2">
+                    支付宝
+                    <img src="~@/assets/img/aliply_logo.png" alt="微信支付">
+                </el-radio>
+            </div>
+            <div slot="footer">
+                <el-button @click="payType = '1', typeDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="handleApply">确 定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog v-if="dialogVisible" class="pay-wrapper" fullscreen lock-scroll :visible.sync="dialogVisible" :close-on-click-modal="false" 
             :before-close="beforeDialogClose" :close-on-press-escape="false" top="0" width="100%">
             <div class="alipy-logo-box">
-                <img src="~@/assets/img/aliply_logo.png" alt="支付宝">
+                <img v-if="payType == '1'" src="~@/assets/img/wechat_logo.png" alt="微信支付">
+                <img v-else src="~@/assets/img/aliply_logo.png" alt="支付宝">
                 <div class="divider-box">
                     <div></div>
                 </div>
-                <div>支付宝收银台</div>
+                <div v-if="payType == '1'">微信收银台</div>
+                <div v-else>支付宝收银台</div>
             </div>
-            <div class="pay-box">
+            <div class="pay-box" :class="{'wechat': payType == '1', 'zhifubao': payType == '2'}">
                 <div class="alipy-content">
                     <div class="alipy-content-left">
                         <div class="sweep-title">
@@ -87,7 +104,8 @@
                         <vue-qr :text="qrcode.url" :margin="0" colorDark="#333" :logoMargin="2" :logoCornerRadius="2"
                             colorLight="#fff" :logoSrc="qrcode.icon" :logoScale="0.1" :size="230">
                         </vue-qr>
-                        <div style="padding-top: 15px;">打开手机支付宝扫描二维码支付</div>
+                        <div v-if="payType == '1'" style="padding-top: 15px;">打开手机微信扫描二维码支付</div>
+                        <div v-else style="padding-top: 15px;">打开手机支付宝扫描二维码支付</div>
                         <div style="color: #0ae; padding-top: 15px;">请您在提交订单后5分钟内完成支付，否则订单会自动取消</div>
                         <div>
                             <span>{{Math.floor(timeNum/60)}}分</span>
@@ -145,6 +163,7 @@ export default {
     data() {
         return {
             dialogVisible: false,
+            typeDialogVisible: false,
             applyForm: {
                 adType: '1',
                 goodsId: '',
@@ -154,8 +173,8 @@ export default {
             goodsList: [],
             timeTypeList: [],
             rules: {
-                goodsId: [ { required: true, message: '请选择本地促销商品', trigger: 'blur' } ],
-                timeType: [ { required: true, message: '请选择申请时长', trigger: 'blur' } ],
+                goodsId: [ { required: true, message: '请选择本地促销商品', trigger: 'change' } ],
+                timeType: [ { required: true, message: '请选择申请时长', trigger: 'change' } ],
             },
             qrcode: {
                 url: '',
@@ -163,6 +182,7 @@ export default {
                 orderId: '',
                 price: '',
             },
+            payType: '1',
             timer: null,
             countTimer: null,
             timeNum: 0,
@@ -181,6 +201,19 @@ export default {
             }else {
                 this.gettimeTypeList()
                 this.getGoodsList()
+            }
+        },
+        typeDialogVisible(n) {
+            if (!n) {
+                this.payType = '1'
+            }
+        },
+        dialogVisible(n) {
+            if (!n) {
+                clearInterval(this.timer)
+                this.timer = null
+                clearInterval(this.countTimer)
+                this.countTimer = null
             }
         }
     },
@@ -213,29 +246,55 @@ export default {
                 }
             })
         },
-        handleApply() {
+        openPayType() {
             this.$refs.applyForm.validate(valid => {
                 if (valid) {
-                    this.http({
-                        url: 'merchant/advert/advertPayOrder',
-                        method: 'get',
-                        data: {
-                            tid: this.applyForm.timeType
-                        }
-                    }, res => {
-                        if (res.data.code == 200) {
-                            this.qrcode.url = res.data.data.qrCode
-                            this.qrcode.orderId = res.data.data.orderId
-                            this.qrcode.price = res.data.data.orderMoney
-                            this.dialogVisible = true
-                            this.getAlipyResult()
-                            this.beginTiming()
-                        }else {
-                            this.$message.error(res.data.msg)
-                        }
-                    })
+                    this.typeDialogVisible = true
                 }
             })
+        },
+        handleApply() {
+            this.typeDialogVisible = false
+            this.dialogVisible = true
+            if (this.payType == '1') {
+                this.http({
+                    url: 'merchant/advert/advertPayOrderVX',
+                    method: 'get',
+                    data: {
+                        tid: this.applyForm.timeType
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.qrcode.url = res.data.data.qrCode
+                        this.qrcode.orderId = res.data.data.orderId
+                        this.qrcode.price = res.data.data.orderMoney
+                        this.dialogVisible = true
+                        this.getAlipyResult()
+                        this.beginTiming()
+                    }else {
+                        this.$message.error(res.data.msg)
+                    }
+                })
+            } else {
+                this.http({
+                    url: 'merchant/advert/advertPayOrder',
+                    method: 'get',
+                    data: {
+                        tid: this.applyForm.timeType
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.qrcode.url = res.data.data.qrCode
+                        this.qrcode.orderId = res.data.data.orderId
+                        this.qrcode.price = res.data.data.orderMoney
+                        this.dialogVisible = true
+                        this.getAlipyResult()
+                        this.beginTiming()
+                    }else {
+                        this.$message.error(res.data.msg)
+                    }
+                })
+            }
         },
         beginTiming() {
             this.timeNum = 299
@@ -454,11 +513,16 @@ export default {
         }
     }
 }
+.wechat{
+    background-image: url('~@/assets/img/wechat_body_bg.jpg');
+}
+.zhifubao{
+    background-image: url('~@/assets/img/aliply_body_bg.jpg');
+}
 .pay-box{
     height: 660px;
     display: flex;
     justify-content: center;
-    background-image: url('~@/assets/img/aliply_body_bg.jpg');
     .alipy-content{
         display: flex;
         background-color: #fff;
@@ -488,5 +552,10 @@ export default {
             color: #333;
         }
     }
+}
+.pay-type{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
