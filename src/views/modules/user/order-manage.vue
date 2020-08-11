@@ -56,7 +56,9 @@
                         <span v-if="scope.row.orderStatus == '1'">待发货</span>
                         <span v-if="scope.row.orderStatus == '2'">待收货</span>
                         <span v-if="scope.row.orderStatus == '3'">已完成</span>
-                        <span v-if="scope.row.orderStatus == '6'">退款中</span>
+                        <span v-if="scope.row.orderStatus == '4'">退款中</span>
+                        <span v-if="scope.row.orderStatus == '5'">退款成功</span>
+                        <span v-if="scope.row.orderStatus == '6'">退款失败</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="goodPrice" label="单价(元)" width="80" align="center" header-align="center"></el-table-column>

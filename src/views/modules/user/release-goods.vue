@@ -430,20 +430,26 @@ export default {
                                 }
                             })
                         })
-                        let assUrls = new Promise((resolve, reject) => {
-                            let _tempArr = []
-                            this.releaseForm.assistUrls.forEach(item => {
-                                _tempArr.push(item.raw)
+                        if (this.releaseForm.assistUrls.length) {
+                            let assUrls = new Promise((resolve, reject) => {
+                                let _tempArr = []
+                                this.releaseForm.assistUrls.forEach(item => {
+                                    _tempArr.push(item.raw)
+                                })
+                                this.$upload({
+                                    data: _tempArr
+                                }, res => {
+                                    if (res.data.code == 200) {
+                                        resolve({name: 'assUrls', url: res.data.data})
+                                    }
+                                })
                             })
-                            this.$upload({
-                                data: _tempArr
-                            }, res => {
-                                if (res.data.code == 200) {
-                                    resolve({name: 'assUrls', url: res.data.data})
-                                }
-                            })
-                        })
-                        Promise.all([mainUrl, assUrls]).then(res => {
+                        }
+                        let _ar = [mainUrl]
+                        if (this.releaseForm.assistUrls.length) {
+                            _ar.push(assUrls)
+                        }
+                        Promise.all(_ar).then(res => {
                             let oneUrl = '', twoUrls = []
                             res.forEach(value => {
                                 if (value.name == 'mainUrl') {

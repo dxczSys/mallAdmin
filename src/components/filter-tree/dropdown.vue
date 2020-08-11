@@ -1,7 +1,7 @@
 <template>
     <div class="drop-down el-select-dropdown el-popper" :style="{'width' : $parent.width + 'px'}">
         <el-tree class="filter-tree" :data="data" node-key="id" :props="defaultProps" :show-checkbox="showCheckbox" 
-            ref="filterTree" :filter-node-method="filterNode" :expand-on-click-node="false"
+            ref="filterTree" :filter-node-method="filterNode"
             @check-change="handleCheckChange" @node-click="treeNodeClick">
         </el-tree>
     </div>
