@@ -3,7 +3,7 @@
         <div class="top-box">
             <div class="info-block">
                 <el-row :gutter="20">
-                    <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)">
+                    <el-col :span="6" v-if="roleIds.some(checkIsSuperAdmin)">
                         <el-card :body-style="{ padding: '15px' }" class="card-item">
                             <div class="info-item">
                                 <div class="item-top">
@@ -136,7 +136,7 @@
                         :picker-options="pickerOptions" start-placeholder="开始月份" end-placeholder="结束月份"></el-date-picker>
                 </div>
             </div>
-            <div v-show="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="ad-money" class="ad-money"></div>
+            <div v-show="roleIds.some(checkIsSuperAdmin)" id="ad-money" class="ad-money"></div>
             <div v-show="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
         </div>
         <div v-show="roleIds.some(checkIsMechant)" class="merchant-bar-box">

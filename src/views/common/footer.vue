@@ -1,7 +1,7 @@
 <template>
     <div class="footer-copyright">
         <div class="copyright-box">
-            <span>Copyright © 2020-2020  陕ICP备1000000号-1  版本：1.0.0</span>
+            <span>Copyright © 2020-2025  陕ICP备19024156号  版本：1.0.0</span>
             <span @click="goOfficial">西安易码众城网络科技有限公司</span>
         </div>
         <div class="recommend-tips" @click="downloadChrome">推荐使用chrome浏览器访问</div>

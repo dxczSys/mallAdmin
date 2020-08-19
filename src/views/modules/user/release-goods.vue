@@ -253,9 +253,8 @@ export default {
                         _arr.push(str)
                     }
                 })
+                resArr.push(_arr)
             }
-            resArr.push(_arr)
-
             //遍历其他规格
             this.formatList.formatArr.forEach(value => {
                 labelArr.push({
@@ -430,8 +429,9 @@ export default {
                                 }
                             })
                         })
+                        let assUrls = null
                         if (this.releaseForm.assistUrls.length) {
-                            let assUrls = new Promise((resolve, reject) => {
+                            assUrls = new Promise((resolve, reject) => {
                                 let _tempArr = []
                                 this.releaseForm.assistUrls.forEach(item => {
                                     _tempArr.push(item.raw)
@@ -446,9 +446,7 @@ export default {
                             })
                         }
                         let _ar = [mainUrl]
-                        if (this.releaseForm.assistUrls.length) {
-                            _ar.push(assUrls)
-                        }
+                        assUrls && (_ar.push(assUrls))
                         Promise.all(_ar).then(res => {
                             let oneUrl = '', twoUrls = []
                             res.forEach(value => {
