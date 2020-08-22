@@ -5,7 +5,7 @@
             <div style="font-weight: 600;">类目管理</div>
         </div>
         <div class="kinds-admin-box">
-            <div class="kinds-left">
+            <!-- <div class="kinds-left">
                 <el-input v-model="filterText" placeholder="输入关键字过滤" prefix-icon="el-icon-search"></el-input>
                 <div style="margin-top: 10px;">
                     <el-button type="primary" @click="addChild" icon="el-icon-plus" size="mini">新增一级</el-button>
@@ -15,8 +15,15 @@
                         :render-content="renderTree" ref="myTree" :filter-node-method="filterNode" :default-expanded-keys="expandedKeys" v-if="refreshTree">
                     </el-tree>
                 </div>
-            </div>
-            <div class="kinds-right" v-if="currentLevel > 1">
+            </div> -->
+            <div class="kinds-left">
+                <el-card>
+                    <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree" :default-expanded-keys="expandedKeys" v-if="refreshTree"
+                        :load="loadTree" @node-click="handleTreeNodeClick">
+                    </el-tree>
+                </el-card>
+            </div> 
+            <div v-if="currentLevel > 2" class="kinds-right">
                 <div style="display: flex;align-items: center;">
                     <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                     <div style="font-weight: 600;">当前节点:{{currentLabel}}--规格条件设置</div>
@@ -55,6 +62,29 @@
                     </div>
                 </el-form>
             </div>
+            <div v-if="currentLevel === 1" class="kinds-right">
+                <el-card>
+                    <div class="kinds-right-header" slot="header">
+                        <span>选择已存在的类目</span>
+                        <el-button type="primary" size="small" @click="saveSelectKinds">保存</el-button>
+                    </div>
+                    <div class="kinds-list">
+                        <el-checkbox-group v-model="kindsCheckbox" class="kinds-list-checkbox">
+                            <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">{{ item.label }}</el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                </el-card>
+                <el-card style="margin-top: 20px;">
+                    <div class="kinds-right-header" slot="header">
+                        <span>{{ currentLabel }}-新增类目</span>
+                        <el-button type="primary" size="small" @click="saveNewKinds">保存</el-button>
+                    </div>
+                    <div>
+                        <label>类目名称</label>
+                        <el-input v-model="newKindsName" size="small" style="width: 350px; margin-left: 6px;"></el-input>
+                    </div>
+                </el-card>
+            </div>
         </div>
     </div>
 </template>
@@ -68,13 +98,16 @@ export default {
             expandedKeys: [],
             treeData: [],
             currentLabel: '',
-            currentLevel: 0,
+            currentLevel: '',
             currentId: '',
             conditionForm: {
                 isColor: '1'
             },
             conditionList: [],
             newConditionName: '',
+            kindsList: [],
+            kindsCheckbox: [],
+            newKindsName: ''
         }
     },
     watch: {
@@ -117,9 +150,14 @@ export default {
             this.currentId = data.id
             this.currentLabel = data.label
             this.currentLevel = node.level
-            this.currentLevel != 1 && this.getConditionList()
+            // this.currentLevel != 1 && this.getConditionList()
         },
-
+        handleTreeNodeClick(data, node, el) {
+            this.kindsCheckbox = []
+            this.currentId = data.id
+            this.currentLabel = data.label
+            this.currentLevel = node.level
+        },
         getConditionList() {
             this.http({
                 url: `merchant/tGoodAttrKey/TGoodCategoryAttrSel?id=${this.currentId}`,
@@ -131,7 +169,6 @@ export default {
                 }
             })
         },
-
         doEdit(data) {
             let input = document.getElementById(`input${data.id}`),
                 span = document.getElementById(`span${data.id}`),
@@ -165,6 +202,35 @@ export default {
                         }
                     })
                 }).catch(() => {})
+            }
+        },
+        saveNewKinds() {
+            if (this.newKindsName) {
+                this.http({
+                    url: 'merchant/tGoodCategory/tGoodCategorySave',
+                    method: 'post',
+                    data: {
+                        categoryShopMall: this.currentId,
+                        categoryParent: undefined,
+                        categoryName: this.newKindsName,
+                        categoryGrade: 1
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$message.closeAll()
+                        this.$message.success('新增成功！')
+                        this.refreshTree = false
+                        this.expandedKeys = [this.currentId]
+                        this.$nextTick(_ => {
+                            this.refreshTree = true
+                        })
+                    }else {
+                        this.$message.error(res.data.msg)
+                    }
+                })
+            }else {
+                this.$message.closeAll()
+                this.$message.info('请输入类目名称')
             }
         },
         doSave(node, data) {
@@ -285,15 +351,67 @@ export default {
                     this.$message.success('保存成功')
                 }
             })
+        },
+        loadTree(node, resolve) {
+            if (node.level === 0) {
+                this.http({
+                    url: `merchant/shopMall/tShopMallSelTree?id=&type=1`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.mallList = res.data.data
+                        return resolve(res.data.data)
+                    }
+                })
+            }else if (node.level === 1) {
+                this.http({
+                    url: `merchant/tGoodCategory/selectTGoodCategoryAsTree?shopMallId=${node.data.id}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        return resolve(res.data.data)
+                    }
+                })
+            }else {
+                return resolve([])
+            }
+            
+        },
+        saveSelectKinds() {
+            if (this.kindsCheckbox.length) {
+                this.http({
+                    url: 'merchant/tGoodCategory/tGoodCategoryAuthorize',
+                    method: 'post',
+                    data: {
+                        shopMallId: this.currentId,
+                        categoryIds: this.kindsCheckbox
+                    }
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$message.closeAll()
+                        this.$message.success('保存成功！')
+                        this.refreshTree = false
+                        this.expandedKeys = [this.currentId]
+                        this.$nextTick(_ => {
+                            this.refreshTree = true
+                        })
+                        
+                    }
+                })
+            }else {
+                this.$message.closeAll()
+                this.$message.info('请选择类目')
+            }
+            
         }
     },
-    mounted() {
+    created() {
         this.http({
             url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree',
             method: 'get',
         }, res => {
             if (res.data.code == 200) {
-                this.treeData = res.data.data
+                this.kindsList = res.data.data
             }
         })
     }
@@ -310,8 +428,9 @@ export default {
 .kinds-admin-box{
     display: flex;
     .kinds-right{
+        flex-basis: 0;
         flex-grow: 1;
-        margin-left: 40px;
+        margin-left: 30px;
     }
 }
 .kinds-tree{
@@ -395,6 +514,18 @@ export default {
     margin-right: 6px;
     /deep/ .el-input__inner{
         padding: 0 10px;
+    }
+}
+.kinds-right-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.kinds-list-checkbox{
+    /deep/ .el-checkbox{
+        width: 180px;
+        margin-left: 0;
+        margin-bottom: 6px;
     }
 }
 </style>
