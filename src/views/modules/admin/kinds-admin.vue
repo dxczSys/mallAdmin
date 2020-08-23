@@ -19,7 +19,7 @@
             <div class="kinds-left">
                 <el-card>
                     <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree" :default-expanded-keys="expandedKeys" v-if="refreshTree"
-                        :load="loadTree" @node-click="handleTreeNodeClick">
+                        :load="loadTree" :render-content="renderTree" @node-click="handleTreeNodeClick">
                     </el-tree>
                 </el-card>
             </div> 
@@ -136,13 +136,6 @@ export default {
                 return (
                     <div class="nomal-level">
                         <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
-                        <input class="edit-input" placeholder="请输入类目名称" id={`input${data.id}`} value={data.label}></input>
-                        <span class="nomal-level-operate">
-                            <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
-                            <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
-                            <span class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
-                            <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
-                        </span>
                     </div>)
             }
         },
@@ -157,6 +150,7 @@ export default {
             this.currentId = data.id
             this.currentLabel = data.label
             this.currentLevel = node.level
+            this.currentLevel > 2 && this.getConditionList()
         },
         getConditionList() {
             this.http({
@@ -366,6 +360,15 @@ export default {
             }else if (node.level === 1) {
                 this.http({
                     url: `merchant/tGoodCategory/selectTGoodCategoryAsTree?shopMallId=${node.data.id}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        return resolve(res.data.data)
+                    }
+                })
+            }else if (node.level === 2 || node.level === 3) {
+               this.http({
+                    url: `merchant/tGoodCategory/tGoodCategoryById?categoryId=${node.data.id}`,
                     method: 'get'
                 }, res => {
                     if (res.data.code == 200) {
