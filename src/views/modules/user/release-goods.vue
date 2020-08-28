@@ -17,9 +17,11 @@
                 </el-form-item>
                 <el-form-item label="商品主图" prop="mainUrl" required>
                     <upload-file :filelist="releaseForm.mainUrl"></upload-file>
+                    <div class="wran-word">*温馨提示：最佳尺寸800px*800px</div>
                 </el-form-item>
                 <el-form-item label="商品图片">
                     <upload-file :filelist="releaseForm.assistUrls" :multiple="true" :limit="5"></upload-file>
+                    <div class="wran-word">*温馨提示：最佳尺寸350px*350px</div>
                 </el-form-item>
             </div>
             <div v-if="releaseForm.kindsId" style="display: flex;align-items: center;">
@@ -186,9 +188,10 @@ export default {
                         }
                     }
                 })
-                
                 if (this.judgeIsSelect()) {
                     this.assembleTable()
+                } else {
+                    this.assemTableData = []
                 }
             },
             deep: true
@@ -197,6 +200,8 @@ export default {
             handler(n) {
                 if (this.judgeIsSelect()) {
                     this.assembleTable()
+                } else {
+                    this.assemTableData = []
                 }
             },
             deep: true
