@@ -5,83 +5,69 @@
             <div style="font-weight: 600;">类目管理</div>
         </div>
         <div class="kinds-admin-box">
-            <!-- <div class="kinds-left">
-                <el-input v-model="filterText" placeholder="输入关键字过滤" prefix-icon="el-icon-search"></el-input>
-                <div style="margin-top: 10px;">
-                    <el-button type="primary" @click="addChild" icon="el-icon-plus" size="mini">新增一级</el-button>
-                </div>
-                <div class="kinds-left-tree">
-                     <el-tree class="kinds-tree" :data="treeData" node-key="id" @node-click="treeNodeClick" :expand-on-click-node="false"
-                        :render-content="renderTree" ref="myTree" :filter-node-method="filterNode" :default-expanded-keys="expandedKeys" v-if="refreshTree">
-                    </el-tree>
-                </div>
-            </div> -->
             <div class="kinds-left">
                 <el-card>
-                    <el-tree class="organize-tree" node-key="id" :expand-on-click-node="false" lazy ref="myTree" :default-expanded-keys="expandedKeys" v-if="refreshTree"
-                        :load="loadTree" @node-click="handleTreeNodeClick">
+                    <el-tree ref="myTree" class="kinds-tree" node-key="id" :expand-on-click-node="false" lazy :default-expanded-keys="expandedKeys" v-if="refreshTree"
+                        :load="loadTree" :render-content="renderTree" @node-click="handleTreeNodeClick" @node-expand="expandTree" @node-collapse="collapseTree">
                     </el-tree>
                 </el-card>
             </div> 
             <div v-if="currentLevel > 2" class="kinds-right">
-                <div style="display: flex;align-items: center;">
-                    <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                    <div style="font-weight: 600;">当前节点:{{currentLabel}}--规格条件设置</div>
-                </div>
-                <el-form ref="conditionForm" :model="conditionForm" label-width="140px" style="margin-top: 15px;">
-                    <el-form-item label="是否有颜色规格" required>
-                        <el-radio v-model="conditionForm.isColor" label="1">是</el-radio>
-                        <el-radio v-model="conditionForm.isColor" label="2">否</el-radio>
-                    </el-form-item>
-                    <div>
-                        <el-button @click="handleNewCondition" type="primary" size="mini">新增规格</el-button>
-                        <span style="font-size: 13px; color: #999;">可新增多个规格</span>
+                <el-card>
+                    <div style="display: flex;align-items: center;">
+                        <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                        <div style="font-weight: 600;">当前节点:{{currentLabel}}--规格条件设置</div>
                     </div>
-                    <div class="condition-item" v-for="(item, index) in conditionList" :key="index">
-                        <el-form-item label="规格名称" required>
-                            <el-input v-model="item.conditionName" placeholder="请输入规格名称" style="width: 300px;"></el-input>
+                    <el-form ref="conditionForm" :model="conditionForm" label-width="140px" style="margin-top: 15px;">
+                        <el-form-item label="是否有颜色规格" required>
+                            <el-radio v-model="conditionForm.isColor" label="1">是</el-radio>
+                            <el-radio v-model="conditionForm.isColor" label="2">否</el-radio>
                         </el-form-item>
-                        <el-form-item label="规格条件" required>
-                             <el-tag v-for="(value, j) in item.conditionArr" :key="j" closable 
-                                @close="deleteItem(index, j)" style="margin-right: 10px; color: #409eff;">{{value}}</el-tag>
-                            <span v-if="!item.conditionArr.length" style="color: #999; font-size: 13px;">*请设置规格条件</span>
-                            <el-input v-if="item.isAddItem" v-model="newConditionName" placeholder="规格条件值" class="add-input" size="mini"></el-input>
-                            <span class="add-floor-button" v-if="!item.isAddItem" @click="openAdd(item, index)">
-                                <span class="el-icon-plus" style="font-weight: 600;"></span>
-                                <span>新增</span>
-                            </span>
-                            <span v-if="item.isAddItem" class="add-floor-button" @click="handleAddItem(item)">
-                                <span class="el-icon-check" style="font-weight: 600;"></span>
-                                <span>完成</span>
-                            </span>
-                        </el-form-item>
-                        <span @click="deleteCondition(item, index)" class="delete-condition-item el-icon-delete"></span>
-                    </div>
-                    <div style="padding-left: 20px; text-align: right; margin-top: 20px;">
-                        <el-button @click="handleSaveCondition" type="primary" size="small">保存</el-button>
-                    </div>
-                </el-form>
+                        <div>
+                            <el-button @click="handleNewCondition" type="primary" size="mini">新增规格</el-button>
+                            <span style="font-size: 13px; color: #999;">可新增多个规格</span>
+                        </div>
+                        <div class="condition-item" v-for="(item, index) in conditionList" :key="index">
+                            <el-form-item label="规格名称" required>
+                                <el-input v-model="item.conditionName" placeholder="请输入规格名称" style="width: 300px;"></el-input>
+                            </el-form-item>
+                            <el-form-item label="规格条件" required>
+                                <el-tag v-for="(value, j) in item.conditionArr" :key="j" closable 
+                                    @close="deleteItem(index, j)" style="margin-right: 10px; color: #409eff;">{{value}}</el-tag>
+                                <span v-if="!item.conditionArr.length" style="color: #999; font-size: 13px;">*请设置规格条件</span>
+                                <el-input v-if="item.isAddItem" v-model="newConditionName" placeholder="规格条件值" class="add-input" size="mini"></el-input>
+                                <span class="add-floor-button" v-if="!item.isAddItem" @click="openAdd(item, index)">
+                                    <span class="el-icon-plus" style="font-weight: 600;"></span>
+                                    <span>新增</span>
+                                </span>
+                                <span v-if="item.isAddItem" class="add-floor-button" @click="handleAddItem(item)">
+                                    <span class="el-icon-check" style="font-weight: 600;"></span>
+                                    <span>完成</span>
+                                </span>
+                            </el-form-item>
+                            <span @click="deleteCondition(item, index)" class="delete-condition-item el-icon-delete"></span>
+                        </div>
+                        <div style="padding-left: 20px; text-align: right; margin-top: 20px;">
+                            <el-button @click="handleSaveCondition" type="primary" size="small">保存</el-button>
+                        </div>
+                    </el-form>
+                </el-card>
             </div>
             <div v-if="currentLevel === 1" class="kinds-right">
                 <el-card>
                     <div class="kinds-right-header" slot="header">
-                        <span>选择已存在的类目</span>
+                        <span>当前商场({{currentLabel}})：选择已存在的类目</span>
                         <el-button type="primary" size="small" @click="saveSelectKinds">保存</el-button>
                     </div>
                     <div class="kinds-list">
                         <el-checkbox-group v-model="kindsCheckbox" class="kinds-list-checkbox">
-                            <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">{{ item.label }}</el-checkbox>
+                            <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">
+                                <span :class="{'content-checkbox': item.shopMallName}">
+                                    <span>{{ item.label }}</span>
+                                    <span v-if="item.shopMallName">(已绑定:{{item.shopMallName}})</span>
+                                </span>
+                            </el-checkbox>
                         </el-checkbox-group>
-                    </div>
-                </el-card>
-                <el-card style="margin-top: 20px;">
-                    <div class="kinds-right-header" slot="header">
-                        <span>{{ currentLabel }}-新增类目</span>
-                        <el-button type="primary" size="small" @click="saveNewKinds">保存</el-button>
-                    </div>
-                    <div>
-                        <label>类目名称</label>
-                        <el-input v-model="newKindsName" size="small" style="width: 350px; margin-left: 6px;"></el-input>
                     </div>
                 </el-card>
             </div>
@@ -107,7 +93,6 @@ export default {
             newConditionName: '',
             kindsList: [],
             kindsCheckbox: [],
-            newKindsName: ''
         }
     },
     watch: {
@@ -116,23 +101,35 @@ export default {
         }
     },
     methods: {
-        filterNode(value, data) {
-            if (!value) return true;
-            return data.label.indexOf(value) !== -1;
+        expandTree(data, node, el) {
+            document.getElementById(`new${data.id}`) && (document.getElementById(`new${data.id}`).style.display = 'inline-block')
+        },
+        collapseTree(data, node, el) {
+            document.getElementById(`new${data.id}`) && (document.getElementById(`new${data.id}`).style.display = 'none')
         },
         renderTree(h, { node, data, store }) {
-            if (node.level == 3) {
+            if (node.level === 1) {
                 return (
                     <div class="nomal-level">
                         <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
                         <input class="edit-input" placeholder="请输入类目名称" id={`input${data.id}`} value={data.label}></input>
                         <span class="nomal-level-operate">
+                            <span id={`new${data.id}`} class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
+                        </span>
+                    </div>)
+            } else if (node.level === 2 || node.level === 3) {
+                return (
+                    <div class="nomal-level">
+                        <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
+                        <input class="edit-input" placeholder="请输入类目名称" id={`input${data.id}`} value={data.label}></input>
+                        <span class="nomal-level-operate">
+                            <span id={`new${data.id}`} class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
                             <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
                         </span>
                     </div>)
-            }else {
+            } else {
                 return (
                     <div class="nomal-level">
                         <span class="nomal-level-label" id={`span${data.id}`}>{data.label}</span>
@@ -140,23 +137,18 @@ export default {
                         <span class="nomal-level-operate">
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
-                            <span class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
                             <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
                         </span>
                     </div>)
             }
-        },
-        treeNodeClick(data, node, el) {
-            this.currentId = data.id
-            this.currentLabel = data.label
-            this.currentLevel = node.level
-            // this.currentLevel != 1 && this.getConditionList()
         },
         handleTreeNodeClick(data, node, el) {
             this.kindsCheckbox = []
             this.currentId = data.id
             this.currentLabel = data.label
             this.currentLevel = node.level
+            this.currentLevel == 1 && (this.getCheckboxList())
+            this.currentLevel > 2 && this.getConditionList()
         },
         getConditionList() {
             this.http({
@@ -180,58 +172,23 @@ export default {
             save.style.display = 'inline'
         },
         deleteTreeNode(node, data) {
-            if (data.children.length) {
-                this.$message.info('该类目下有子类目，请先删除下级类目')
-            }else {
-                this.$confirm('此操作将删除当前类目, 是否继续?', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                }).then(() => {
-                    this.http({
-                        url: `merchant/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
-                        method: 'get'
-                    }, res => {
-                        if (res.data.code == 200) {
-                            this.$message.success('删除成功！')
-                            const parent = node.parent
-                            const children = parent.data.children || parent.data
-                            const index = children.findIndex(d => d.id === data.id)
-                            children.splice(index, 1)
-                            this.currentLevel = 0
-                        }
-                    })
-                }).catch(() => {})
-            }
-        },
-        saveNewKinds() {
-            if (this.newKindsName) {
+            this.$confirm('此操作将删除当前类目, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+            }).then(() => {
                 this.http({
-                    url: 'merchant/tGoodCategory/tGoodCategorySave',
-                    method: 'post',
-                    data: {
-                        categoryShopMall: this.currentId,
-                        categoryParent: undefined,
-                        categoryName: this.newKindsName,
-                        categoryGrade: 1
-                    }
+                    url: `merchant/tGoodCategory/tGoodCategoryDelById?id=${data.id}`,
+                    method: 'get'
                 }, res => {
                     if (res.data.code == 200) {
-                        this.$message.closeAll()
-                        this.$message.success('新增成功！')
-                        this.refreshTree = false
-                        this.expandedKeys = [this.currentId]
-                        this.$nextTick(_ => {
-                            this.refreshTree = true
-                        })
+                        this.$refs.myTree.remove(data.id)
+                        this.$message.success('删除成功！')
                     }else {
-                        this.$message.error(res.data.msg)
+                        this.$message.info(res.data.msg)
                     }
                 })
-            }else {
-                this.$message.closeAll()
-                this.$message.info('请输入类目名称')
-            }
+            }).catch(() => {})
         },
         doSave(node, data) {
             let input = document.getElementById(`input${data.id}`),
@@ -240,20 +197,29 @@ export default {
                 save = document.getElementById(`save${data.id}`)
             if (input.value) {
                 if (data.isNew) {
+                    let obj = {
+                        categoryName: input.value,
+                        categoryGrade: node.level - 1
+                    }
+                    if (node.level === 2) {
+                        obj.categoryShopMall = node.parent.key
+                        obj.categoryParent = undefined
+                    } else {
+                        obj.categoryParent = node.parent.key
+                    }
                     this.http({
                         url: 'merchant/tGoodCategory/tGoodCategorySave',
                         method: 'post',
-                        data: {
-                            categoryParent: node.parent.data.id? node.parent.data.id : undefined,
-                            categoryName: input.value,
-                            categoryGrade: node.level
-                        }
+                        data: obj
                     }, res => {
                         if (res.data.code == 200) {
-                            data.id = res.data.data.id
-                            data.label = res.data.data.label
-                            data.children = res.data.data.children
-                            delete data.isNew
+                            this.currentLevel = -1
+                            this.expandedKeys = [node.parent.key]
+                            this.refreshTree = false
+                            this.$nextTick(_ => {
+                                this.refreshTree = true
+                            })
+                            this.$message.success('添加成功！')
                         }else {
                             this.$message.error(res.data.msg)
                         }
@@ -274,6 +240,7 @@ export default {
                             span.style.display = 'inline'
                             edit.style.display = 'inline'
                             save.style.display = 'none'
+                            this.$message.success('更新成功！')
                         }
                     })
                 }
@@ -282,17 +249,14 @@ export default {
             }
         },
         addChild(node, data) {
-            let tempId = (Math.random()*10000000000 + '').split('.')[0]
-            if (data) {
-                if (!data.children) {
-                    this.$set(data, 'children', [])
-                }
-                data.children.push({ id: tempId, label: '', isNew: 1, children: [] })
-                this.expandedKeys.push(tempId)
-            }else {
-                this.treeData.push({ id: tempId, label: '', isNew: 1, children: [] })
+            let tempId = (Math.random()*10000000000000 + '').split('.')[0]
+            if (data.children && data.children.length) {
+                data.children.forEach(item => {
+                    this.$refs.myTree.remove(item.id)
+                })
             }
-            let timer = setTimeout(_ => {
+            this.$refs.myTree.append({ id: tempId, label: '', isNew: 1, children: [] }, data.id)
+            this.$nextTick(_ => {
                 let input = document.getElementById(`input${tempId}`),
                 span = document.getElementById(`span${tempId}`),
                 edit = document.getElementById(`edit${tempId}`),
@@ -303,9 +267,7 @@ export default {
                     edit.style.display = 'none'
                     save.style.display = 'inline'
                 }
-                clearTimeout(timer)
-                timer = null
-            }, 20)
+            })
         },
         deleteItem(index, j) {
             this.conditionList[index].conditionArr.splice(j, 1)
@@ -353,6 +315,7 @@ export default {
             })
         },
         loadTree(node, resolve) {
+            debugger
             if (node.level === 0) {
                 this.http({
                     url: `merchant/shopMall/tShopMallSelTree?id=&type=1`,
@@ -366,6 +329,15 @@ export default {
             }else if (node.level === 1) {
                 this.http({
                     url: `merchant/tGoodCategory/selectTGoodCategoryAsTree?shopMallId=${node.data.id}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        return resolve(res.data.data)
+                    }
+                })
+            }else if (node.level === 2 || node.level === 3) {
+               this.http({
+                    url: `merchant/tGoodCategory/tGoodCategoryById?categoryId=${node.data.id}`,
                     method: 'get'
                 }, res => {
                     if (res.data.code == 200) {
@@ -403,24 +375,24 @@ export default {
                 this.$message.info('请选择类目')
             }
             
+        },
+        getCheckboxList() {
+            this.http({
+                url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree1',
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    this.kindsList = res.data.data
+                }
+            })
         }
-    },
-    created() {
-        this.http({
-            url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree',
-            method: 'get',
-        }, res => {
-            if (res.data.code == 200) {
-                this.kindsList = res.data.data
-            }
-        })
     }
 }
 </script>
 
 <style lang="scss" scoped>
 .kinds-left{
-    width: 400px;
+    width: 480px;
     .kinds-left-tree{
         margin-top: 10px;
     }
@@ -434,6 +406,9 @@ export default {
     }
 }
 .kinds-tree{
+    height: 560px;
+    overflow-y: auto;
+    padding-right: 6px;
     /deep/ .el-tree-node__content{
         height: 36px;
     }
@@ -463,6 +438,9 @@ export default {
             }
             .el-icon-edit:hover{
                 color: #17B3A3;
+            }
+            .el-icon-circle-plus-outline{
+                display: none;
             }
             .el-icon-circle-plus-outline:hover{
                 color: #17B3A3;
@@ -522,10 +500,15 @@ export default {
     align-items: center;
 }
 .kinds-list-checkbox{
+    height: 491px;
+    overflow-y: auto;
     /deep/ .el-checkbox{
-        width: 180px;
+        width: 50%;
         margin-left: 0;
         margin-bottom: 6px;
+    }
+    .content-checkbox{
+        color: #E6A23C;
     }
 }
 </style>
