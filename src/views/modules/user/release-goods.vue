@@ -35,7 +35,7 @@
                         <div class="color-picker-custom-item" v-for="(item, index) in colorPickerTable" :key="index">
                             <color-picker width="200" v-model="item.nomalColor"></color-picker>
                             <el-input v-model="item.customColor" placeholder="自定义" style="width: 200px;"></el-input>
-                            <el-button @click="addOneColorTable" type="primary" :disabled="!item.nomalColor && !item.customColors" icon="el-icon-plus"></el-button>
+                            <el-button @click="addOneColorTable" type="primary" :disabled="!item.nomalColor && !item.customColor" icon="el-icon-plus"></el-button>
                         </div>
                     </div>
                     <div class="wran-word">*温馨提示：请尽量选择标准色系，如果自定义颜色，请谨慎，以免客户难以辨识</div>

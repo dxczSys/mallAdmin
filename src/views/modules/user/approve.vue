@@ -64,7 +64,8 @@
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="微信绑定" prop="chat" required>
-                            <img class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
+                            <span v-if="infoForm.chatCode">已绑定</span>
+                            <img v-if="!infoForm.chatCode" class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
                             <div style="color: #E6A23C; font-size: 12px;">提醒:请授权绑定微信，否则无法正常划账</div>
                         </el-form-item>
                     </el-col>
@@ -75,62 +76,60 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-                <div style="display: flex;align-items: center; margin-bottom: 20px;">
-                    <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                    <div style="font-weight: 600;">营业信息</div>
+                <div v-if="infoForm.chatCode">
+                    <div style="display: flex;align-items: center; margin-bottom: 20px;">
+                        <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
+                        <div style="font-weight: 600;">营业信息</div>
+                    </div>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="店铺标志" prop="shopLogo" required>
+                                <image-cropping :filelist="infoForm.shopLogo"></image-cropping>
+                                <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
+                                <div v-if="isApproval && infoForm.shopLogo[0] && infoForm.shopLogo[0].raw">
+                                    <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="营业执照" prop="shopPermit" required>
+                                <upload-file :disabled="isApproval" :size="5" limitTip="图片大小不能超过5M" :filelist="infoForm.shopPermit"></upload-file>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="法人/经营者" prop="shopOwner" required>
+                                <el-input v-model="infoForm.shopOwner" :disabled="isApproval" placeholder="法人/经营者"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="身份证号" prop="cardNum" required>
+                                <el-input v-model="infoForm.cardNum" :disabled="isApproval" placeholder="身份证号"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="身份证正面" prop="cardUrl" required>
+                                <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardUrl"></upload-file>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="身份证反面" prop="cardOverUrl" required>
+                                <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardOverUrl"></upload-file>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item label="商铺简介" prop="introduction" required>
+                        <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="商铺简介" style="width: 90%;"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button v-if="!isApproval" @click="sendCheck" type="primary">发送审核</el-button>
+                    </el-form-item>
                 </div>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="店铺标志" prop="shopLogo" required>
-                            <image-cropping :filelist="infoForm.shopLogo"></image-cropping>
-                            <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
-                            <div v-if="isApproval && infoForm.shopLogo[0] && infoForm.shopLogo[0].raw">
-                                <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
-                            </div>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="营业执照" prop="shopPermit" required>
-                            <upload-file :disabled="isApproval" :size="5" limitTip="图片大小不能超过5M" :filelist="infoForm.shopPermit"></upload-file>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="法人/经营者" prop="shopOwner" required>
-                            <el-input v-model="infoForm.shopOwner" :disabled="isApproval" placeholder="法人/经营者"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="身份证号" prop="cardNum" required>
-                            <el-input v-model="infoForm.cardNum" :disabled="isApproval" placeholder="身份证号"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="身份证正面" prop="cardUrl" required>
-                            <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardUrl"></upload-file>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="身份证反面" prop="cardOverUrl" required>
-                            <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardOverUrl"></upload-file>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-form-item label="商铺简介" prop="introduction" required>
-                    <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="商铺简介" style="width: 90%;"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button v-if="!isApproval" @click="sendCheck" type="primary">发送审核</el-button>
-                </el-form-item>
             </el-form>
         </div>
-        <el-dialog v-if="dialogVisiable" title="微信绑定" :visible.sync="dialogVisiable" width="30%">
-            <div id='bindWechat'></div>
-        </el-dialog>
-        
     </div>
 </template>
 
@@ -154,6 +153,7 @@ export default {
                 businessType: '',
                 phone: '',
                 chat: '',
+                chatCode: '',
                 shopLogo: [],
                 shopPermit: [],
                 shopOwner: '',
@@ -190,7 +190,6 @@ export default {
             shopCityListTemp: [],
             floorList: [],
             businessTypeList: [],
-            dialogVisiable: false
         }
     },
     watch: {
@@ -297,6 +296,7 @@ export default {
                             shopToIndustry: this.infoForm.businessType,
                             shopTel: this.infoForm.phone,
                             shopPersonVx: this.infoForm.chat,
+                            code: this.infoForm.chatCode,
                             shopSign: _urllogo,
                             shopBusinessLicense: _urlpermit,
                             idCardPicPositive: _urlcard,
@@ -308,6 +308,7 @@ export default {
                     }, approvalRes => {
                         if (approvalRes.data.code == 200) {
                             this.$message.success('申请已发送，等待管理员审核中...')
+                            localStorage.removeItem('approvalParams')
                             this.getApprovalData()
                         }else {
                             this.$message.info('网络异常，请刷新重试')
@@ -383,23 +384,35 @@ export default {
             }
         },
         bindWechat() {
-            this.dialogVisiable = true
-            this.$nextTick(_ => {
-                new WxLogin({
-                self_redirect: false,
-                id: "bindWechat",
-                appid: "wx492cea4884805e00", 
-                scope: "snsapi_login", 
-                redirect_uri: "https%3a%2f%2fs.yimazhongcheng.com%2f%23%2fuser-approve",
-                state: this.$cookie.get('userId') + '#wechat_redirect',
-            });
-            })
+            let approvalParams = {
+                shopName: this.infoForm.shopName,
+                abbreviation: this.infoForm.abbreviation,
+                shopCityName: this.infoForm.shopCityName,
+                floor: this.infoForm.floor,
+                businessType: this.infoForm.businessType,
+                phone: this.infoForm.phone,
+                chat: this.infoForm.chat,
+            }
+            localStorage.setItem('approvalParams', JSON.stringify(approvalParams))
+            window.open('https://open.weixin.qq.com/connect/qrconnect?appid=wx492cea4884805e00&redirect_uri=https%3a%2f%2fs.yimazhongcheng.com%2f%23%2fuser-approve&response_type=code&scope=snsapi_login&state=auth2#wechat_redirect', '_self')
         }
     },
-    mounted() {
-        this.getMallList()
-        this.getBussinessList()
-        this.getApprovalData()
+    async mounted() {
+        await this.getMallList()
+        await this.getBussinessList()
+        await this.getApprovalData()
+        if (this.$route.query.state == 'auth2') {
+            let params = JSON.parse(localStorage.getItem('approvalParams'))
+            this.infoForm.chatCode = this.$route.query.code
+            this.infoForm.shopName = params.shopName
+            this.infoForm.abbreviation = params.abbreviation
+            this.infoForm.shopCityName = params.shopCityName
+            this.infoForm.floor = params.floor
+            this.infoForm.businessType = params.businessType
+            this.infoForm.phone = params.phone
+            this.infoForm.chat = params.chat
+        }
+        
     }
     
 }
