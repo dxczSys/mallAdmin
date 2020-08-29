@@ -63,9 +63,15 @@
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
+                        <el-form-item label="微信绑定" prop="chat" required>
+                            <img class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
+                            <div style="color: #E6A23C; font-size: 12px;">提醒:请授权绑定微信，否则无法正常划账</div>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
                         <el-form-item label="微信号" prop="chat" required>
                             <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
-                            <div style="color: #E6A23C; font-size: 12px;">提醒:请务必绑定微信号，而不是手机号，否则无法正常划账</div>
+                            <div style="color: #E6A23C; font-size: 12px;">提醒:请填写正确微信号，而不是手机号，否则无法正常划账</div>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -121,6 +127,10 @@
                 </el-form-item>
             </el-form>
         </div>
+        <el-dialog v-if="dialogVisiable" title="微信绑定" :visible.sync="dialogVisiable" width="30%">
+            <div id='bindWechat'></div>
+        </el-dialog>
+        
     </div>
 </template>
 
@@ -180,7 +190,7 @@ export default {
             shopCityListTemp: [],
             floorList: [],
             businessTypeList: [],
-            
+            dialogVisiable: false
         }
     },
     watch: {
@@ -371,6 +381,19 @@ export default {
             }else {
                 this.shopCityList = JSON.parse(JSON.stringify(this.shopCityListTemp))
             }
+        },
+        bindWechat() {
+            this.dialogVisiable = true
+            this.$nextTick(_ => {
+                new WxLogin({
+                self_redirect: false,
+                id: "bindWechat",
+                appid: "wx492cea4884805e00", 
+                scope: "snsapi_login", 
+                redirect_uri: "https%3a%2f%2fs.yimazhongcheng.com%2f%23%2fuser-approve",
+                state: this.$cookie.get('userId') + '#wechat_redirect',
+            });
+            })
         }
     },
     mounted() {
@@ -403,5 +426,9 @@ export default {
             width: 360px;
         }
     }
+}
+.bind-weixin{
+    width: 30px;
+    cursor: pointer;
 }
 </style>
