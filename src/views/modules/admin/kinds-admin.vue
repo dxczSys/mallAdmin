@@ -32,8 +32,8 @@
                                 <el-input v-model="item.conditionName" placeholder="请输入规格名称" style="width: 300px;"></el-input>
                             </el-form-item>
                             <el-form-item label="规格条件" required>
-                                <el-tag v-for="(value, j) in item.conditionArr" :key="j" closable 
-                                    @close="deleteItem(index, j)" style="margin-right: 10px; color: #409eff;">{{value}}</el-tag>
+                                <el-tag v-for="(value, j) in item.conditionArr1" :key="j" closable 
+                                    @close="deleteItem(index, j, value)" style="margin-right: 10px; color: #409eff;">{{value.name}}</el-tag>
                                 <span v-if="!item.conditionArr.length" style="color: #999; font-size: 13px;">*请设置规格条件</span>
                                 <el-input v-if="item.isAddItem" v-model="newConditionName" placeholder="规格条件值" class="add-input" size="mini"></el-input>
                                 <span class="add-floor-button" v-if="!item.isAddItem" @click="openAdd(item, index)">
@@ -60,6 +60,9 @@
                         <el-button type="primary" size="small" @click="saveSelectKinds">保存</el-button>
                     </div>
                     <div class="kinds-list">
+                        <div class="search-box">
+                            <el-autocomplete v-model="keywords" :fetch-suggestions="querySearchAsync" clearable prefix-icon="el-icon-search" placeholder="请输入关键字过滤"></el-autocomplete>
+                        </div>
                         <el-checkbox-group v-model="kindsCheckbox" class="kinds-list-checkbox">
                             <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">
                                 <span :class="{'content-checkbox': item.shopMallName}">
@@ -93,6 +96,7 @@ export default {
             newConditionName: '',
             kindsList: [],
             kindsCheckbox: [],
+            keywords: '',
         }
     },
     watch: {
@@ -269,8 +273,29 @@ export default {
                 }
             })
         },
-        deleteItem(index, j) {
-            this.conditionList[index].conditionArr.splice(j, 1)
+        deleteItem(index, j, value) {
+            this.$confirm('确认删除该条件?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                if (value.id) {
+                    this.http({
+                        url: `merchant/tGoodCategory/tGoodCategoryValueById?valueId=${value.id}`,
+                        method: 'get'
+                    }, res => {
+                        if (res.data.code == 200) {
+                            this.conditionList[index].conditionArr1.splice(j, 1)
+                            this.$message.success('删除成功！')
+                        } else {
+                            this.$message.info(res.data.msg)
+                        }
+                    })
+                } else {
+                    this.conditionList[index].conditionArr1.splice(j, 1)
+                }
+                
+            }).catch(() => {})
         },
         openAdd(item, index) {
             if (item.isAddItem == undefined) {
@@ -281,7 +306,18 @@ export default {
         },
         handleAddItem(item) {
             if (this.newConditionName) {
-                if (item.conditionArr.indexOf(this.newConditionName) < 0) {
+                let flag = true
+                for (let i = 0; i < item.conditionArr1.length; i++) {
+                    if (this.newConditionName === item.conditionArr1[i].name) {
+                        flag = false
+                        break; 
+                    }
+                }
+                if (flag) {
+                    item.conditionArr1.push({
+                        name: this.newConditionName,
+                        id: ''
+                    })
                     item.conditionArr.push(this.newConditionName)
                     this.newConditionName = ''
                     item.isAddItem = false
@@ -291,12 +327,29 @@ export default {
             }
         },
         deleteCondition(item, index) {
-            this.conditionList.splice(index, 1)
+            this.$confirm('确认删除该规格?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.http({
+                    url: `merchant/tGoodCategory/tGoodCategoryKeyById?keyId=${item.id}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.conditionList.splice(index, 1)
+                        this.$message.success('删除成功！')
+                    } else {
+                        this.$message.info(res.data.msg)
+                    }
+                })
+            }).catch(() => {})
         },
         handleNewCondition() {
             this.conditionList.push({
                 conditionName: '',
-                conditionArr: []
+                conditionArr: [],
+                conditionArr1: []
             })
         },
         handleSaveCondition() {
@@ -315,7 +368,6 @@ export default {
             })
         },
         loadTree(node, resolve) {
-            debugger
             if (node.level === 0) {
                 this.http({
                     url: `merchant/shopMall/tShopMallSelTree?id=&type=1`,
@@ -383,6 +435,17 @@ export default {
             }, res => {
                 if (res.data.code == 200) {
                     this.kindsList = res.data.data
+                }
+            })
+        },
+        querySearchAsync(val, cb) {
+            this.http({
+                url: `merchant/tGoodCategory/selectTGoodCategoryAsTree1?queryName=${val}`,
+                method: 'get',
+            }, res => {
+                if (res.data.code == 200) {
+                    this.kindsList = res.data.data
+                    cb([])
                 }
             })
         }
@@ -509,6 +572,12 @@ export default {
     }
     .content-checkbox{
         color: #E6A23C;
+    }
+}
+.search-box{
+    margin-bottom: 16px;
+    /deep/ .el-autocomplete{
+        width: 50%;
     }
 }
 </style>
