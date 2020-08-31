@@ -63,7 +63,7 @@
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="微信绑定" prop="chat" required>
+                        <el-form-item label="微信绑定" prop="chatCode" required>
                             <span v-if="infoForm.chatCode">已绑定</span>
                             <img v-if="!infoForm.chatCode" class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
                             <div style="color: #E6A23C; font-size: 12px;">提醒:请授权绑定微信，否则无法正常划账</div>
@@ -170,10 +170,8 @@ export default {
                     { required: true, message: '手机号码不能为空', trigger: 'blur'},
                     { required: true, pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur'}
                 ],
-                chat: [ 
-                    { required: true, message: '微信不能为空', trigger: 'blur'},
-                    { required: true, pattern: /^[a-zA-Z0-9_-]{5,19}$/, message: '请输入正确的微信', trigger: 'blur'}
-                ],
+                chat: [ { required: true, message: '请输入微信号', trigger: 'blur'} ],
+                chatCode: [ { required: true, message: '请绑定微信', trigger: 'change'} ],
                 shopLogo: [ { required: true, message: '请上传店铺标志', trigger: 'blur'} ],
                 shopPermit: [ { required: true, message: '请上传营业执照', trigger: 'blur'} ],
                 shopOwner: [ { required: true, message: '法人/经营者不能为空', trigger: 'blur'} ],
