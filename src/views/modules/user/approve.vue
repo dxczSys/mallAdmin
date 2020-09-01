@@ -49,7 +49,7 @@
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
-                        <el-form-item label="所属行业">
+                        <el-form-item label="所属行业" prop="businessType">
                             <el-select v-model="infoForm.businessType" :disabled="isApproval" placeholder="所属行业">
                                 <el-option v-for="(item, index) in businessTypeList" :key="index" :label="item.categoryName" :value="item.id"></el-option>
                             </el-select>
@@ -166,6 +166,7 @@ export default {
                 shopName: [ { required: true, message: '商铺名称不能为空', trigger: 'blur'} ],
                 shopCityName: [ { required: true, message: '所属商场不能为空', trigger: 'blur'} ],
                 floor: [ { required: true, message: '所在楼层不能为空', trigger: 'blur'} ],
+                businessType: [ { required: true, message: '请选择所属行业', trigger: 'change'} ],
                 phone: [
                     { required: true, message: '手机号码不能为空', trigger: 'blur'},
                     { required: true, pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur'}
