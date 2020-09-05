@@ -384,26 +384,30 @@ export default {
             let arr = [], ids = this.releaseForm.kindsId.split(','), self = this
             this.assemTableData.forEach(item => {
                 let _arr1 = []
-                for (let key in item) {
-                    //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
-                    let _obj = {}
-                    if (key != 'price' && key != 'amount' && key != 'coding') {
-                        //根据规格的key和value，查找规格属性的key
-                        for (let i = 0; i < self.kindsTempData.length; i ++) {
-                            let _kindsArr = self.kindsTempData[i].values
-                            if ( self.kindsTempData[i].id == key ) {
-                                for (let j = 0; j < _kindsArr.length; j ++) {
-                                    if (_kindsArr[j].name == item[key]) {
-                                        _obj.goodValue = _kindsArr[j].id
+                if (Object.keys(item).length > 4) {
+                    for (let key in item) {
+                        //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
+                        let _obj = {}
+                        if (key != 'colorType' && key != 'price' && key != 'amount' && key != 'coding') {
+                            //根据规格的key和value，查找规格属性的key
+                            for (let i = 0; i < self.kindsTempData.length; i ++) {
+                                let _kindsArr = self.kindsTempData[i].values
+                                if ( self.kindsTempData[i].id == key ) {
+                                    for (let j = 0; j < _kindsArr.length; j ++) {
+                                        if (_kindsArr[j].name == item[key]) {
+                                            _obj.goodValue = _kindsArr[j].id
+                                        }
                                     }
                                 }
                             }
+                            _obj.goodColor = item.colorType
+                            _obj.goodKey = key
+                            _arr1.push(_obj)
                         }
-                        _obj.goodColor = item.colorType
-                        _obj.goodKey = key
-                        _arr1.push(_obj)
+                    
                     }
-                   
+                } else {
+                    item.colorType && _arr1.push({ goodColor: item.colorType })
                 }
                 arr.push({
                     goodDetailName: '',
