@@ -186,7 +186,8 @@ export default {
                     this.assembleTable()
                 }
             },
-            deep: true
+            deep: true,
+            immediate: true
         },
         assemTableData: {
             handler(n) {
@@ -337,7 +338,7 @@ export default {
                 for (let key in item) {
                     //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
                     let _obj = {}
-                    if (key != 'colorType' && key != 'price' && key != 'amount' && key != 'coding') {
+                    if (key != 'price' && key != 'amount' && key != 'coding') {
                         //根据规格的key和value，查找规格属性的key
                         for (let i = 0; i < self.kindsTempData.length; i ++) {
                             let _kindsArr = self.kindsTempData[i].values
