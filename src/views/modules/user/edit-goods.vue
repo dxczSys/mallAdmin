@@ -186,7 +186,8 @@ export default {
                     this.assembleTable()
                 }
             },
-            deep: true
+            deep: true,
+            immediate: true
         },
         assemTableData: {
             handler(n) {
