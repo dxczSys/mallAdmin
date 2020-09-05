@@ -67,7 +67,7 @@
                             <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">
                                 <span :class="{'content-checkbox': item.shopMallName}">
                                     <span>{{ item.label }}</span>
-                                    <span v-if="item.shopMallName">(已绑定:{{item.shopMallName}})</span>
+                                    <span v-if="item.shopMallName">(已绑定)</span>
                                 </span>
                             </el-checkbox>
                         </el-checkbox-group>
@@ -82,6 +82,7 @@
 export default {
     data() {
         return {
+            roleIds: JSON.parse(this.$cookie.get('roleId')) || [],
             filterText: '',
             refreshTree: true,
             expandedKeys: [],
@@ -130,7 +131,7 @@ export default {
                             <span id={`new${data.id}`} class="el-icon-circle-plus-outline" on-click={ () => {this.addChild(node, data)}}></span>
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
-                            <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
+                            { this.roleIds.some(this.checkIsSuperAdmin)? <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span> : '' }
                         </span>
                     </div>)
             } else {
@@ -141,7 +142,7 @@ export default {
                         <span class="nomal-level-operate">
                             <span id={`edit${data.id}`} class="el-icon-edit" on-click={ () => {this.doEdit(data)}}></span>
                             <span id={`save${data.id}`} class="el-icon-check" on-click={ () => {this.doSave(node, data)}}></span>
-                            <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span>
+                            { this.roleIds.some(this.checkIsSuperAdmin)? <span class="el-icon-delete" on-click={ () => {this.deleteTreeNode(node, data)}}></span> : ''}
                         </span>
                     </div>)
             }
@@ -419,7 +420,8 @@ export default {
                         this.$nextTick(_ => {
                             this.refreshTree = true
                         })
-                        
+                    } else {
+                        this.$message.info(res.data.msg)
                     }
                 })
             }else {
@@ -430,7 +432,7 @@ export default {
         },
         getCheckboxList() {
             this.http({
-                url: 'merchant/tGoodCategory/selectTGoodCategoryAsTree1',
+                url: `merchant/tGoodCategory/selectTGoodCategoryAsTree1?shopMallId=${this.currentId}`,
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {
@@ -440,7 +442,7 @@ export default {
         },
         querySearchAsync(val, cb) {
             this.http({
-                url: `merchant/tGoodCategory/selectTGoodCategoryAsTree1?queryName=${val}`,
+                url: `merchant/tGoodCategory/selectTGoodCategoryAsTree1?queryName=${val}&shopMallId=${this.currentId}`,
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {
@@ -448,6 +450,11 @@ export default {
                     cb([])
                 }
             })
+        },
+        checkIsSuperAdmin(item) {
+            if (item == '1') {
+                return true
+            }
         }
     }
 }
