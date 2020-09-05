@@ -1,8 +1,8 @@
 <template>
     <div class="approve-wrapper">
-        <div style="display: flex;align-items: center; margin-bottom: 20px;">
-            <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-            <div style="font-weight: 600;">商铺认证</div>
+        <div class="modules-title">
+            <div class="modules-title-bar"></div>
+            <div class="modules-title-content">商铺认证</div>
         </div>
         <div class="step-box">
             <el-steps :active="shopApprovalStatus" process-status="success" finish-status="wait" align-center>
@@ -14,73 +14,157 @@
         </div>
         <div class="base-mess-wrapper">
             <el-form ref="infoForm" :model="infoForm" :rules="rules" label-width="120px" class="base-form">
-                <div style="display: flex;align-items: center; margin-bottom: 20px;">
-                    <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                    <div style="font-weight: 600;">基本信息</div>
-                </div>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="商铺名称" prop="shopName" required>
-                            <el-input v-model="infoForm.shopName" :disabled="isApproval" maxlength="15" show-word-limit placeholder="商铺名称"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="名称缩写">
-                            <el-input v-model="infoForm.abbreviation" :disabled="isApproval" maxlength="4" show-word-limit placeholder="名称缩写"></el-input>
-                            <div style="color: #E6A23C; font-size: 12px;">提醒:小程序最多显示4个字，请设置缩写</div>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="所属商场" prop="shopCityName" required>
-                            <el-select v-model="infoForm.shopCityName" filterable remote :remote-method="remoteMethod" :disabled="isApproval" placeholder="所属商场">
-                                <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.shopName" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="所在楼层" prop="floor" required>
-                            <el-select v-model="infoForm.floor" :disabled="isApproval" placeholder="所在楼层">
-                                <el-option v-for="(item, index) in floorList" :key="index" :label="item.shopName + '楼'" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="所属行业" prop="businessType">
-                            <el-select v-model="infoForm.businessType" :disabled="isApproval" placeholder="所属行业">
-                                <el-option v-for="(item, index) in businessTypeList" :key="index" :label="item.categoryName" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="联系电话" prop="phone" required>
-                            <el-input v-model="infoForm.phone" :disabled="isApproval" placeholder="联系电话"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                    <el-col :span="12">
-                        <el-form-item label="微信绑定" prop="chatCode" required>
-                            <span v-if="infoForm.chatCode">已绑定</span>
-                            <img v-if="!infoForm.chatCode" class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
-                            <div style="color: #E6A23C; font-size: 12px;">提醒:请授权绑定微信，否则无法正常划账</div>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="微信号" prop="chat" required>
-                            <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
-                            <div style="color: #E6A23C; font-size: 12px;">提醒:请填写正确微信号，而不是手机号，否则无法正常划账</div>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <div v-if="infoForm.chatCode">
-                    <div style="display: flex;align-items: center; margin-bottom: 20px;">
-                        <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
-                        <div style="font-weight: 600;">营业信息</div>
+                <div class="moudules-box">
+                    <div class="modules-title">
+                        <div class="modules-title-bar"></div>
+                        <div class="modules-title-content">商户申请信息</div>
                     </div>
+                    <el-form-item label="主体类型" prop="organization_type" required>
+                        <el-radio-group v-model="infoForm.organization_type">
+                            <el-radio :label="4">个体工商户</el-radio>
+                            <el-radio :label="2">企业</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="营业执照" prop="business_license_copy" required>
+                                <upload-file :disabled="isApproval" :filelist="infoForm.business_license_copy" limitTip=""></upload-file>
+                                <div class="tip-box">
+                                    <div>图片要求:</div>
+                                    <div>1.请上传证件的彩色扫描件或彩色数码拍摄件，黑白复印件需加盖公章（公章信息需完整）</div>
+                                    <div>2.不得添加无关水印（非微信支付商户申请用途的其他水印）</div>
+                                    <div>3.需提供证件的正面拍摄件，完整、照面信息清晰可见。信息不清晰、扭曲、压缩变形、反光、不完整均不接受。</div>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="证件注册号" prop="business_license_number" required>
+                               <el-input v-model="infoForm.business_license_number" maxlength="18" placeholder="证件注册号"></el-input>
+                               <div class="tip-box">请填写营业执照上的注册号/统一社会信用代码，须为15位数字或 18位数字|大写字母</div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="企业名称" prop="merchant_name" required>
+                                <el-input v-model="infoForm.merchant_name" maxlength="110" placeholder="企业名称"></el-input>
+                                <div class="tip-box">
+                                    <div>1.请填写营业执照/登记证书的企业名称，2~110个字符，支持括号</div>
+                                    <div>2.个体工商户，若营业执照上商户名称为空或为“无”，请填写"个体户+经营者姓名"，如“个体户张三”</div>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="经营者/法人" prop="legal_person" required>
+                               <el-input v-model="infoForm.legal_person" placeholder="经营者/法定代表人姓名"></el-input>
+                               <div class="tip-box">必须是证件的经营者/法定代表人姓名</div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="身份证正面" prop="id_card_copy" required>
+                                <upload-file :disabled="isApproval" :filelist="infoForm.id_card_copy" limitTip=""></upload-file>
+                                <div class="tip-box">请上传经营者/法定代表人的身份证人像面照片</div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="身份证反面" prop="id_card_national" required>
+                                <upload-file :disabled="isApproval" :filelist="infoForm.id_card_national" limitTip=""></upload-file>
+                                <div class="tip-box">请上传经营者/法定代表人的身份证国徽面照片</div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="身份证姓名" prop="id_card_name" required>
+                                <el-input v-model="infoForm.id_card_name" placeholder="身份证姓名"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="身份证号码" prop="id_card_number" required>
+                                <el-input v-model="infoForm.id_card_number" placeholder="身份证号码"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="身份证有效期限" prop="id_card_valid_time" required>
+                                <el-date-picker v-model="infoForm.id_card_valid_time" type="date" placeholder="身份证有效期限"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="moudules-box">
+                    <div class="modules-title">
+                        <div class="modules-title-bar"></div>
+                        <div class="modules-title-content">结算银行账户信息</div>
+                    </div>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="账户类型" prop="bank_account_type" required>
+                                <el-select v-model="infoForm.bank_account_type" placeholder="账户类型">
+                                    <el-option v-for="(item, index) in bank_account_type_option" :key="index" :label="item.label" :value="item.value"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="开户银行" prop="account_bank" required>
+                                <el-select v-model="infoForm.account_bank" placeholder="开户银行">
+                                    <el-option v-for="(item, index) in bank" :key="index" :label="item.label" :value="item.value"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="开户名称" prop="account_name" required>
+                                <el-input v-model="infoForm.account_name" placeholder="开户名称"></el-input>
+                                <div class="tip-box">
+                                    <div>1.选择经营者个人银行卡时，开户名称必须与身份证姓名一致</div>
+                                    <div>2.选择对公账户时，开户名称必须与营业执照上的“商户名称”一致</div>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="开户银行地区" prop="bank_address_code" required>
+                                <el-cascader :value="infoForm.bank_address_code" :props="region_props"></el-cascader>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="开户银行支行" prop="bank_name" required>
+                                <el-select v-model="infoForm.bank_name" placeholder="开户银行支行">
+                                    <el-option v-for="(item, index) in bank" :key="index" :label="item.label" :value="item.value"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="银行帐号" prop="account_number" required>
+                                <el-input v-model="infoForm.account_number" placeholder="银行帐号"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="moudules-box">
+                    <div class="modules-title">
+                        <div class="modules-title-bar"></div>
+                        <div class="modules-title-content">店铺信息</div>
+                    </div>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="店铺名称" prop="store_name" required>
+                                <el-input v-model="infoForm.store_name" placeholder="店铺名称"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="店铺简称" prop="merchant_shortname" required>
+                                <el-input v-model="infoForm.merchant_shortname" maxlength="4" placeholder="店铺简称"></el-input>
+                                <div class="tip-box">最多4个字</div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="店铺标志" prop="shopLogo" required>
@@ -91,41 +175,60 @@
                                 </div>
                             </el-form-item>
                         </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
                         <el-col :span="12">
-                            <el-form-item label="营业执照" prop="shopPermit" required>
-                                <upload-file :disabled="isApproval" :size="5" limitTip="图片大小不能超过5M" :filelist="infoForm.shopPermit"></upload-file>
+                            <el-form-item label="所属商场" prop="shopCityName" required>
+                                <el-select v-model="infoForm.shopCityName" filterable remote :remote-method="remoteMethod" :disabled="isApproval" placeholder="所属商场">
+                                    <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.shopName" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="所在楼层" prop="floor" required>
+                                <el-select v-model="infoForm.floor" :disabled="isApproval" placeholder="所在楼层">
+                                    <el-option v-for="(item, index) in floorList" :key="index" :label="item.shopName + '楼'" :value="item.id"></el-option>
+                                </el-select>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
-                            <el-form-item label="法人/经营者" prop="shopOwner" required>
-                                <el-input v-model="infoForm.shopOwner" :disabled="isApproval" placeholder="法人/经营者"></el-input>
+                            <el-form-item label="微信绑定" prop="chatCode" required>
+                                <span v-if="infoForm.chatCode">已绑定</span>
+                                <img v-if="!infoForm.chatCode" class="bind-weixin" @click="bindWechat" src="~@/assets/img/weixin.png" alt="绑定微信" >
+                                <div style="color: #E6A23C; font-size: 12px;">提醒:请授权绑定微信，否则无法正常划账</div>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            <el-form-item label="身份证号" prop="cardNum" required>
-                                <el-input v-model="infoForm.cardNum" :disabled="isApproval" placeholder="身份证号"></el-input>
+                            <el-form-item label="微信号" prop="chat" required>
+                                <el-input v-model="infoForm.chat" :disabled="isApproval" placeholder="微信"></el-input>
+                                <div style="color: #E6A23C; font-size: 12px;">提醒:请填写正确微信号，而不是手机号，否则无法正常划账</div>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
-                            <el-form-item label="身份证正面" prop="cardUrl" required>
-                                <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardUrl"></upload-file>
+                            <el-form-item label="超级管理员姓名" prop="contact_name" required>
+                                <el-input v-model="infoForm.contact_name" placeholder="超级管理员姓名"></el-input>
+                                <div class="tip-box">该姓名需与法人身份证姓名一致</div>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            <el-form-item label="身份证反面" prop="cardOverUrl" required>
-                                <upload-file :size="3" :disabled="isApproval" limitTip="图片大小不能超过3M" :filelist="infoForm.cardOverUrl"></upload-file>
+                            <el-form-item label="超级管理员身份证号码" prop="contact_id_card_number" required>
+                                <el-input v-model="infoForm.contact_id_card_number" placeholder="超级管理员身份证号码"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
+                            <el-form-item label="超级管理员手机" prop="mobile_phone" required>
+                                <el-input type="number" v-model="infoForm.mobile_phone" placeholder="超级管理员手机"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-form-item label="商铺简介" prop="introduction" required>
                         <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="商铺简介" style="width: 90%;"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button v-if="!isApproval" @click="sendCheck" type="primary">发送审核</el-button>
                     </el-form-item>
                 </div>
             </el-form>
@@ -136,16 +239,38 @@
 <script>
 import uploadFile from '@/components/upload-file'
 import imageCropping from '@/components/image-cropping'
+import bank from '@/enumerate/bank'
+import { bank_account_type_option } from '@/enumerate/approval'
 export default {
     components: { uploadFile, imageCropping },
     data() {
+        let self = this
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
+            bank_account_type_option,
+            bank,
             isApproval: false,
             shopApprovalStatus: 0,
             refuseInfo: '',
             shopId: '',
             infoForm: {
+                organization_type: 4,
+                business_license_copy: [],
+                business_license_number: '',
+                merchant_name: '',
+                legal_person: '',
+                id_card_copy: [],
+                id_card_national: [],
+                id_card_name: '',
+                id_card_number: '',
+                id_card_valid_time: '',
+                bank_account_type: '',
+                account_bank: '',
+                account_name: '',
+                bank_address_code: [],
+                bank_name: '',
+                account_number: '',
+
                 shopName: '',
                 abbreviation: '',
                 shopCityName: '',
@@ -189,6 +314,42 @@ export default {
             shopCityListTemp: [],
             floorList: [],
             businessTypeList: [],
+            region_props: {
+                lazy: true,
+                label: 'name',
+                value: 'id',
+                lazyLoad(node, resolve) {
+                    console.log(node)
+                    if (node.level == 0) {
+                        self.http({
+                            url: 'merchant/base/getArea?parentId=',
+                            method: 'get'
+                        }, res => {
+                            if (res.data.code == 200) {
+                                resolve(res.data.data)
+                            }
+                        })
+                    } else {
+                        self.http({
+                            url: `merchant/base/getArea?parentId=${node.value}`,
+                            method: 'get'
+                        }, res => {
+                            if (res.data.code == 200) {
+                                debugger
+                                if (node.level == 3) {
+                                    
+                                    resolve(res.data.data.map(item => {
+                                        item.leaf = false
+                                    }))
+                                } else {
+                                    resolve(res.data.data)
+                                }
+                            }
+                        })
+                    }
+                    
+                }
+            }
         }
     },
     watch: {
@@ -442,5 +603,26 @@ export default {
 .bind-weixin{
     width: 30px;
     cursor: pointer;
+}
+.tip-box{
+    padding-top: 6px;
+    color: #E6A23C;
+    font-size: 12px;
+    line-height: 20px;
+}
+.modules-title{
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    &-bar{
+        width: 5px;
+        height: 15px;
+        background-color: #409eff;
+        border-radius: 1px;
+        margin-right: 3px;
+    }
+    &-content{
+        font-weight: 600;
+    }
 }
 </style>
