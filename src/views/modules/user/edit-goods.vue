@@ -148,6 +148,7 @@ export default {
             },
             coloumNameArr: [],
             assemTableData: [],
+            assemTableDataCopy: [],
             kindsTree: [],
             kindsTempData: [],
             rules: {
@@ -191,13 +192,17 @@ export default {
         },
         assemTableData: {
             handler(n) {
-                let num = 0
-                n.forEach(item => {
-                    item.amount && (num = num + parseInt(item.amount))
-                })
-                this.releaseForm.total = num
+                if (n.length) {
+                    let num = 0
+                    n.forEach(item => {
+                        item.amount && (num = num + parseInt(item.amount))
+                    })
+                    this.releaseForm.total = num
+                }
+                
             },
-            deep: true
+            deep: true,
+            immediate: true
         }
     },
     methods: {
@@ -333,44 +338,68 @@ export default {
         },
         assembleGoodsData() {
             let arr = [], ids = this.releaseForm.kindsId.split(','), self = this
-            this.assemTableData.forEach(item => {
-                let _arr1 = []
-                for (let key in item) {
-                    //遍历表格一条数据的所有属性，价格，数量，编码
-                    let _obj = {}
-                    if (key != 'price' && key != 'amount' && key != 'coding') {
-                        //根据规格的key和value，查找规格属性的key
-                        for (let i = 0; i < self.kindsTempData.length; i ++) {
-                            let _kindsArr = self.kindsTempData[i].values
-                            if ( self.kindsTempData[i].id == key ) {
-                                for (let j = 0; j < _kindsArr.length; j ++) {
-                                    if (_kindsArr[j].name == item[key]) {
-                                        _obj.goodValue = _kindsArr[j].id
+            if (this.assemTableData.length) {
+                this.assemTableData.forEach(item => {
+                    let _arr1 = []
+                    if (Object.keys(item).length > 16) {
+                        for (let key in item) {
+                            //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
+                            let _obj = {}
+                            if (key != 'colorType' && key != 'price' && key != 'amount' && key != 'coding') {
+                                //根据规格的key和value，查找规格属性的key
+                                for (let i = 0; i < self.kindsTempData.length; i ++) {
+                                    let _kindsArr = self.kindsTempData[i].values
+                                    if (self.kindsTempData[i].id == key) {
+                                        for (let j = 0; j < _kindsArr.length; j ++) {
+                                            if (_kindsArr[j].name == item[key]) {
+                                                _obj.goodValue = _kindsArr[j].id
+                                            }
+                                        }
+                                        _obj.goodColor = item.colorType
+                                        _obj.goodKey = key
+                                        _arr1.push(_obj)
                                     }
                                 }
-                                _obj.goodColor = item.colorType
-                                _obj.goodKey = key
-                                _arr1.push(_obj)
                             }
                         }
+                    } else {
+                        item.colorType && _arr1.push({ goodColor: item.colorType })
                     }
-                }
+                    arr.push({
+                        id: item.id,
+                        good: item.good,
+                        goodDetailName: '',
+                        goodDetailTitle: '',
+                        goodDetailSubheading: '',
+                        goodDetailPrice: parseFloat(item.price),
+                        goodDetailNumber: parseFloat(item.amount),
+                        goodDetailCode: item.coding,
+                        goodClassOne: ids[0],
+                        goodClassTwo: ids[1],
+                        goodClassThree: ids[2],
+                        goodIdentificationCode: item.goodIdentificationCode,
+                        tGoodDetailAttrKeyValues: _arr1
+                    })
+                })
+            } else {
                 arr.push({
-                    id: item.id,
-                    good: item.good,
+                    id: this.assemTableDataCopy[0].id,
+                    good: this.assemTableDataCopy[0].good,
                     goodDetailName: '',
                     goodDetailTitle: '',
                     goodDetailSubheading: '',
-                    goodDetailPrice: parseFloat(item.price),
-                    goodDetailNumber: parseFloat(item.amount),
-                    goodDetailCode: item.coding,
+                    goodDetailPrice: parseFloat(this.releaseForm.onePrice),
+                    goodDetailNumber: parseFloat(this.releaseForm.total),
+                    goodDetailCode: this.releaseForm.barCode,
                     goodClassOne: ids[0],
                     goodClassTwo: ids[1],
                     goodClassThree: ids[2],
-                    tGoodDetailAttrKeyValues: _arr1
+                    goodIdentificationCode: this.assemTableDataCopy[0].goodIdentificationCode,
+                    tGoodDetailAttrKeyValues: []
                 })
-            })
+            }
             return arr
+            
         },
         handleRelease() {
             let self = this
@@ -550,6 +579,7 @@ export default {
                     this.releaseForm.specialDescription = obj.tGoodInfo.goodSpecialDescription || ''
                     this.colorPickerTable = obj.bigGood.colorPickerTable
                     this.assemTableData = obj.bigGood.assemTableData
+                    this.assemTableDataCopy = JSON.parse(JSON.stringify(obj.bigGood.assemTableData))
                     this.formatList = obj.bigGood.formatList
                 }
             })
