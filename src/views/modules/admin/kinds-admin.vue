@@ -576,6 +576,7 @@ export default {
         width: 50%;
         margin-left: 0;
         margin-bottom: 6px;
+        margin-right: 0;
     }
     .content-checkbox{
         color: #E6A23C;

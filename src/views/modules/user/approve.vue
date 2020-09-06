@@ -28,7 +28,7 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="营业执照" prop="business_license_copy" required>
-                                <upload-file :disabled="isApproval" :filelist="infoForm.business_license_copy" limitTip=""></upload-file>
+                                <upload-img v-model="infoForm.business_license_copy" url-type="1" :disabled="isApproval"></upload-img>
                                 <div class="tip-box">
                                     <div>图片要求:</div>
                                     <div>1.请上传证件的彩色扫描件或彩色数码拍摄件，黑白复印件需加盖公章（公章信息需完整）</div>
@@ -64,13 +64,13 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="身份证正面" prop="id_card_copy" required>
-                                <upload-file :disabled="isApproval" :filelist="infoForm.id_card_copy" limitTip=""></upload-file>
+                                <upload-img v-model="infoForm.id_card_copy" url-type="1" :disabled="isApproval"></upload-img>
                                 <div class="tip-box">请上传经营者/法定代表人的身份证人像面照片</div>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="身份证反面" prop="id_card_national" required>
-                                <upload-file :disabled="isApproval" :filelist="infoForm.id_card_national" limitTip=""></upload-file>
+                                <upload-img v-model="infoForm.id_card_national" url-type="1" :disabled="isApproval"></upload-img>
                                 <div class="tip-box">请上传经营者/法定代表人的身份证国徽面照片</div>
                             </el-form-item>
                         </el-col>
@@ -90,7 +90,7 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="身份证有效期限" prop="id_card_valid_time" required>
-                                <el-date-picker v-model="infoForm.id_card_valid_time" type="date" placeholder="身份证有效期限"></el-date-picker>
+                                <el-date-picker v-model="infoForm.id_card_valid_time" type="date" value-format="yyyy-MM-dd" placeholder="身份证有效期限"></el-date-picker>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -128,15 +128,16 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="开户银行地区" prop="bank_address_code" required>
-                                <el-cascader :value="infoForm.bank_address_code" :props="region_props"></el-cascader>
+                                <el-cascader ref="region" v-model="infoForm.bank_address_code" :props="region_props" @change="regionChange"></el-cascader>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="开户银行支行" prop="bank_name" required>
-                                <el-select v-model="infoForm.bank_name" placeholder="开户银行支行">
-                                    <el-option v-for="(item, index) in bank" :key="index" :label="item.label" :value="item.value"></el-option>
+                                <el-select v-model="infoForm.bank_name" filterable remote
+                                    reserve-keyword placeholder="请输入关键词搜索开户银行支行，如新福路支行" :remote-method="remoteMethodBank">
+                                    <el-option v-for="(item, index) in bankNameList" :key="index" :label="item.bankName" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -167,17 +168,6 @@
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
-                            <el-form-item label="店铺标志" prop="shopLogo" required>
-                                <image-cropping :filelist="infoForm.shopLogo"></image-cropping>
-                                <div style="color: #E6A23C; font-size: 12px;">提醒:LOGO最佳比例1:1(最佳是圆形)</div>
-                                <div v-if="isApproval && infoForm.shopLogo[0] && infoForm.shopLogo[0].raw">
-                                    <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
-                                </div>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row :gutter="10">
-                        <el-col :span="12">
                             <el-form-item label="所属商场" prop="shopCityName" required>
                                 <el-select v-model="infoForm.shopCityName" filterable remote :remote-method="remoteMethod" :disabled="isApproval" placeholder="所属商场">
                                     <el-option v-for="(item, index) in shopCityList" :key="index" :label="item.shopName" :value="item.id"></el-option>
@@ -185,9 +175,26 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
+                            <el-form-item label="店铺标志" prop="shopLogo" required>
+                                <image-cropping v-model="infoForm.shopLogo"></image-cropping>
+                                <div v-if="isApproval && infoForm.shopLogo">
+                                    <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
+                                </div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :span="12">
                             <el-form-item label="所在楼层" prop="floor" required>
                                 <el-select v-model="infoForm.floor" :disabled="isApproval" placeholder="所在楼层">
                                     <el-option v-for="(item, index) in floorList" :key="index" :label="item.shopName + '楼'" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="所属行业" prop="businessType">
+                                <el-select v-model="infoForm.businessType" :disabled="isApproval" placeholder="所属行业">
+                                    <el-option v-for="(item, index) in businessTypeList" :key="index" :label="item.label" :value="item.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -227,10 +234,13 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-form-item label="商铺简介" prop="introduction" required>
-                        <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="商铺简介" style="width: 90%;"></el-input>
+                    <el-form-item label="店铺简介" prop="introduction" required>
+                        <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="店铺简介" style="width: 90%;"></el-input>
                     </el-form-item>
                 </div>
+                <el-form-item>
+                    <el-button v-if="!isApproval" @click="sendCheck" type="primary">发送审核</el-button>
+                </el-form-item>
             </el-form>
         </div>
     </div>
@@ -238,29 +248,31 @@
 
 <script>
 import uploadFile from '@/components/upload-file'
+import uploadImg from '@/components/upload-img'
 import imageCropping from '@/components/image-cropping'
 import bank from '@/enumerate/bank'
 import { bank_account_type_option } from '@/enumerate/approval'
 export default {
-    components: { uploadFile, imageCropping },
+    components: { uploadImg, uploadFile, imageCropping },
     data() {
         let self = this
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
             bank_account_type_option,
             bank,
+            bankNameList: [],
             isApproval: false,
             shopApprovalStatus: 0,
             refuseInfo: '',
             shopId: '',
             infoForm: {
                 organization_type: 4,
-                business_license_copy: [],
+                business_license_copy: {},
                 business_license_number: '',
                 merchant_name: '',
                 legal_person: '',
-                id_card_copy: [],
-                id_card_national: [],
+                id_card_copy: {},
+                id_card_national: {},
                 id_card_name: '',
                 id_card_number: '',
                 id_card_valid_time: '',
@@ -270,45 +282,54 @@ export default {
                 bank_address_code: [],
                 bank_name: '',
                 account_number: '',
-
-                shopName: '',
-                abbreviation: '',
                 shopCityName: '',
                 floor: '',
                 businessType: '',
-                phone: '',
                 chat: '',
-                chatCode: '',
-                shopLogo: [],
-                shopPermit: [],
-                shopOwner: '',
-                cardNum: '',
-                cardUrl: [],
-                cardOverUrl: [],
+                chatCode: '11111111111',
+                shopLogo: '',
                 introduction: '',
             },
             rules: {
-                shopName: [ { required: true, message: '商铺名称不能为空', trigger: 'blur'} ],
-                shopCityName: [ { required: true, message: '所属商场不能为空', trigger: 'blur'} ],
-                floor: [ { required: true, message: '所在楼层不能为空', trigger: 'blur'} ],
+                organization_type: [ { required: true, message: '请选择主体类型', trigger: 'change'} ],
+                business_license_copy: [ { required: true, message: '请上传营业执照', trigger: 'change'} ],
+                business_license_number: [ { required: true, message: '请填写证件注册号', trigger: 'blur'} ],
+                merchant_name: [ { required: true, message: '请填写企业名称', trigger: 'blur'} ],
+                legal_person: [ { required: true, message: '请填写经营者/法人', trigger: 'blur'} ],
+                id_card_copy: [ { required: true, message: '请上传身份证正面', trigger: 'change'} ],
+                id_card_national: [ { required: true, message: '请上传身份证反面', trigger: 'change'} ],
+                id_card_name: [ { required: true, message: '请填写身份证姓名', trigger: 'blur'} ],
+                id_card_number: [
+                    { required: true, message: '请填写身份证号码', trigger: 'blur'},
+                    { min: 15, max: 18, message: '请填写正确的身份证号码', trigger: 'blur' },
+                    { required: true, pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请填写正确的身份证号码', trigger: 'blur'}
+                ],
+                id_card_valid_time: [ { required: true, message: '请选择身份证有效期限', trigger: 'change'} ],
+                bank_account_type: [ { required: true, message: '请选择账户类型', trigger: 'change'} ],
+                account_bank: [ { required: true, message: '请选择开户银行', trigger: 'change'} ],
+                account_name: [ { required: true, message: '请填写开户名称', trigger: 'blur'} ],
+                bank_address_code: [ { required: true, message: '请选择开户银行地区', trigger: 'change'} ],
+                bank_name: [ { required: true, message: '请选择开户银行支行', trigger: 'change'} ],
+                account_number: [ { required: true, message: '请填写银行帐号', trigger: 'blur'} ],
+                store_name: [ { required: true, message: '请填写店铺名称', trigger: 'blur'} ],
+                merchant_shortname: [ { required: true, message: '请填写店铺简称', trigger: 'blur'} ],
+                shopLogo: [ { required: true, message: '请上传店铺标志', trigger: 'change'} ],
+                shopCityName: [ { required: true, message: '请选择所属商场', trigger: 'change'} ],
+                floor: [ { required: true, message: '请选择所在楼层', trigger: 'change'} ],
                 businessType: [ { required: true, message: '请选择所属行业', trigger: 'change'} ],
-                phone: [
-                    { required: true, message: '手机号码不能为空', trigger: 'blur'},
-                    { required: true, pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur'}
-                ],
-                chat: [ { required: true, message: '请输入微信号', trigger: 'blur'} ],
                 chatCode: [ { required: true, message: '请绑定微信', trigger: 'change'} ],
-                shopLogo: [ { required: true, message: '请上传店铺标志', trigger: 'blur'} ],
-                shopPermit: [ { required: true, message: '请上传营业执照', trigger: 'blur'} ],
-                shopOwner: [ { required: true, message: '法人/经营者不能为空', trigger: 'blur'} ],
-                cardNum: [ 
-                    { required: true, message: '身份证号不能为空', trigger: 'blur'},
-                    { min: 15, max: 18, message: '请输入正确的身份证号码', trigger: 'blur' },
-                    { required: true, pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号码', trigger: 'blur'}
+                chat: [ { required: true, message: '请填写微信号', trigger: 'blur'} ],
+                contact_name: [ { required: true, message: '请填写超级管理员姓名', trigger: 'blur'} ],
+                contact_id_card_number: [
+                    { required: true, message: '请填写超级管理员身份证号码', trigger: 'blur'},
+                    { min: 15, max: 18, message: '请填写正确的超级管理员身份证号码', trigger: 'blur' },
+                    { required: true, pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请填写正确的超级管理员身份证号码', trigger: 'blur'}
                 ],
-                cardUrl: [ { required: true, message: '请上传身份证正面', trigger: 'blur'} ],
-                cardOverUrl: [ { required: true, message: '请上传身份证反面', trigger: 'blur'} ],
-                introduction: [ { required: true, message: '商铺简介不能为空', trigger: 'blur'} ],
+                mobile_phone: [
+                    { required: true, message: '请填写超级管理员手机', trigger: 'blur'},
+                    { required: true, pattern: /^1[3456789]\d{9}$/, message: '请填写正确的超级管理员手机', trigger: 'blur'}
+                ],
+                introduction: [ { required: true, message: '请填写店铺简介', trigger: 'blur'} ]
             },
             shopCityList: [],
             shopCityListTemp: [],
@@ -316,13 +337,19 @@ export default {
             businessTypeList: [],
             region_props: {
                 lazy: true,
-                label: 'name',
-                value: 'id',
                 lazyLoad(node, resolve) {
-                    console.log(node)
                     if (node.level == 0) {
                         self.http({
-                            url: 'merchant/base/getArea?parentId=',
+                            url: 'merchant/base/getProvinces',
+                            method: 'get'
+                        }, res => {
+                            if (res.data.code == 200) {
+                                resolve(res.data.data)
+                            }
+                        })
+                    } else if (node.level == 1) {
+                        self.http({
+                            url: `merchant/base/getCities?id=${node.value}`,
                             method: 'get'
                         }, res => {
                             if (res.data.code == 200) {
@@ -331,31 +358,33 @@ export default {
                         })
                     } else {
                         self.http({
-                            url: `merchant/base/getArea?parentId=${node.value}`,
+                            url: `merchant/base/getAreas?id=${node.value}`,
                             method: 'get'
                         }, res => {
                             if (res.data.code == 200) {
-                                debugger
-                                if (node.level == 3) {
+                                let arr = res.data.data.map(item => {
+                                    return {
+                                        value: item.value,
+                                        label: item.label,
+                                        leaf: true
+                                    }
                                     
-                                    resolve(res.data.data.map(item => {
-                                        item.leaf = false
-                                    }))
-                                } else {
-                                    resolve(res.data.data)
-                                }
+                                })
+                                resolve(arr)
                             }
                         })
                     }
                     
                 }
-            }
+            },
+            regionArr: [],
         }
     },
     watch: {
         'infoForm.shopCityName'(n) {
             if (n) {
                 this.getFloorList(n)
+                this.getBussinessList(n)
             }
         }
     },
@@ -381,9 +410,9 @@ export default {
                 }
             })
         },
-        getBussinessList() {
+        getBussinessList(id) {
             this.http({
-                url: 'merchant/tGoodCategory/selTGoodCategoryByGrade?grade=1',
+                url: `merchant/tGoodCategory/selectTGoodCategoryAsTree?shopMallId=${id}`,
                 method: 'get'
             }, res => {
                 if (res.data.code == 200) {
@@ -393,88 +422,59 @@ export default {
         },
         sendCheck() {
             this.$refs.infoForm.validate(valid => {
-                let logo = new Promise((resolve, reject) => {
-                    this.$upload({
-                        data: [this.infoForm.shopLogo[0].raw]
-                    }, res => {
-                        if (res.data.code == 200) {
-                            resolve({name: 'shopLogo', url: res.data.data})
-                        }
-                    })
-                })
-                let permit = new Promise((resolve, reject) => {
-                    this.$upload({
-                        data: [this.infoForm.shopPermit[0].raw]
-                    }, res => {
-                        if (res.data.code == 200) {
-                            resolve({name: 'shopPermit', url: res.data.data})
-                        }
-                    })
-                })
-                let card = new Promise((resolve, reject) => {
-                    this.$upload({
-                        data: [this.infoForm.cardUrl[0].raw]
-                    }, res => {
-                        if (res.data.code == 200) {
-                            resolve({name: 'cardUrl', url: res.data.data})
-                        }
-                    })
-                })
-                let cardover = new Promise((resolve, reject) => {
-                    this.$upload({
-                        data: [this.infoForm.cardOverUrl[0].raw]
-                    }, res => {
-                        if (res.data.code == 200) {
-                            resolve({name: 'cardOverUrl', url: res.data.data})
-                        }
-                    })
-                })
-                Promise.all([logo, permit, card, cardover]).then(res => {
-                    let _urllogo = '', _urlpermit = '', _urlcard = '', _urlcardover = ''
-                    res.forEach(urlItem => {
-                        if (urlItem.name == 'shopLogo') {
-                            _urllogo = urlItem.url
-                        }
-                        if (urlItem.name == 'shopPermit') {
-                            _urlpermit = urlItem.url
-                        }
-                        if (urlItem.name == 'cardUrl') {
-                            _urlcard = urlItem.url
-                        }
-                        if (urlItem.name == 'cardOverUrl') {
-                            _urlcardover = urlItem.url
-                        }
-                    })
-                    this.http({
-                        url: 'merchant/tShop/tShopAuthentication',
-                        method: 'post',
-                        data: {
-                            shopName: this.infoForm.shopName,
-                            abbreviation: this.infoForm.abbreviation,
+                this.http({
+                    url: 'merchant/tShop/tShopAuthentication1',
+                    method: 'post',
+                    data: {
+                        shopVX: {
+                            organization_type: this.infoForm.organization_type,
+                            business_license_copy: JSON.stringify(this.infoForm.business_license_copy),
+                            business_license_number: this.infoForm.business_license_number,
+                            merchant_name: this.infoForm.merchant_name,
+                            legal_person: this.infoForm.legal_person,
+                            id_doc_type: 'IDENTIFICATION_TYPE_MAINLAND_IDCARD',
+                            id_card_copy: JSON.stringify(this.infoForm.id_card_copy),
+                            id_card_national: JSON.stringify(this.infoForm.id_card_national),
+                            id_card_name: this.infoForm.id_card_name,
+                            id_card_number: this.infoForm.id_card_number,
+                            id_card_valid_time: this.infoForm.id_card_valid_time,
+                            bank_account_type: this.infoForm.bank_account_type,
+                            account_bank: this.infoForm.account_bank,
+                            account_name: this.infoForm.account_name,
+                            bank_address_code: JSON.stringify(this.infoForm.bank_address_code),
+                            bank_name: this.infoForm.bank_name,
+                            account_number: this.infoForm.account_number,
+                            contact_type: 65,
+                            contact_name: this.infoForm.contact_name,
+                            contact_id_card_number: this.infoForm.contact_id_card_number,
+                            mobile_phone: this.infoForm.mobile_phone,
+                            store_name: this.infoForm.store_name,
+                            merchant_shortname: this.merchant_shortname,
+                        },
+                        shop: {
+                            shopName: this.infoForm.store_name,
+                            abbreviation: this.infoForm.merchant_shortname,
                             shopToPart: this.infoForm.shopCityName,
                             shopToFloor: this.infoForm.floor,
                             shopToIndustry: this.infoForm.businessType,
-                            shopTel: this.infoForm.phone,
+                            shopTel: this.infoForm.mobile_phone,
                             shopPersonVx: this.infoForm.chat,
                             code: this.infoForm.chatCode,
-                            shopSign: _urllogo,
-                            shopBusinessLicense: _urlpermit,
-                            idCardPicPositive: _urlcard,
-                            idCardPicSide: _urlcardover,
-                            shopLegalPerson: this.infoForm.shopOwner,
-                            shopLegalPersonId: this.infoForm.cardNum,
-                            shopInfo: this.infoForm.introduction
-                        }
-                    }, approvalRes => {
-                        if (approvalRes.data.code == 200) {
-                            this.$message.success('申请已发送，等待管理员审核中...')
-                            localStorage.removeItem('approvalParams')
-                            this.getApprovalData()
-                        }else {
-                            this.$message.info('网络异常，请刷新重试')
-                        }
-                    })
+                            shopLegalPerson: this.infoForm.legal_person,
+                            shopInfo: this.infoForm.introduction,
+                            shopSign: this.infoForm.shopLogo,
+                        },
+                    }
+                }, approvalRes => {
+                    if (approvalRes.data.code == 200) {
+                        this.$message.success('申请已发送，等待管理员审核中...')
+                        localStorage.removeItem('approvalParams')
+                        this.getApprovalData()
+                    }else {
+                        this.$message.info(res.data.msg)
+                    }
                 })
+                
             })
         },
         getApprovalData() {
@@ -508,23 +508,17 @@ export default {
             })
         },
         updateLogo() {
-            this.$upload({
-                data: [this.infoForm.shopLogo[0].raw]
-            }, res => {
-                if (res.data.code == 200) {
-                    this.http({
-                        url: 'merchant/tShop/updateTShopByShopId',
-                        method: 'post',
-                        data: {
-                            id: this.shopId,
-                            shopSign: res.data.data,
-                        }
-                    }, resovel => {
-                        if (resovel.data.code == 200) {
-                            this.$message.success('修改成功!')
-                            this.getApprovalData()
-                        }
-                    })
+            this.http({
+                url: 'merchant/tShop/updateTShopByShopId',
+                method: 'post',
+                data: {
+                    id: this.shopId,
+                    shopSign: this.infoForm.shopLogo,
+                }
+            }, resovel => {
+                if (resovel.data.code == 200) {
+                    this.$message.success('修改成功!')
+                    this.getApprovalData()
                 }
             })
             
@@ -544,33 +538,47 @@ export default {
             }
         },
         bindWechat() {
-            let approvalParams = {
-                shopName: this.infoForm.shopName,
-                abbreviation: this.infoForm.abbreviation,
-                shopCityName: this.infoForm.shopCityName,
-                floor: this.infoForm.floor,
-                businessType: this.infoForm.businessType,
-                phone: this.infoForm.phone,
-                chat: this.infoForm.chat,
-            }
+            let approvalParams = this.infoForm
             localStorage.setItem('approvalParams', JSON.stringify(approvalParams))
             window.open('https://open.weixin.qq.com/connect/qrconnect?appid=wx492cea4884805e00&redirect_uri=https%3a%2f%2fs.yimazhongcheng.com%2f%23%2fuser-approve&response_type=code&scope=snsapi_login&state=auth2#wechat_redirect', '_self')
+        },
+        regionChange(node) {
+            this.regionArr = []
+            this.getRegionArr(this.$refs.region.getCheckedNodes()[0])
+            this.http({
+                url: `merchant/base/selBankInfo?queryName=${this.regionArr[1]},${this.infoForm.account_bank}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.bankNameList = res.data.data
+                }
+            })
+        },
+        getRegionArr(node) {
+            this.regionArr.unshift(node.label)
+            if (!node.parent) {
+                return
+            }
+            this.getRegionArr(node.parent)
+        },
+        remoteMethodBank(v) {
+            this.http({
+                url: `merchant/base/selBankInfo?queryName=${this.regionArr[1]},${this.infoForm.account_bank},${v}`,
+                method: 'get'
+            }, res => {
+                if (res.data.code == 200) {
+                    this.bankNameList = res.data.data
+                }
+            })
         }
     },
     async mounted() {
         await this.getMallList()
-        await this.getBussinessList()
         await this.getApprovalData()
         if (this.$route.query.state == 'auth2') {
             let params = JSON.parse(localStorage.getItem('approvalParams'))
+            this.infoForm = params
             this.infoForm.chatCode = this.$route.query.code
-            this.infoForm.shopName = params.shopName
-            this.infoForm.abbreviation = params.abbreviation
-            this.infoForm.shopCityName = params.shopCityName
-            this.infoForm.floor = params.floor
-            this.infoForm.businessType = params.businessType
-            this.infoForm.phone = params.phone
-            this.infoForm.chat = params.chat
         }
         
     }
