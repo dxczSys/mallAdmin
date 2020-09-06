@@ -64,7 +64,7 @@
                             <el-autocomplete v-model="keywords" :fetch-suggestions="querySearchAsync" clearable prefix-icon="el-icon-search" placeholder="请输入关键字过滤"></el-autocomplete>
                         </div>
                         <el-checkbox-group v-model="kindsCheckbox" class="kinds-list-checkbox">
-                            <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id">
+                            <el-checkbox v-for="(item, index) in kindsList" :key="index" :label="item.id" :disabled="!!item.shopMallName">
                                 <span :class="{'content-checkbox': item.shopMallName}">
                                     <span>{{ item.label }}</span>
                                     <span v-if="item.shopMallName">(已绑定)</span>
@@ -576,6 +576,7 @@ export default {
         width: 50%;
         margin-left: 0;
         margin-bottom: 6px;
+        margin-right: 0;
     }
     .content-checkbox{
         color: #E6A23C;
