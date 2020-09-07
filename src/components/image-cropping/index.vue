@@ -7,7 +7,7 @@
                         <img :src="item.url">
                         <div class="delete-layer">
                             <div>
-                                <span @click="imgPreview(item)" class="el-icon-zoom-in"></span>
+                                <!-- <span @click="imgPreview(item)" class="el-icon-zoom-in"></span> -->
                                 <span @click="remove(item)" v-if="!disabled" class="el-icon-delete"></span>
                             </div>
                         </div>
@@ -73,7 +73,11 @@ export default {
         limit: { default: 1 },
         size: { default: 2 },
         accept: { default: 'image/*' },
-        limitTip: { default: '' }
+        limitTip: { default: '' },
+        value: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {

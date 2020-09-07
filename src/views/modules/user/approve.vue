@@ -20,7 +20,7 @@
                         <div class="modules-title-content">商户申请信息</div>
                     </div>
                     <el-form-item label="主体类型" prop="organization_type" required>
-                        <el-radio-group v-model="infoForm.organization_type">
+                        <el-radio-group v-model="infoForm.organization_type" :disabled="isApproval">
                             <el-radio :label="4">个体工商户</el-radio>
                             <el-radio :label="2">企业</el-radio>
                         </el-radio-group>
@@ -39,7 +39,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="证件注册号" prop="business_license_number" required>
-                               <el-input v-model="infoForm.business_license_number" maxlength="18" placeholder="证件注册号"></el-input>
+                               <el-input v-model="infoForm.business_license_number" maxlength="18" :disabled="isApproval" placeholder="证件注册号"></el-input>
                                <div class="tip-box">请填写营业执照上的注册号/统一社会信用代码，须为15位数字或 18位数字|大写字母</div>
                             </el-form-item>
                         </el-col>
@@ -47,7 +47,7 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="企业名称" prop="merchant_name" required>
-                                <el-input v-model="infoForm.merchant_name" maxlength="110" placeholder="企业名称"></el-input>
+                                <el-input v-model="infoForm.merchant_name" maxlength="110" :disabled="isApproval" placeholder="企业名称"></el-input>
                                 <div class="tip-box">
                                     <div>1.请填写营业执照/登记证书的企业名称，2~110个字符，支持括号</div>
                                     <div>2.个体工商户，若营业执照上商户名称为空或为“无”，请填写"个体户+经营者姓名"，如“个体户张三”</div>
@@ -56,7 +56,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="经营者/法人" prop="legal_person" required>
-                               <el-input v-model="infoForm.legal_person" placeholder="经营者/法定代表人姓名"></el-input>
+                               <el-input v-model="infoForm.legal_person" :disabled="isApproval" placeholder="经营者/法定代表人姓名"></el-input>
                                <div class="tip-box">必须是证件的经营者/法定代表人姓名</div>
                             </el-form-item>
                         </el-col>
@@ -78,19 +78,19 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="身份证姓名" prop="id_card_name" required>
-                                <el-input v-model="infoForm.id_card_name" placeholder="身份证姓名"></el-input>
+                                <el-input v-model="infoForm.id_card_name" :disabled="isApproval" placeholder="身份证姓名"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="身份证号码" prop="id_card_number" required>
-                                <el-input v-model="infoForm.id_card_number" placeholder="身份证号码"></el-input>
+                                <el-input v-model="infoForm.id_card_number" :disabled="isApproval" placeholder="身份证号码"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="身份证有效期限" prop="id_card_valid_time" required>
-                                <el-date-picker v-model="infoForm.id_card_valid_time" type="date" value-format="yyyy-MM-dd" placeholder="身份证有效期限"></el-date-picker>
+                                <el-date-picker v-model="infoForm.id_card_valid_time" type="date" :disabled="isApproval" value-format="yyyy-MM-dd" placeholder="身份证有效期限"></el-date-picker>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -103,14 +103,14 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="账户类型" prop="bank_account_type" required>
-                                <el-select v-model="infoForm.bank_account_type" placeholder="账户类型">
+                                <el-select v-model="infoForm.bank_account_type" :disabled="isApproval" placeholder="账户类型">
                                     <el-option v-for="(item, index) in bank_account_type_option" :key="index" :label="item.label" :value="item.value"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="开户银行" prop="account_bank" required>
-                                <el-select v-model="infoForm.account_bank" placeholder="开户银行">
+                                <el-select v-model="infoForm.account_bank" :disabled="isApproval" placeholder="开户银行">
                                     <el-option v-for="(item, index) in bank" :key="index" :label="item.label" :value="item.value"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -119,7 +119,7 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="开户名称" prop="account_name" required>
-                                <el-input v-model="infoForm.account_name" placeholder="开户名称"></el-input>
+                                <el-input v-model="infoForm.account_name" :disabled="isApproval" placeholder="开户名称"></el-input>
                                 <div class="tip-box">
                                     <div>1.选择经营者个人银行卡时，开户名称必须与身份证姓名一致</div>
                                     <div>2.选择对公账户时，开户名称必须与营业执照上的“商户名称”一致</div>
@@ -128,14 +128,14 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="开户银行地区" prop="bank_address_code" required>
-                                <el-cascader ref="region" v-model="infoForm.bank_address_code" :props="region_props" @change="regionChange"></el-cascader>
+                                <el-cascader ref="region" v-model="infoForm.bank_address_code" :disabled="isApproval" :props="region_props" @change="regionChange"></el-cascader>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="开户银行支行" prop="bank_name" required>
-                                <el-select v-model="infoForm.bank_name" filterable remote
+                                <el-select v-model="infoForm.bank_name" filterable remote :disabled="isApproval"
                                     reserve-keyword placeholder="请输入关键词搜索开户银行支行，如新福路支行" :remote-method="remoteMethodBank">
                                     <el-option v-for="(item, index) in bankNameList" :key="index" :label="item.bankName" :value="item.id"></el-option>
                                 </el-select>
@@ -143,7 +143,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="银行帐号" prop="account_number" required>
-                                <el-input v-model="infoForm.account_number" placeholder="银行帐号"></el-input>
+                                <el-input v-model="infoForm.account_number" :disabled="isApproval" placeholder="银行帐号"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -156,12 +156,12 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="店铺名称" prop="store_name" required>
-                                <el-input v-model="infoForm.store_name" placeholder="店铺名称"></el-input>
+                                <el-input v-model="infoForm.store_name" :disabled="isApproval" placeholder="店铺名称"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="店铺简称" prop="merchant_shortname" required>
-                                <el-input v-model="infoForm.merchant_shortname" maxlength="4" placeholder="店铺简称"></el-input>
+                                <el-input v-model="infoForm.merchant_shortname" maxlength="4" :disabled="isApproval" placeholder="店铺简称"></el-input>
                                 <div class="tip-box">最多4个字</div>
                             </el-form-item>
                         </el-col>
@@ -217,20 +217,25 @@
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="超级管理员姓名" prop="contact_name" required>
-                                <el-input v-model="infoForm.contact_name" placeholder="超级管理员姓名"></el-input>
+                                <el-input v-model="infoForm.contact_name" :disabled="isApproval" placeholder="超级管理员姓名"></el-input>
                                 <div class="tip-box">该姓名需与法人身份证姓名一致</div>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="超级管理员身份证号码" prop="contact_id_card_number" required>
-                                <el-input v-model="infoForm.contact_id_card_number" placeholder="超级管理员身份证号码"></el-input>
+                                <el-input v-model="infoForm.contact_id_card_number" :disabled="isApproval" placeholder="超级管理员身份证号码"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
                             <el-form-item label="超级管理员手机" prop="mobile_phone" required>
-                                <el-input type="number" v-model="infoForm.mobile_phone" placeholder="超级管理员手机"></el-input>
+                                <el-input type="number" v-model="infoForm.mobile_phone" :disabled="isApproval" placeholder="超级管理员手机"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="超级管理员邮箱" prop="contact_email" required>
+                                <el-input v-model="infoForm.contact_email" :disabled="isApproval" placeholder="超级管理员邮箱"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -286,9 +291,13 @@ export default {
                 floor: '',
                 businessType: '',
                 chat: '',
-                chatCode: '11111111111',
+                chatCode: '',
                 shopLogo: '',
                 introduction: '',
+                contact_email: '',
+                contact_name: '',
+                contact_id_card_number: '',
+                mobile_phone: ''
             },
             rules: {
                 organization_type: [ { required: true, message: '请选择主体类型', trigger: 'change'} ],
@@ -328,6 +337,10 @@ export default {
                 mobile_phone: [
                     { required: true, message: '请填写超级管理员手机', trigger: 'blur'},
                     { required: true, pattern: /^1[3456789]\d{9}$/, message: '请填写正确的超级管理员手机', trigger: 'blur'}
+                ],
+                contact_email: [
+                    { required: true, message: '请填写超级管理员邮箱', trigger: 'blur'},
+                    { required: true, pattern: /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/, message: '请填写正确的超级管理员邮箱', trigger: 'blur'}
                 ],
                 introduction: [ { required: true, message: '请填写店铺简介', trigger: 'blur'} ]
             },
@@ -422,59 +435,73 @@ export default {
         },
         sendCheck() {
             this.$refs.infoForm.validate(valid => {
-                this.http({
-                    url: 'merchant/tShop/tShopAuthentication1',
-                    method: 'post',
-                    data: {
-                        shopVX: {
-                            organization_type: this.infoForm.organization_type,
-                            business_license_copy: JSON.stringify(this.infoForm.business_license_copy),
-                            business_license_number: this.infoForm.business_license_number,
-                            merchant_name: this.infoForm.merchant_name,
-                            legal_person: this.infoForm.legal_person,
-                            id_doc_type: 'IDENTIFICATION_TYPE_MAINLAND_IDCARD',
-                            id_card_copy: JSON.stringify(this.infoForm.id_card_copy),
-                            id_card_national: JSON.stringify(this.infoForm.id_card_national),
-                            id_card_name: this.infoForm.id_card_name,
-                            id_card_number: this.infoForm.id_card_number,
-                            id_card_valid_time: this.infoForm.id_card_valid_time,
-                            bank_account_type: this.infoForm.bank_account_type,
-                            account_bank: this.infoForm.account_bank,
-                            account_name: this.infoForm.account_name,
-                            bank_address_code: JSON.stringify(this.infoForm.bank_address_code),
-                            bank_name: this.infoForm.bank_name,
-                            account_number: this.infoForm.account_number,
-                            contact_type: 65,
-                            contact_name: this.infoForm.contact_name,
-                            contact_id_card_number: this.infoForm.contact_id_card_number,
-                            mobile_phone: this.infoForm.mobile_phone,
-                            store_name: this.infoForm.store_name,
-                            merchant_shortname: this.merchant_shortname,
-                        },
-                        shop: {
-                            shopName: this.infoForm.store_name,
-                            abbreviation: this.infoForm.merchant_shortname,
-                            shopToPart: this.infoForm.shopCityName,
-                            shopToFloor: this.infoForm.floor,
-                            shopToIndustry: this.infoForm.businessType,
-                            shopTel: this.infoForm.mobile_phone,
-                            shopPersonVx: this.infoForm.chat,
-                            code: this.infoForm.chatCode,
-                            shopLegalPerson: this.infoForm.legal_person,
-                            shopInfo: this.infoForm.introduction,
-                            shopSign: this.infoForm.shopLogo,
-                        },
+                if (valid) {
+                    if (!Object.keys(this.infoForm.business_license_copy).length) {
+                        this.$message.info('请上传营业执照')
+                        return
                     }
-                }, approvalRes => {
-                    if (approvalRes.data.code == 200) {
-                        this.$message.success('申请已发送，等待管理员审核中...')
-                        localStorage.removeItem('approvalParams')
-                        this.getApprovalData()
-                    }else {
-                        this.$message.info(res.data.msg)
+                    if (!Object.keys(this.infoForm.id_card_copy).length) {
+                        this.$message.info('请上传身份证正面')
+                        return
                     }
-                })
-                
+                    if (!Object.keys(this.infoForm.id_card_national).length) {
+                        this.$message.info('请上传身份证反面')
+                        return
+                    }
+                    this.http({
+                        url: 'merchant/tShop/tShopAuthentication1',
+                        method: 'post',
+                        data: {
+                            shopVX: {
+                                organization_type: this.infoForm.organization_type,
+                                business_license_copy: JSON.stringify(this.infoForm.business_license_copy),
+                                business_license_number: this.infoForm.business_license_number,
+                                merchant_name: this.infoForm.merchant_name,
+                                legal_person: this.infoForm.legal_person,
+                                id_doc_type: 'IDENTIFICATION_TYPE_MAINLAND_IDCARD',
+                                id_card_copy: JSON.stringify(this.infoForm.id_card_copy),
+                                id_card_national: JSON.stringify(this.infoForm.id_card_national),
+                                id_card_name: this.infoForm.id_card_name,
+                                id_card_number: this.infoForm.id_card_number,
+                                id_card_valid_time: this.infoForm.id_card_valid_time,
+                                bank_account_type: this.infoForm.bank_account_type,
+                                account_bank: this.infoForm.account_bank,
+                                account_name: this.infoForm.account_name,
+                                bank_address_code: JSON.stringify(this.infoForm.bank_address_code),
+                                bank_name: this.infoForm.bank_name,
+                                account_number: this.infoForm.account_number,
+                                contact_type: 65,
+                                contact_name: this.infoForm.contact_name,
+                                contact_id_card_number: this.infoForm.contact_id_card_number,
+                                mobile_phone: this.infoForm.mobile_phone,
+                                store_name: this.infoForm.store_name,
+                                merchant_shortname: this.merchant_shortname,
+                                contact_email: this.infoForm.contact_email
+                            },
+                            shop: {
+                                shopName: this.infoForm.store_name,
+                                abbreviation: this.infoForm.merchant_shortname,
+                                shopToPart: this.infoForm.shopCityName,
+                                shopToFloor: this.infoForm.floor,
+                                shopToIndustry: this.infoForm.businessType,
+                                shopTel: this.infoForm.mobile_phone,
+                                shopPersonVx: this.infoForm.chat,
+                                code: this.infoForm.chatCode,
+                                shopLegalPerson: this.infoForm.legal_person,
+                                shopInfo: this.infoForm.introduction,
+                                shopSign: this.infoForm.shopLogo,
+                            },
+                        }
+                    }, approvalRes => {
+                        if (approvalRes.data.code == 200) {
+                            this.$message.success('申请已发送，等待管理员审核中...')
+                            localStorage.removeItem('approvalParams')
+                            this.getApprovalData()
+                        }else {
+                            this.$message.info(approvalRes.data.msg)
+                        }
+                    })
+                }
             })
         },
         getApprovalData() {
@@ -483,25 +510,38 @@ export default {
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {
-                    let obj = res.data.data
-                    this.shopId = obj.id
-                    this.shopApprovalStatus = parseInt(obj.shopApprovalStatus)
-                    this.refuseInfo = obj.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
+                    let tShop = res.data.data.tShop
+                    let tShopVX = res.data.data.tShopVX
+                    this.shopId = tShop.id
+                    this.shopApprovalStatus = parseInt(tShop.shopApprovalStatus)
+                    this.refuseInfo = tShop.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
                     this.isApproval = true
-                    this.infoForm.shopName = obj.shopName
-                    this.infoForm.abbreviation = obj.abbreviation
-                    this.infoForm.shopCityName = obj.shopToPart
-                    this.infoForm.floor = obj.shopToFloor
-                    this.infoForm.businessType = obj.shopToIndustry
-                    this.infoForm.phone = obj.shopTel
-                    this.infoForm.chat = obj.shopPersonVx
-                    this.infoForm.shopLogo = [{ url: this.fileUrl + obj.shopSign}]
-                    this.infoForm.shopPermit = [{ url: this.fileUrl + obj.shopBusinessLicense }]
-                    this.infoForm.cardUrl = [{ url: this.fileUrl + obj.idCardPicPositive }]
-                    this.infoForm.cardOverUrl = [{ url: this.fileUrl + obj.idCardPicSide }]
-                    this.infoForm.shopOwner = obj.shopLegalPerson
-                    this.infoForm.cardNum = obj.shopLegalPersonId
-                    this.infoForm.introduction = obj.shopInfo
+                    this.infoForm.business_license_copy = JSON.parse(tShopVX.business_license_copy)
+                    this.infoForm.business_license_number = tShopVX.business_license_number
+                    this.infoForm.merchant_name = tShopVX.merchant_name
+                    this.infoForm.legal_person = tShopVX.legal_person
+                    this.infoForm.id_card_copy = JSON.parse(tShopVX.id_card_copy)
+                    this.infoForm.id_card_national = JSON.parse(tShopVX.id_card_national)
+                    this.infoForm.id_card_name = tShopVX.id_card_name
+                    this.infoForm.id_card_number = tShopVX.id_card_number
+                    this.infoForm.id_card_valid_time = tShopVX.id_card_valid_time
+                    this.infoForm.bank_account_type = parseInt(tShopVX.bank_account_type)
+                    this.infoForm.account_bank = tShopVX.account_bank
+                    this.infoForm.account_name = tShopVX.account_name
+                    this.infoForm.bank_address_code = JSON.parse(tShopVX.bank_address_code)
+                    this.infoForm.bank_name = tShopVX.bank_name
+                    this.infoForm.account_number = tShopVX.account_number
+                    this.infoForm.shopCityName = tShop.shopToPart
+                    this.infoForm.floor = tShop.shopToFloor
+                    this.infoForm.businessType = tShop.shopToIndustry
+                    this.infoForm.chat = tShop.shopPersonVx
+                    this.infoForm.chatCode = tShop.chatCode
+                    this.infoForm.shopLogo = tShop.shopSign
+                    this.infoForm.introduction = tShop.shopInfo
+                    this.infoForm.contact_email = tShopVX.contact_email
+                    this.infoForm.contact_name = tShopVX.contact_name
+                    this.infoForm.contact_id_card_number = tShopVX.contact_id_card_number
+                    this.infoForm.mobile_phone = tShopVX.mobile_phone
                 }else {
                     this.isApproval = false
                 }
