@@ -44,13 +44,6 @@ export default {
         }
     },
 
-    computed : {
-        
-    },
-    watch : {
-        
-    },
-
     methods : {
         handleCheckChange(data, checked, indeterminate) {
             let allChecked = this.$refs.filterTree.getCheckedNodes()
@@ -71,7 +64,7 @@ export default {
             this.$refs.filterTree.filter(val)
         },
         treeNodeClick(data, node, el) {
-            if (node.level > 1) {
+            if (node.level > 2) {
                 this.beforeLable = []
                 this.beforeIds = []
                 this.getBeforeTreeNode(node)

@@ -7,7 +7,7 @@
                         <img :src="item.url">
                         <div class="delete-layer">
                             <div>
-                                <span @click="imgPreview(item)" class="el-icon-zoom-in"></span>
+                                <!-- <span @click="imgPreview(item)" class="el-icon-zoom-in"></span> -->
                                 <span @click="remove(item)" v-if="!disabled" class="el-icon-delete"></span>
                             </div>
                         </div>
@@ -62,27 +62,26 @@ import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
 import VueCropper from 'vue-cropper'
 import Vue from 'vue'
+import { Loading } from 'element-ui'
 Vue.use(Viewer)
 Vue.use(VueCropper)
 export default {
-    // components: { VueCropper },
     props: {
         'show-file-list': { default: false },
-        filelist: { 
-            type: Array, 
-            default() {
-                return []
-            } 
-        },
         disabled: { default: false },
         multiple: { default: false },
         limit: { default: 1 },
         size: { default: 2 },
         accept: { default: 'image/*' },
-        limitTip: { default: '图片大小不能超过2M' }
+        limitTip: { default: '' },
+        value: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
+            fileUrl: window.SITE_CONFIG['fileUrl'],
             imageArr: [],
             beginNum: 0,
             refreInput: true,
@@ -100,24 +99,16 @@ export default {
         }
     },
     watch: {
-        filelist: {
+        value: {
             handler(n) {
-                if (this.beginNum == 1) {
-                    n.map(item => {
-                        item.uid = (Math.random()*10000000000 + '').split('.')[0]
-                    })
-                    if (this.filelist.length > this.limit) {
-                        let arr = this.filelist.slice(0, this.limit)
-                        this.imageArr = JSON.parse(JSON.stringify(arr))
-                    }else {
-                        this.imageArr = JSON.parse(JSON.stringify(this.filelist))
-                    }
+                if (n) {
+                    this.imageArr = [{
+                        url: this.fileUrl + n
+                    }]
                 }
-                this.beginNum ++
-            },
-            deep: true,
-            immediate: true
+            }
         },
+        immediate: true
     },
     methods: {
         inited (viewer) {
@@ -125,17 +116,12 @@ export default {
         },
         handleChange(file, fileList) {
             this.beginNum ++
-            if (file.size / 1024 / 1024 < this.size) {
-                if (file.raw.type.split('/')[0] == this.accept.split('/')[0]) {
-                    this.options.img = URL.createObjectURL(file.raw)
-                    console.log('源文件', file.raw)
-                    this.dialogVisible = true
-                }else {
-                    this.$message.error('文件类型不符!')
-                }
+            if (file.raw.type.split('/')[0] == this.accept.split('/')[0]) {
+                this.options.img = URL.createObjectURL(file.raw)
+                this.dialogVisible = true
             }else {
-                this.$message.error('文件大小超出限制!')
-            } 
+                this.$message.error('文件类型不符!')
+            }
             this.refreInput = false
             this.$nextTick(_ => {
                 this.refreInput = true
@@ -145,18 +131,8 @@ export default {
             this.$viewer.show()
         },
         remove(item) {
-            for (let j = 0; j < this.filelist.length; j ++) {
-                if (this.filelist[j].uid == item.uid) {
-                    this.filelist.splice(j, 1)
-                    break
-                }
-            }
-            for (let i = 0; i < this.imageArr.length; i ++) {
-                if (this.imageArr[i].uid == item.uid) {
-                    this.imageArr.splice(i, 1)
-                    break
-                }
-            }
+            this.imageArr = []
+            this.$emit('input', '')
         },
         realTime(data) {
             this.previews = data
@@ -164,15 +140,25 @@ export default {
         finish() {
             this.$refs.cropper.getCropBlob(data => {
                 let raw = new window.File([data], 'logo.png', {type: data.type})
-                let files = {
-                    uid: (Math.random()*10000000000 + '').split('.')[0],
-                    raw: raw,
-                    url: URL.createObjectURL(data),
-                }
-                this.filelist.push(files)
-                this.imageArr.push({
-                    uid: files.uid,
-                    url: files.url
+                let loadingInstance = Loading.service({
+                    lock: true,
+                    text: '图片上传中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.5)'
+                })
+                this.$upload({
+                    data: [raw]
+                }, res => {
+                    if (res.data.code == 200) {
+                        loadingInstance.close()
+                        this.imageArr = [{
+                            url: this.fileUrl + res.data.data
+                        }]
+                        this.$emit('input', res.data.data)
+                    } else {
+                        this.imageArr = []
+                        this.$emit('input', '')
+                    }
                 })
                 this.dialogVisible = false
             })
