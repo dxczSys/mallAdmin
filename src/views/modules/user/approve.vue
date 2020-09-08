@@ -128,7 +128,7 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="开户银行地区" prop="bank_address_code" required>
-                                <el-cascader ref="region" v-model="infoForm.bank_address_code" :disabled="isApproval" :props="region_props" @change="regionChange"></el-cascader>
+                                <el-cascader v-if="refreshRegion" ref="region" v-model="infoForm.bank_address_code" :disabled="isApproval" :props="region_props" @change="regionChange"></el-cascader>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -137,7 +137,7 @@
                             <el-form-item label="开户银行支行" prop="bank_name" required>
                                 <el-select v-model="infoForm.bank_name" filterable remote :disabled="isApproval"
                                     reserve-keyword placeholder="请输入关键词搜索开户银行支行，如新福路支行" :remote-method="remoteMethodBank">
-                                    <el-option v-for="(item, index) in bankNameList" :key="index" :label="item.bankName" :value="item.id"></el-option>
+                                    <el-option v-for="(item, index) in bankNameList" :key="index" :label="item.bankName" :value="item.bankName"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
@@ -176,8 +176,8 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="店铺标志" prop="shopLogo" required>
-                                <image-cropping v-model="infoForm.shopLogo"></image-cropping>
-                                <div v-if="isApproval && infoForm.shopLogo">
+                                <image-cropping v-model="infoForm.shopLogo" :disabled="shopApprovalStatus == 1"></image-cropping>
+                                <div v-if="isApproval && infoForm.shopLogo && shopApprovalStatus != 1">
                                     <el-button @click="updateLogo" size="mini" type="primary">保存修改</el-button>
                                 </div>
                             </el-form-item>
@@ -297,8 +297,14 @@ export default {
                 contact_email: '',
                 contact_name: '',
                 contact_id_card_number: '',
-                mobile_phone: ''
+                mobile_phone: '',
+                store_name: '',
+                merchant_shortname: '',
+                tShopId: '',
+                tShopVXId: '',
+                out_request_no: ''
             },
+            
             rules: {
                 organization_type: [ { required: true, message: '请选择主体类型', trigger: 'change'} ],
                 business_license_copy: [ { required: true, message: '请上传营业执照', trigger: 'change'} ],
@@ -391,6 +397,7 @@ export default {
                 }
             },
             regionArr: [],
+            refreshRegion: true
         }
     },
     watch: {
@@ -448,11 +455,16 @@ export default {
                         this.$message.info('请上传身份证反面')
                         return
                     }
+                    let url = 'merchant/tShop/tShopAuthentication1'
+                    if (this.shopApprovalStatus == 3) {
+                        url = 'merchant/tShop/updTShopByShopId1 '
+                    }
                     this.http({
-                        url: 'merchant/tShop/tShopAuthentication1',
+                        url,
                         method: 'post',
                         data: {
                             shopVX: {
+                                id: this.infoForm.tShopVXId,
                                 organization_type: this.infoForm.organization_type,
                                 business_license_copy: JSON.stringify(this.infoForm.business_license_copy),
                                 business_license_number: this.infoForm.business_license_number,
@@ -475,10 +487,12 @@ export default {
                                 contact_id_card_number: this.infoForm.contact_id_card_number,
                                 mobile_phone: this.infoForm.mobile_phone,
                                 store_name: this.infoForm.store_name,
-                                merchant_shortname: this.merchant_shortname,
-                                contact_email: this.infoForm.contact_email
+                                merchant_shortname: this.infoForm.merchant_shortname,
+                                contact_email: this.infoForm.contact_email,
+                                out_request_no: this.infoForm.out_request_no
                             },
                             shop: {
+                                id: this.infoForm.tShopId,
                                 shopName: this.infoForm.store_name,
                                 abbreviation: this.infoForm.merchant_shortname,
                                 shopToPart: this.infoForm.shopCityName,
@@ -498,7 +512,11 @@ export default {
                             localStorage.removeItem('approvalParams')
                             this.getApprovalData()
                         }else {
-                            this.$message.info(approvalRes.data.msg)
+                            this.$message({
+                                type: 'info',
+                                message: approvalRes.data.msg,
+                                duration: 5000
+                            })
                         }
                     })
                 }
@@ -514,7 +532,7 @@ export default {
                     let tShopVX = res.data.data.tShopVX
                     this.shopId = tShop.id
                     this.shopApprovalStatus = parseInt(tShop.shopApprovalStatus)
-                    this.refuseInfo = tShop.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
+                    this.refuseInfo = '微信拒绝原因：' + tShopVX.audit_detail + '；' + '管理员拒绝原因：' + tShop.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
                     this.isApproval = true
                     this.infoForm.business_license_copy = JSON.parse(tShopVX.business_license_copy)
                     this.infoForm.business_license_number = tShopVX.business_license_number
@@ -542,6 +560,20 @@ export default {
                     this.infoForm.contact_name = tShopVX.contact_name
                     this.infoForm.contact_id_card_number = tShopVX.contact_id_card_number
                     this.infoForm.mobile_phone = tShopVX.mobile_phone
+                    this.infoForm.store_name = tShopVX.store_name
+                    this.infoForm.merchant_shortname = tShopVX.merchant_shortname
+                    this.infoForm.tShopId = tShop.id
+                    this.infoForm.tShopVXId = tShopVX.id
+                    this.infoForm.out_request_no = tShopVX.out_request_no
+                    if (this.shopApprovalStatus == 3) {
+                        this.isApproval = false
+                    } else {
+                        this.isApproval = true
+                    }
+                    this.refreshRegion = false
+                    this.$nextTick(_ => {
+                        this.refreshRegion = true
+                    })
                 }else {
                     this.isApproval = false
                 }

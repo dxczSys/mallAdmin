@@ -97,14 +97,14 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="开户银行地区" prop="bank_address_code" required>
-                            
+                            <el-input v-model="infoForm.bank_address_code" :disabled="isApproval"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="10">
                     <el-col :span="12">
                         <el-form-item label="开户银行支行" prop="bank_name" required>
-                            
+                            <el-input v-model="infoForm.bank_name" :disabled="isApproval"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -299,6 +299,7 @@ import { bank_account_type_option } from '@/enumerate/approval'
 export default {
     components: { imgView, uploadImg, imageCropping },
     data() {
+        let self = this
         return {
             fileUrl: window.SITE_CONFIG.fileUrl,
             bank,
@@ -345,56 +346,15 @@ export default {
                 contact_email: '',
                 contact_name: '',
                 contact_id_card_number: '',
-                mobile_phone: ''
+                mobile_phone: '',
+                store_name: '',
+                merchant_shortname: '',
             },
             isApproval: true,
             shopCityList: [],
             shopCityListTemp: [],
             floorList: [],
             businessTypeList: [],
-            region_props: {
-                lazy: true,
-                lazyLoad(node, resolve) {
-                    if (node.level == 0) {
-                        self.http({
-                            url: 'merchant/base/getProvinces',
-                            method: 'get'
-                        }, res => {
-                            if (res.data.code == 200) {
-                                resolve(res.data.data)
-                            }
-                        })
-                    } else if (node.level == 1) {
-                        self.http({
-                            url: `merchant/base/getCities?id=${node.value}`,
-                            method: 'get'
-                        }, res => {
-                            if (res.data.code == 200) {
-                                resolve(res.data.data)
-                            }
-                        })
-                    } else {
-                        self.http({
-                            url: `merchant/base/getAreas?id=${node.value}`,
-                            method: 'get'
-                        }, res => {
-                            if (res.data.code == 200) {
-                                let arr = res.data.data.map(item => {
-                                    return {
-                                        value: item.value,
-                                        label: item.label,
-                                        leaf: true
-                                    }
-                                    
-                                })
-                                resolve(arr)
-                            }
-                        })
-                    }
-                    
-                }
-            },
-            regionArr: [],
         }
     },
     methods: {
@@ -454,7 +414,9 @@ export default {
                         this.infoForm.bank_account_type = parseInt(tShopVX.bank_account_type)
                         this.infoForm.account_bank = tShopVX.account_bank
                         this.infoForm.account_name = tShopVX.account_name
-                        this.infoForm.bank_address_code = JSON.parse(tShopVX.bank_address_code)
+                        this.infoForm.store_name = tShopVX.store_name
+                        this.infoForm.merchant_shortname = tShopVX.merchant_shortname
+                        this.infoForm.bank_address_code = `${ tShopVX.province_name }/${ tShopVX.city_name }/${ tShopVX.area_name }`
                         this.infoForm.bank_name = tShopVX.bank_name
                         this.infoForm.account_number = tShopVX.account_number
                         this.infoForm.shopCityName = tShop.shopToPart
@@ -468,9 +430,10 @@ export default {
                         this.infoForm.contact_name = tShopVX.contact_name
                         this.infoForm.contact_id_card_number = tShopVX.contact_id_card_number
                         this.infoForm.mobile_phone = tShopVX.mobile_phone
+                        this.shopMess = res.data.data.tShop
                         if (tShop.shopApprovalStatus != '1') {
                             this.detailForm.approvalStutas = tShop.shopApprovalStatus
-                            this.detailForm.rejectReason = tShop.shopApprovalRefuseInfo
+                            this.detailForm.rejectReason = tShop.shopApprovalRefuseInfo + tShopVX.audit_detail
                         }
                     }else {
                         this.tShop = res.data.data.tShop
@@ -503,7 +466,17 @@ export default {
                                     }
                                 })
                             }else {
-                                this.$message.error(res.data.msg)
+                                this.$message({
+                                    type: 'info',
+                                    message: res.data.msg,
+                                    duration: 6000
+                                })
+                                this.$router.push({ 
+                                    name: 'admin-approval-manage',
+                                    query: {
+                                        index: this.index
+                                    }
+                                })
                             }
                         })
                     }else {
