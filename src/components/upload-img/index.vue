@@ -15,6 +15,7 @@
                 </div>
             </viewer>
             <el-upload
+                v-if="refresh"
                 class="avatar-uploader" :action="actionUrl"
                 :show-file-list="false"
                 :before-upload="beforeUpload"
@@ -56,7 +57,8 @@ export default {
             fileUrl: window.SITE_CONFIG['fileUrl'],
             uploadUrl: window.SITE_CONFIG['uploadUrl'],
             imageArr: [],
-            loadingInstance: ''
+            loadingInstance: '',
+            refresh: true
         }
     },
     watch: {
@@ -115,6 +117,10 @@ export default {
         remove(item) {
             this.imageArr = []
             this.$emit('input', {})
+            this.refresh = false
+            this.$nextTick(_ => {
+                this.refresh = true
+            })
         },
     }
 }

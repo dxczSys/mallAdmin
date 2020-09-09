@@ -63,13 +63,13 @@
                     </el-row>
                     <el-row :gutter="10">
                         <el-col :span="12">
-                            <el-form-item label="身份证正面" prop="id_card_copy" required>
+                            <el-form-item label="身份证反面" prop="id_card_copy" required>
                                 <upload-img v-model="infoForm.id_card_copy" url-type="1" :disabled="isApproval"></upload-img>
                                 <div class="tip-box">请上传经营者/法定代表人的身份证人像面照片</div>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            <el-form-item label="身份证反面" prop="id_card_national" required>
+                            <el-form-item label="身份证正面" prop="id_card_national" required>
                                 <upload-img v-model="infoForm.id_card_national" url-type="1" :disabled="isApproval"></upload-img>
                                 <div class="tip-box">请上传经营者/法定代表人的身份证国徽面照片</div>
                             </el-form-item>
