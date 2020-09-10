@@ -108,7 +108,15 @@ export default {
                 }
             }
         },
-        immediate: true
+        immediate: true,
+        deep: true
+    },
+    mounted() {
+        if (this.value) {
+            this.imageArr = [{
+                url: this.fileUrl + this.value
+            }]
+        }
     },
     methods: {
         inited (viewer) {

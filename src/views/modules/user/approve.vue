@@ -7,13 +7,30 @@
         <div class="step-box">
             <el-steps :active="shopApprovalStatus" process-status="success" finish-status="wait" align-center>
                 <el-step title="申请" description="商户自主填写相关资料"></el-step>
-                <el-step title="审核中" description="发送商城管理员审核"></el-step>
-                <el-step title="审核通过" v-if="shopApprovalStatus < 3" description="商铺认证审核已通过"></el-step>
-                <el-step title="拒绝" status="error" v-else :description="refuseInfo"></el-step>
+                <el-step title="审核中" description="微信&商城管理员审核"></el-step>
+                <el-step title="审核通过" v-if="shopApprovalStatus == 2" description="商铺认证审核已通过"></el-step>
+                <el-step title="资料已审核" v-if="shopApprovalStatus == 3 && tShopVX.applyment_state != 'REJECTED'" description="资料已审核"></el-step>
+                <el-step title="待签约" v-if="shopApprovalStatus == 3 && tShopVX.applyment_state != 'REJECTED'" :description="tShopVX.applyment_state_desc"></el-step>
+                <el-step title="拒绝" v-if="shopApprovalStatus == 3 && tShopVX.applyment_state == 'REJECTED'" status="error" :description="refuseInfo"></el-step>
             </el-steps>
         </div>
         <div class="base-mess-wrapper">
             <el-form ref="infoForm" :model="infoForm" :rules="rules" label-width="120px" class="base-form">
+                <div v-if="shopApprovalStatus == 3 && tShopVX.applyment_state == 'NEED_SIGN'" class="moudules-box">
+                    <div class="modules-title">
+                        <div class="modules-title-bar"></div>
+                        <div class="modules-title-content">待操作</div>
+                    </div>
+                    <el-form-item label="微信签约">
+                        <vue-qr :text="tShopVX.sign_url" :margin="0" colorDark="#333" :logoMargin="2" :logoCornerRadius="2"
+                            colorLight="#fff" :logoSrc="require('@/assets/img/logo_small.png')" :logoScale="0.1" :size="230">
+                        </vue-qr>
+                        <div class="tip-box">请使用微信扫描二维码进行签约,签约完成之后，请点击发送审核发送下一步审核</div>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button @click="sendCheck" type="primary">发送审核</el-button>
+                    </el-form-item>
+                </div>
                 <div class="moudules-box">
                     <div class="modules-title">
                         <div class="modules-title-bar"></div>
@@ -243,8 +260,8 @@
                         <el-input type="textarea" :disabled="isApproval" v-model="infoForm.introduction" rows="5" placeholder="店铺简介" style="width: 90%;"></el-input>
                     </el-form-item>
                 </div>
-                <el-form-item>
-                    <el-button v-if="!isApproval" @click="sendCheck" type="primary">发送审核</el-button>
+                <el-form-item v-if="!isApproval">
+                    <el-button @click="sendCheck" type="primary">发送审核</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -257,8 +274,9 @@ import uploadImg from '@/components/upload-img'
 import imageCropping from '@/components/image-cropping'
 import bank from '@/enumerate/bank'
 import { bank_account_type_option } from '@/enumerate/approval'
+import vueQr from 'vue-qr'
 export default {
-    components: { uploadImg, uploadFile, imageCropping },
+    components: { uploadImg, uploadFile, imageCropping, vueQr },
     data() {
         let self = this
         return {
@@ -304,7 +322,7 @@ export default {
                 tShopVXId: '',
                 out_request_no: ''
             },
-            
+            tShopVX: {},
             rules: {
                 organization_type: [ { required: true, message: '请选择主体类型', trigger: 'change'} ],
                 business_license_copy: [ { required: true, message: '请上传营业执照', trigger: 'change'} ],
@@ -530,6 +548,7 @@ export default {
                 if (res.data.code == 200) {
                     let tShop = res.data.data.tShop
                     let tShopVX = res.data.data.tShopVX
+                    this.tShopVX = res.data.data.tShopVX
                     this.shopId = tShop.id
                     this.shopApprovalStatus = parseInt(tShop.shopApprovalStatus)
                     this.refuseInfo = '微信拒绝原因：' + tShopVX.audit_detail + '；' + '管理员拒绝原因：' + tShop.shopApprovalRefuseInfo || '认证被拒绝，包含违规信息'
@@ -565,7 +584,7 @@ export default {
                     this.infoForm.tShopId = tShop.id
                     this.infoForm.tShopVXId = tShopVX.id
                     this.infoForm.out_request_no = tShopVX.out_request_no
-                    if (this.shopApprovalStatus == 3) {
+                    if (this.shopApprovalStatus == 3 && tShopVX.applyment_state == 'REJECTED') {
                         this.isApproval = false
                     } else {
                         this.isApproval = true
