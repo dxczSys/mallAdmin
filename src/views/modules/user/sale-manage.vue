@@ -20,14 +20,10 @@
                 </div>
                 <div class="filter-form-row">
                     <div class="filter-form-col">
-                        <label class="col-label">运单号</label>
-                        <el-input v-model="filterForm.goodsNumber" placeholder="请输入退货运单号"></el-input>
-                    </div>
-                    <div class="filter-form-col">
                         <label class="col-label">申请时间</label>
                         <el-date-picker v-model="filterForm.applyTime" type="daterange" align="right" unlink-panels range-separator="至" start-placeholder="开始日期"
                             end-placeholder="结束日期" :picker-options="pickerOptions"></el-date-picker>
-                        <el-button type="primary" style="margin-left: 10px;">查询</el-button>
+                        <el-button type="primary" @click="handleSearch" style="margin-left: 10px;">查询</el-button>
                     </div>
                 </div>
             </div>
@@ -39,21 +35,33 @@
                         <div class="table-goods-box">
                             <img :src="scope.row.url">
                             <div class="table-goods-des">
-                                <div>{{scope.row.goodsName}}</div>
+                                <div>{{scope.row.goodName}}</div>
                                 <div>商品编码:{{scope.row.id}}</div>
                             </div>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="price" header-align="center" width="100" align="center" label="交易金额">
+                    <template slot-scope="scope">
+                        <span>￥{{scope.row.goodTotalPrice}}</span>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="num" header-align="center" width="100" align="center" label="退款金额">
+                <el-table-column header-align="center" width="100" align="center" label="退款金额">
+                    <template slot-scope="scope">
+                        <span>￥{{scope.row.refundMoney}}</span>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="sellNum" header-align="center" align="center" width="160" label="申请时间">
+                <el-table-column header-align="center" align="center" width="160" label="申请时间">
+                    <template slot-scope="scope">
+                        <span>{{_dateFormat('YYYY-mm-dd HH:MM', scope.row.refundTime)}}</span>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="state" header-align="center" align="center" width="200" label="原因">
+                <el-table-column prop="refundText" header-align="center" align="center" width="200" label="原因">
                 </el-table-column>
-                <el-table-column prop="time" header-align="center" width="150" align="center" label="状态">
+                <el-table-column header-align="center" width="150" align="center" label="状态">
+                    <template slot-scope="scope">
+                       <span>{{ scope.row.refundStatus | statesFilter }}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column header-align="center" align="center" width="100" label="操作">
                     <template slot-scope="scope">
@@ -71,16 +79,27 @@
 
 <script>
 export default {
+    filters: {
+        statesFilter(v) {
+            if (v === '0') {
+                return '待处理'
+            }
+            if (v === '1') {
+                return '已退款'
+            }
+            if (v === '2') {
+                return '已拒绝'
+            }
+        }
+    },
     data() {
         return {
             filterForm: {
                 orderNumber: '',
-                goodsNumber: '',
                 orderState: '',
                 applyTime: ''
             },
-            tableData: [
-            ],
+            tableData: [],
             currentPage: 1,
             pageSize: 10,
             total: 0,
@@ -90,32 +109,16 @@ export default {
                     value: '',
                 },
                 {
-                    label: '退款进行中',
+                    label: '待处理',
+                    value: '0',
+                },
+                {
+                    label: '已退款',
                     value: '1',
                 },
                 {
-                    label: '退款待处理',
+                    label: '已拒绝',
                     value: '2',
-                },
-                {
-                    label: '已拒绝退款',
-                    value: '3',
-                },
-                {
-                    label: '待买家发货',
-                    value: '4',
-                },
-                {
-                    label: '待卖家收货',
-                    value: '5',
-                },
-                {
-                    label: '退款成功',
-                    value: '2',
-                },
-                {
-                    label: '退款关闭',
-                    value: '5',
                 }
             ],
             pickerOptions: {
@@ -147,12 +150,43 @@ export default {
             },
         }
     },
+    created() {
+        this.getTableList()
+    },
     methods: {
         handleSizeChange(v) {
             this.pageSize = v
+            this.getTableList()
         },
         handleCurrentChange(v) {
             this.currentPage = v
+            this.getTableList()
+        },
+        handleSearch() {
+            this.currentPage = 1
+            this.pageSize = 10
+            this.getTableList()
+        },
+        getTableList() {
+            this.http({
+                url: 'merchant/orderRefund/orderRefundSel',
+                method: 'post',
+                data: {
+                    currentPage: this.currentPage,
+                    pagesize: this.pageSize,
+                    t: {
+                        refundStatus: this.filterForm.orderState || undefined,
+                        startDate: this.filterForm.applyTime[0],
+                        endDate: this.filterForm.applyTime[1],
+                        orderId: this.filterForm.orderNumber || undefined
+                    }
+                }
+            }, res => {
+                if (res.data.code === 200) {
+                    this.tableData = res.data.data.rows
+                    this.total = res.data.data.total
+                }
+            })
         },
         dealWith(row) {
             this.$router.push({ name: 'user-dealwith-sale'})
