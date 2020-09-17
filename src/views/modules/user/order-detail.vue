@@ -11,12 +11,14 @@
                 <span v-if="orderState == '1'">待发货</span>
                 <span v-if="orderState == '2'">待收货</span>
                 <span v-if="orderState == '3'">已完成</span>
+                <span v-if="orderState == '4'">退款中</span>
+                <span v-if="orderState == '5'">退款成功</span>
                 <span v-if="orderState == '6'">退款中</span>
             </div>
-            <div class="state-tip">
+            <!-- <div class="state-tip">
                 <div></div>
                 <div>{{tipMess}}</div>
-            </div>
+            </div> -->
         </div>
         <div class="order-info">
             <div style="display: flex;align-items: center;">

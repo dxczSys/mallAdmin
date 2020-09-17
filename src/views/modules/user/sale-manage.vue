@@ -33,7 +33,7 @@
                 <el-table-column header-align="center" min-width="200" label="商品名称">
                     <template slot-scope="scope">
                         <div class="table-goods-box">
-                            <img :src="scope.row.url">
+                            <img :src="fileUrl + scope.row.goodPic">
                             <div class="table-goods-des">
                                 <div>{{scope.row.goodName}}</div>
                                 <div>商品编码:{{scope.row.id}}</div>
@@ -65,7 +65,7 @@
                 </el-table-column>
                 <el-table-column header-align="center" align="center" width="100" label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="dealWith(scope.row)">审批处理</el-button>
+                        <el-button type="text" @click="dealWith(scope.row)">处理</el-button>
                         <el-button type="text" style="color: 409eff; margin-left: 0;">确认收货</el-button>
                     </template>
                 </el-table-column>
@@ -82,18 +82,34 @@ export default {
     filters: {
         statesFilter(v) {
             if (v === '0') {
-                return '待处理'
+                return '待确认'
             }
             if (v === '1') {
-                return '已退款'
+                return '已确认'
             }
             if (v === '2') {
                 return '已拒绝'
+            }
+            if (v === '3') {
+                return '超管介入'
+            }
+            if (v === '4') {
+                return '超管已确认等待收货'
+            }
+            if (v === '5') {
+                return '超管拒绝'
+            }
+            if (v === '6') {
+                return '等待收货'
+            }
+            if (v === '7') {
+                return '已完成'
             }
         }
     },
     data() {
         return {
+            fileUrl: window.SITE_CONFIG.fileUrl,
             filterForm: {
                 orderNumber: '',
                 orderState: '',
@@ -109,16 +125,36 @@ export default {
                     value: '',
                 },
                 {
-                    label: '待处理',
+                    label: '待确认',
                     value: '0',
                 },
                 {
-                    label: '已退款',
+                    label: '已确认',
                     value: '1',
                 },
                 {
                     label: '已拒绝',
                     value: '2',
+                },
+                {
+                    label: '超管介入',
+                    value: '3',
+                },
+                {
+                    label: '超管已确认等待收货',
+                    value: '4',
+                },
+                {
+                    label: '超管拒绝',
+                    value: '5',
+                },
+                {
+                    label: '等待收货',
+                    value: '6',
+                },
+                {
+                    label: '已完成',
+                    value: '7',
                 }
             ],
             pickerOptions: {
@@ -176,8 +212,8 @@ export default {
                     pagesize: this.pageSize,
                     t: {
                         refundStatus: this.filterForm.orderState || undefined,
-                        startDate: this.filterForm.applyTime[0],
-                        endDate: this.filterForm.applyTime[1],
+                        startDate: this.filterForm.applyTime ? this.filterForm.applyTime[0] : undefined,
+                        endDate: this.filterForm.applyTime ? this.filterForm.applyTime[1] : undefined,
                         orderId: this.filterForm.orderNumber || undefined
                     }
                 }
@@ -189,7 +225,12 @@ export default {
             })
         },
         dealWith(row) {
-            this.$router.push({ name: 'user-dealwith-sale'})
+            this.$router.push({
+                name: 'user-dealwith-sale',
+                query: {
+                    id: row.id
+                }
+            })
         }
     }
 }
