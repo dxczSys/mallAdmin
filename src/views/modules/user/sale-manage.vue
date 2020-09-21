@@ -65,8 +65,9 @@
                 </el-table-column>
                 <el-table-column header-align="center" align="center" width="100" label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="dealWith(scope.row)">处理</el-button>
-                        <el-button type="text" style="color: 409eff; margin-left: 0;">确认收货</el-button>
+                        <el-button v-if="scope.row.refundStatus == '0'" type="text" @click="dealWith(scope.row)">处理</el-button>
+                        <el-button v-if="scope.row.refundStatus != '0'" type="text" @click="dealWith(scope.row, 1)">详情</el-button>
+                        <el-button v-if="scope.row.refundStatus == '6'" type="text" style="color: 409eff; margin-left: 0;" @click="confirmGet(scope.row)">确认收货</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -85,7 +86,7 @@ export default {
                 return '待确认'
             }
             if (v === '1') {
-                return '已确认'
+                return '已确认，等待买家发货'
             }
             if (v === '2') {
                 return '已拒绝'
@@ -94,16 +95,16 @@ export default {
                 return '超管介入'
             }
             if (v === '4') {
-                return '超管已确认等待收货'
+                return '超管已确认，等待买家发货'
             }
             if (v === '5') {
                 return '超管拒绝'
             }
             if (v === '6') {
-                return '等待收货'
+                return '请确认收货'
             }
             if (v === '7') {
-                return '已完成'
+                return '已完成退款'
             }
         }
     },
@@ -129,7 +130,7 @@ export default {
                     value: '0',
                 },
                 {
-                    label: '已确认',
+                    label: '已确认，等待买家发货',
                     value: '1',
                 },
                 {
@@ -141,7 +142,7 @@ export default {
                     value: '3',
                 },
                 {
-                    label: '超管已确认等待收货',
+                    label: '超管已确认，等待买家发货',
                     value: '4',
                 },
                 {
@@ -153,7 +154,7 @@ export default {
                     value: '6',
                 },
                 {
-                    label: '已完成',
+                    label: '已完成退款',
                     value: '7',
                 }
             ],
@@ -224,13 +225,33 @@ export default {
                 }
             })
         },
-        dealWith(row) {
+        dealWith(row, type) {
             this.$router.push({
                 name: 'user-dealwith-sale',
                 query: {
-                    id: row.id
+                    id: row.id,
+                    type
                 }
             })
+        },
+        confirmGet(row) {
+            this.$confirm('确认收货之后，钱款将原路退回，是否继续？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.http({
+                    url: `merchant/orderRefund/confirmReceipt?id=${row.id}`,
+                    method: 'get'
+                }, res => {
+                    if (res.data.code == 200) {
+                        this.$message.success('确认成功')
+                        this.getTableList()
+                    }else {
+                        this.$message.info(res.data.msg)
+                    }
+                })
+            }).catch(() => {})
         }
     }
 }

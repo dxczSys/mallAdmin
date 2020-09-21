@@ -64,7 +64,8 @@ export default {
                 {
                     label: '快递',
                     value: '3',
-                },{
+                },
+                {
                     label: '其他',
                     value: '4',
                 }
