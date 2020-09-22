@@ -82,25 +82,25 @@ export default {
     filters: {
         statesFilter(v) {
             if (v === '0') {
-                return '待确认'
+                return '待卖家确认'
             }
             if (v === '1') {
-                return '已确认，等待买家发货'
+                return '卖家已确认，等待买家发货'
             }
             if (v === '2') {
-                return '已拒绝'
+                return '卖家已拒绝'
             }
             if (v === '3') {
-                return '超管介入'
+                return '管理员介入'
             }
             if (v === '4') {
-                return '超管已确认，等待买家发货'
+                return '管理员已确认，等待买家发货'
             }
             if (v === '5') {
-                return '超管拒绝'
+                return '管理员已拒绝'
             }
             if (v === '6') {
-                return '请确认收货'
+                return '等待卖家确认收货'
             }
             if (v === '7') {
                 return '已完成退款'

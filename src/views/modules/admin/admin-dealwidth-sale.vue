@@ -6,9 +6,9 @@
                 <span v-if="tCustomerOrderRefund.refundStatus == '0'">待卖家确认</span>
                 <span v-if="tCustomerOrderRefund.refundStatus == '1'">卖家同意</span>
                 <span v-if="tCustomerOrderRefund.refundStatus == '2'">卖家拒绝</span>
-                <span v-if="tCustomerOrderRefund.refundStatus == '3'">超管介入</span>
-                <span v-if="tCustomerOrderRefund.refundStatus == '4'">超管已同意</span>
-                <span v-if="tCustomerOrderRefund.refundStatus == '5'">超管拒绝</span>
+                <span v-if="tCustomerOrderRefund.refundStatus == '3'">管理员介入</span>
+                <span v-if="tCustomerOrderRefund.refundStatus == '4'">管理员已同意</span>
+                <span v-if="tCustomerOrderRefund.refundStatus == '5'">管理员拒绝</span>
                 <span v-if="tCustomerOrderRefund.refundStatus == '6'">等待卖家收货</span>
                 <span v-if="tCustomerOrderRefund.refundStatus == '7'">已完成</span>
             </div>
@@ -202,7 +202,17 @@
                         <el-radio v-model="shopIsAgree" disabled label="0">否</el-radio>
                     </el-col>
                 </el-row>
-                <template>
+                <template v-if="shopIsAgree == '1'">
+                    <el-row :gutter="20" style="margin-bottom: 20px;">
+                        <el-col :span="16">
+                            <div style="display: flex;">
+                                <label class="order-label required">备注</label>
+                                <el-input type="textarea" v-model="shopRemark" disabled placeholder="发货地址或备注说明" rows="5" style="width: 500px;"></el-input>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+                <template v-if="shopIsAgree == '0'">
                     <el-row :gutter="20" style="margin-bottom: 20px;">
                         <el-col :span="16">
                             <div style="display: flex;">
@@ -222,7 +232,7 @@
                 </template>
             </div>
         </div>
-        <div class="deal-with-info">
+        <div v-if="tCustomerOrderRefund.refundStatus != '0' && tCustomerOrderRefund.refundStatus != '1' && tCustomerOrderRefund.refundStatus != '2'" class="deal-with-info">
             <div style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                 <div style="font-weight: 600;">退款处理</div>
@@ -231,8 +241,8 @@
                 <el-row :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="20">
                         <label class="order-label">是否同意退款</label>
-                        <el-radio v-model="isAgree" label="1">是</el-radio>
-                        <el-radio v-model="isAgree" label="0">否</el-radio>
+                        <el-radio v-model="isAgree" :disabled="type" label="1">是</el-radio>
+                        <el-radio v-model="isAgree" :disabled="type" label="0">否</el-radio>
                     </el-col>
                 </el-row>
                 <template v-if="isAgree == '1'">
@@ -240,7 +250,7 @@
                         <el-col :span="16">
                             <div style="display: flex;">
                                 <label class="order-label required">备注</label>
-                                <el-input type="textarea" v-model="remark" placeholder="发货地址或备注说明" rows="5" style="width: 500px;"></el-input>
+                                <el-input type="textarea" v-model="remark" :disabled="type" placeholder="发货地址或备注说明" rows="5" style="width: 500px;"></el-input>
                             </div>
                         </el-col>
                     </el-row>
@@ -250,7 +260,7 @@
                         <el-col :span="16">
                             <div style="display: flex;">
                                 <label class="order-label required">拒绝原因</label>
-                                <el-input type="textarea" v-model="rejectReason" placeholder="拒绝退款原因" rows="5" style="width: 500px;"></el-input>
+                                <el-input type="textarea" v-model="rejectReason" :disabled="type" placeholder="拒绝退款原因" rows="5" style="width: 500px;"></el-input>
                             </div>
                         </el-col>
                     </el-row>
@@ -258,7 +268,8 @@
                         <el-col :span="16">
                             <div style="display: flex;">
                                 <label class="order-label">拒绝凭据</label>
-                                <upload-file :filelist="rejectUrl"></upload-file>
+                                <upload-file v-if="!type && tCustomerOrderRefund.refundStatus == '3'" :filelist="rejectUrl"></upload-file>
+                                <img-view v-if="tCustomerOrderRefund.refundAdminFailPic && type" style="display: inline-block;" :images="fileUrl + tCustomerOrderRefund.refundAdminFailPic"></img-view>
                             </div>
                         </el-col>
                     </el-row>
@@ -266,7 +277,7 @@
             </div>
         </div>
         <div style="text-align: right;">
-            <el-button @click="$router.push({ name: 'user-sale-manage'})">返回</el-button>
+            <el-button @click="$router.push({ name: 'admin-sale-services'})">返回</el-button>
             <el-button v-if="!type" type="primary" @click="confirm">确定</el-button>
         </div>
     </div>
@@ -336,7 +347,8 @@ export default {
             tShopMall: {},
             tUser: {},
             shopIsAgree: '',
-            shopRejectReason: ''
+            shopRejectReason: '',
+            shopRemark: ''
         }
     },
     created() {
@@ -371,6 +383,10 @@ export default {
                     }]
                     this.shopIsAgree = this.tCustomerOrderRefund.isAck + ''
                     this.shopRejectReason = this.tCustomerOrderRefund.refundFailText
+                    this.isAgree = this.tCustomerOrderRefund.adminIsAck + ''
+                    this.remark = this.tCustomerOrderRefund.refundAddress
+                    this.rejectReason = this.tCustomerOrderRefund.refundAdminFailText
+                    this.shopRemark = this.tCustomerOrderRefund.refundAddress
                 }
             })
         },
