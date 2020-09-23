@@ -210,6 +210,7 @@ export default {
                 if (res.data.code == 200) {
                     this.$message.success('提现成功！')
                     this.getTableData()
+                    this.getInfo()
                     this.dialogVisible = false
                 } else {
                     this.$message.info(res.data.msg)
