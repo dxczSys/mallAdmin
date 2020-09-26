@@ -19,13 +19,15 @@
                         :src="item.iframeUrl"
                         width="100%" height="100%" frameborder="0" scrolling="yes">
                     </iframe>
-                     <router-view v-if="item.name === mainTabsActiveName" />
+                    <router-view v-if="item.name === mainTabsActiveName" />
                 </el-card>
             </el-tab-pane>
         </el-tabs>
         <!-- 主入口标签页 e -->
         <el-card v-else :body-style="siteContentViewHeight">
-            <router-view />
+            <keep-alive :include="keepComponets">
+                <router-view />
+            </keep-alive>
         </el-card>
     </main>
 </template>
@@ -36,6 +38,7 @@ export default {
     inject: ['refresh'],
     data () {
         return {
+            keepComponets: ['Sale', 'Service']
         }
     },
     computed: {

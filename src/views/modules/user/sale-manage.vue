@@ -67,7 +67,7 @@
                     <template slot-scope="scope">
                         <el-button v-if="scope.row.refundStatus == '0'" type="text" @click="dealWith(scope.row)">处理</el-button>
                         <el-button v-if="scope.row.refundStatus != '0'" type="text" @click="dealWith(scope.row, 1)">详情</el-button>
-                        <el-button v-if="scope.row.refundStatus == '6'" type="text" style="color: 409eff; margin-left: 0;" @click="confirmGet(scope.row)">确认收货</el-button>
+                        <el-button v-if="scope.row.refundStatus == '6' || scope.row.refundStatus == '1' || scope.row.refundStatus == '4'" type="text" style="color: 409eff; margin-left: 0;" @click="confirmGet(scope.row)">确认收货</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -80,6 +80,7 @@
 
 <script>
 export default {
+    name: 'Sale',
     filters: {
         statesFilter(v) {
             if (v === '0') {
@@ -113,7 +114,7 @@ export default {
             fileUrl: window.SITE_CONFIG.fileUrl,
             filterForm: {
                 orderNumber: '',
-                orderState: '',
+                orderState: '0',
                 applyTime: ''
             },
             tableData: [],
@@ -187,7 +188,15 @@ export default {
             },
         }
     },
+    watch: {
+        'filterForm.orderState'() {
+            this.getTableList()
+        }
+    },
     created() {
+        this.getTableList()
+    },
+    activated() {
         this.getTableList()
     },
     methods: {

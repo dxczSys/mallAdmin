@@ -79,6 +79,7 @@
 
 <script>
 export default {
+    name: 'Service',
     filters: {
         statesFilter(v) {
             if (v === '0') {
@@ -112,7 +113,7 @@ export default {
             fileUrl: window.SITE_CONFIG.fileUrl,
             filterForm: {
                 orderNumber: '',
-                orderState: '',
+                orderState: '3',
                 applyTime: ''
             },
             tableData: [],
@@ -125,31 +126,31 @@ export default {
                     value: '',
                 },
                 {
-                    label: '待确认',
+                    label: '待卖家确认',
                     value: '0',
                 },
                 {
-                    label: '已确认，等待买家发货',
+                    label: '卖家已确认，等待买家发货',
                     value: '1',
                 },
                 {
-                    label: '已拒绝',
+                    label: '卖家已拒绝',
                     value: '2',
                 },
                 {
-                    label: '超管介入',
+                    label: '管理员介入',
                     value: '3',
                 },
                 {
-                    label: '超管已确认，等待买家发货',
+                    label: '管理员已确认，等待买家发货',
                     value: '4',
                 },
                 {
-                    label: '超管拒绝',
+                    label: '管理员已拒绝',
                     value: '5',
                 },
                 {
-                    label: '等待收货',
+                    label: '等待卖家确认收货',
                     value: '6',
                 },
                 {
@@ -186,7 +187,15 @@ export default {
             },
         }
     },
+    watch: {
+        'filterForm.orderState'() {
+            this.getTableList()
+        }
+    },
     created() {
+        this.getTableList()
+    },
+    activated() {
         this.getTableList()
     },
     methods: {

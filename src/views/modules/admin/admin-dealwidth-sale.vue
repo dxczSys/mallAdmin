@@ -74,7 +74,7 @@
                         <label class="order-label">下单时间</label>
                         <span>{{ _dateFormat('YYYY-mm-dd HH:MM', tCustomerOrderDetail.createTime) }}</span>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col v-if="tCustomerOrderDeliver" :span="8">
                         <label class="order-label">发货时间</label>
                         <span>{{ _dateFormat('YYYY-mm-dd HH:MM', tCustomerOrderDeliver.deliverTime) }}</span>
                     </el-col>
@@ -103,7 +103,7 @@
                 <div style="padding: 10px; text-align: right;">实收款：<span style="color: #f40; font-size: 16px; font-weight: 600;">{{ tCustomerOrderDetail.goodTotalPrice }}</span>元</div>
             </div>
         </div>
-        <div class="logistics-info">
+        <div v-if="tCustomerOrderDeliver" class="logistics-info">
             <div style="display: flex;align-items: center;">
                 <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                 <div style="font-weight: 600;">物流信息</div>
@@ -133,7 +133,7 @@
                         <span>{{tCustomerOrderDeliver.deliverCode}}</span>
                     </el-col>
                 </el-row>
-                <el-row :gutter="20" style="margin-bottom: 20px;">
+                <el-row v-if="tCustomerOrderDeliver.deliverPic" :gutter="20" style="margin-bottom: 20px;">
                     <el-col :span="20">
                         <label class="order-label">运单照片</label>
                         <img-view style="display: inline-block;" :images="fileUrl + tCustomerOrderDeliver.deliverPic"></img-view>
