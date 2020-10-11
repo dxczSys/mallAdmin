@@ -36,6 +36,7 @@
 <script>
 import sha256 from 'js-sha256'
 import myFooter from './footer'
+import scoket from '@/utils/scoket'
 export default {
     components: { myFooter },
     data() {
@@ -92,6 +93,7 @@ export default {
                                 this.$cookie.set('shopName', shop.shopName)
                                 this.$cookie.set('shopId', shop.id)
                             }
+                            scoket(shop.id)
                             this.$router.push({ name: 'home' })
                         }else {
                             this.$message.info(res.data.msg)

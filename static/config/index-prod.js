@@ -8,6 +8,7 @@
   window.SITE_CONFIG['baseUrl'] = 'https://s.yimazhongcheng.com/api/';
   window.SITE_CONFIG['uploadUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/fileUploads'
   window.SITE_CONFIG['fileUrl'] = window.SITE_CONFIG['baseUrl'] + 'file/filename='
+  window.SITE_CONFIG['socketUrl'] = 'ws://localhost:9527/websocket/'
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

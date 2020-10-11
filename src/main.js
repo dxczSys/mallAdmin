@@ -15,6 +15,10 @@ import { getHttp, uploadFile, dateFormat } from '@/utils/tools'
 import httpRequest from '@/utils/httpRequest'
 // import VueLazyload from 'vue-lazyload'  //图片懒加载
 
+import LemonIMUI from 'lemon-imui'
+import "lemon-imui/dist/index.css";
+Vue.use(LemonIMUI)
+
 Vue.use(VueCookie)
 Vue.config.productionTip = false
 
