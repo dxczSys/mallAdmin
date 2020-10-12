@@ -22,7 +22,7 @@ export const createSocket = url => {
 }
 
 /**打开WS之后发送心跳 */
-const onopenWS = () => {
+const onopenWS = (e) => {
   sendPing()
 }
 
