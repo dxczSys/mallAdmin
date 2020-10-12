@@ -5,6 +5,11 @@
 </template>
 
 <script>
-  export default {
+import { createSocket } from '@/utils/websocket'
+export default {
+  mounted() {
+    let id = this.$cookie.get('shopId')
+    id && (createSocket(window.SITE_CONFIG.socket + id))
   }
+}
 </script>

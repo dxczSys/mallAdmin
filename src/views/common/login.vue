@@ -36,7 +36,7 @@
 <script>
 import sha256 from 'js-sha256'
 import myFooter from './footer'
-import scoket from '@/utils/scoket'
+import { createSocket } from '@/utils/websocket'
 export default {
     components: { myFooter },
     data() {
@@ -92,8 +92,8 @@ export default {
                                 sessionStorage.setItem('shopData', JSON.stringify(shop))
                                 this.$cookie.set('shopName', shop.shopName)
                                 this.$cookie.set('shopId', shop.id)
+                                createSocket(window.SITE_CONFIG.socket + shop.id)
                             }
-                            scoket(shop.id)
                             this.$router.push({ name: 'home' })
                         }else {
                             this.$message.info(res.data.msg)

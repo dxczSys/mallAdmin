@@ -3,10 +3,44 @@
         <lemon-imui
             ref="IMUI"
             :user="user"
-            :hide-menu="hideMenu" />
+            :hide-menu="hideMenu"
+            @pull-messages="handlePullMessages" />
     </div>
 </template>
 <script>
+const getTime = () => {
+  return new Date().getTime();
+};
+const generateRandId = () => {
+  return Math.random()
+    .toString(36)
+    .substr(-8);
+}
+const generateRandWord = () => {
+  return Math.random()
+    .toString(36)
+    .substr(2);
+};
+const generateMessage = (toContactId = "", fromUser) => {
+    if (!fromUser) {
+        fromUser = {
+            id: "system",
+            displayName: "系统测试",
+            avatar: "http://upload.qqbodys.com/allimg/1710/1035512943-0.jpg"
+        }
+    }
+    return {
+        id: generateRandId(),
+        status: "succeed",
+        type: "text",
+        sendTime: getTime(),
+        content: generateRandWord(),
+        //fileSize: 1231,
+        //fileName: "asdasd.doc",
+        toContactId,
+        fromUser
+    }
+}
 export default {
     data() {
         return {
@@ -35,10 +69,49 @@ export default {
                 lastSendTime: 1566047865417,
                 lastContent: "2"
             }
+            const contactData2 = {
+                id: "contact-2",
+                displayName: "工作协作群",
+                avatar: "http://upload.qqbodys.com/img/weixin/20170804/ji5qxg1am5ztm.jpg",
+                type: "single",
+                index: "A",
+                unread: 14,
+                lastSendTime: 1566047865417,
+                lastContent: "2"
+            }
             let data = [
-                contactData1
+                contactData1,
+                contactData2
             ]
             IMUI.initContacts(data)
+        },
+        handlePullMessages(contact, next) {
+            debugger
+            const { IMUI } = this.$refs;
+            const otheruser = {
+                id: "hehe",
+                displayName: "I KNOEW",
+                avatar: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=4085009425,1005454674&fm=26&gp=0.jpg"
+            };
+            const messages = [
+                generateMessage(IMUI.currentContactId, this.user),
+                generateMessage(IMUI.currentContactId, otheruser),
+                generateMessage(IMUI.currentContactId, this.user),
+                generateMessage(IMUI.currentContactId, otheruser),
+                generateMessage(IMUI.currentContactId, this.user),
+                generateMessage(IMUI.currentContactId, this.user),
+                generateMessage(IMUI.currentContactId, otheruser),
+                {
+                ...generateMessage(IMUI.currentContactId, this.user),
+                ...{ status: "failed" }
+                }
+            ];
+
+            console.log(messages);
+            let isEnd = false;
+            if (IMUI.getMessages(IMUI.currentContactId).length > 20) isEnd = true;
+
+            next(messages, isEnd);
         },
         initEmoji() {
             const { IMUI } = this.$refs
@@ -324,5 +397,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
+.contact{
+    /deep/ .lemon-wrapper{
+        height: 800px;
+        width: 1000px;
+    }
+}
 </style>
