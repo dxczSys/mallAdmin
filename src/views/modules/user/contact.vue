@@ -6,7 +6,8 @@
             :user="user"
             :hide-menu="hideMenu"
             @pull-messages="handlePullMessages"
-            @send="handleSend" />
+            @send="handleSend"
+            @change-contact="handleChangeContact" />
     </div>
 </template>
 <script>
@@ -32,6 +33,11 @@ export default {
         this.getConcatList()
         this.initEmoji()
         this.receiveMessage()
+
+        let but = document.getElementsByClassName('lemon-editor__tip')[0]
+        but.innerHTML = '使用enter 快捷发送消息'
+        let input = document.getElementsByClassName('lemon-editor__input')[0]
+        input.addEventListener('keydown', this.handleEnter) 
     },
     methods: {
         receiveMessage() {
@@ -40,21 +46,67 @@ export default {
                 let data = e.detail.data
                 if (data != 'ping') {
                     let obj = JSON.parse(data)
-                    console.log('aaaa', obj)
                     if (obj.type === 1) {
-                        s.init(obj.chatList)
+                        s.updateList(obj.chatList)
                     } else {
-                        s.updateMessage()
+                        let message = obj.chatMessageVo
+                        message.fromUser = JSON.parse(message.fromUser)
+                        s.updateMessage(message, obj.msgId)
                     }
                 }
             })
         },
-        updateMessage() {
+        updateMessage(message, id) {
             const { IMUI } = this.$refs
-            console.log('aaaaaaaaa', IMUI.currentContactId)
-            // IMUI.updateContact(IMUI.currentContactId, {
-            //     lastContent: IMUI.lastContentRender('1111111')
-            // })
+            const contact = IMUI.currentContact
+            IMUI.appendMessage(message)
+            let un = '+1'
+            if (contact.id) {
+                un = 0
+            }
+            IMUI.updateContact(id, {
+                unread: un,
+                lastSendTime: new Date().getTime(),
+                lastContent: IMUI.lastContentRender(message)
+            })
+        },
+        handleEnter(e) {
+            let s = this
+            const { IMUI } = this.$refs
+            const contact = IMUI.currentContact
+            if (e.keyCode === 13) {
+                let content = e.target.innerText
+                this.http({
+                    url: 'merchant/vxchat/sendAccountMessage',
+                    method: 'post',
+                    data: {
+                        hid: contact.id,
+                        content,
+                        shopId: s.$cookie.get('shopId'),
+                        mediaId: '',
+                        type: 'text'
+                    }
+                }, res => {
+                    if (res.data.code === 200) {
+                        let curM = {
+                            content,
+                            fileName: '',
+                            fileSize: '',
+                            fromUser: s.user,
+                            id: new Date().getTime() + '',
+                            messageIsRead: null,
+                            messagesStatus: "succeed",
+                            messagesType: "text",
+                            sendTime: new Date().getTime(),
+                            status: "succeed",
+                            toContactId: contact.id,
+                            type: "text"
+                        }
+                        IMUI.appendMessage(curM)
+                        e.target.innerText = ''
+                    }
+                }, (e) => {}, false)
+            }
         },
         getConcatList() {
             this.http({
@@ -68,31 +120,58 @@ export default {
         },
         async handleSend(message, next, file) {
             const s = this
-            try {
-                let res = await this.sendMess(message)
-                if (res.data.code === 200) {
-                    next()
-                    // s.$refs.IMUI.updateContact(message.toContactId, {
-                    //     lastContent: s.$refs.IMUI.lastContentRender(message.content)
-                    // })
+            let data = {
+                hid: message.toContactId,
+                content: message.content,
+                shopId: s.$cookie.get('shopId'),
+                mediaId: '',
+                type: ''
+            }
+            if (file) {
+                data.type = 'image'
+                let url = await this.uploadFile(file)
+                if (url.data.code == 200) {
+                    data.mediaId = url.data.data
+                    data.content = url.data.data
+                    try {
+                        let res2 = await this.sendMess(data)
+                        if (res2.data.code === 200) {
+                            next()
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
                 }
-            } catch (error) {
-                console.log(error)
+            } else {
+                data.type = 'text'
+                try {
+                    let res1 = await this.sendMess(data)
+                    if (res1.data.code === 200) {
+                        next()
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
             }
         },
-        sendMess(message) {
+        uploadFile(file) {
+            return new Promise((resolve, reject) => {
+                this.$upload({
+                    data: [file]
+                }, res => {
+                    if (res.data.code == 200) {
+                       resolve(res)
+                    }
+                })
+            })
+        },
+        sendMess(data) {
             let s = this
             return new Promise((resolve, reject) => {
                 this.http({
                     url: 'merchant/vxchat/sendAccountMessage',
                     method: 'post',
-                    data: {
-                        hid: message.toContactId,
-                        content: message.content,
-                        shopId: s.$cookie.get('shopId'),
-                        mediaId: '',
-                        type: 'text'
-                    }
+                    data
                 }, res => {
                     resolve(res)
                 }, (e) => {}, false)
@@ -104,10 +183,30 @@ export default {
                 item.avatar = ''
                 item.index = 'A'
                 item.lastContent = '...'
-                item.displayName = item.displayName.substr(0, 8)
-                item.unread = 1
+                item.displayName = item.displayName.substr(item.displayName.length - 8)
             })
             IMUI.initContacts(data)
+        },
+        updateList(data) {
+            const { IMUI } = this.$refs
+            console.log('当前联系人', IMUI.getContacts())
+            let cur = IMUI.getContacts()
+            let arr = []
+            let isExit = false
+            if (cur.length) {
+                for (let i = 0; i < cur.length; i++) {
+                    if (cur[i].id === data.id) {
+                        isExit = true
+                        return
+                    }
+                }
+            }
+            data.avatar = ''
+            data.index = 'A'
+            data.lastContent = '...'
+            data.displayName = data.displayName.substr(data.displayName.length - 8)
+            arr = [data]
+            IMUI.initContacts(arr)
         },
         getContent(id) {
             return new Promise((resolve, reject) => {
@@ -133,6 +232,11 @@ export default {
             } catch (error) {
                 console.log('错误信息', error)
             }
+        },
+        handleChangeContact(contact) {
+            this.$refs.IMUI.updateContact(contact.id, {
+                unread: 0
+            })
         },
         initEmoji() {
             const { IMUI } = this.$refs
@@ -418,10 +522,13 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-// .contact{
-//     /deep/ .lemon-wrapper{
-//         height: 800px;
-//         width: 1000px;
-//     }
-// }
+.contact{
+    // /deep/ .lemon-wrapper{
+    //     height: 800px;
+    //     width: 1000px;
+    // }
+    /deep/ .lemon-icon-folder{
+        display: none;
+    }
+}
 </style>
