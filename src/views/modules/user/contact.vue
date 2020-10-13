@@ -10,52 +10,25 @@
     </div>
 </template>
 <script>
-const getTime = () => {
-  return new Date().getTime();
-};
-const generateRandId = () => {
-  return Math.random()
-    .toString(36)
-    .substr(-8);
-};
-const generateRandWord = () => {
-  return Math.random()
-    .toString(36)
-    .substr(2);
-};
-const generateMessage = (toContactId = "", fromUser) => {
-  if (!fromUser) {
-    fromUser = {
-      id: "system",
-      displayName: "系统测试",
-      avatar: "http://upload.qqbodys.com/allimg/1710/1035512943-0.jpg"
-    };
-  }
-  return {
-    id: generateRandId(),
-    status: "succeed",
-    type: "text",
-    sendTime: getTime(),
-    content: generateRandWord(),
-    //fileSize: 1231,
-    //fileName: "asdasd.doc",
-    toContactId,
-    fromUser
-  };
-};
 export default {
     data() {
         return {
             user: {
-                id: '1',
+                id: '',
                 avatar: '',
-                displayName: 'aa'
+                displayName: ''
             },
             hideMenu: true,
             refresh: true
         }
     },
     mounted() {
+        let shop = JSON.parse(sessionStorage.getItem('shopData'))
+        this.user = {
+            id: shop.id,
+            avatar: window.SITE_CONFIG['fileUrl'] + shop.shopSign,
+            displayName: shop.abbreviation,
+        }
         this.getConcatList()
         this.initEmoji()
         this.receiveMessage()
@@ -67,11 +40,21 @@ export default {
                 let data = e.detail.data
                 if (data != 'ping') {
                     let obj = JSON.parse(data)
+                    console.log('aaaa', obj)
                     if (obj.type === 1) {
                         s.init(obj.chatList)
+                    } else {
+                        s.updateMessage()
                     }
                 }
             })
+        },
+        updateMessage() {
+            const { IMUI } = this.$refs
+            console.log('aaaaaaaaa', IMUI.currentContactId)
+            // IMUI.updateContact(IMUI.currentContactId, {
+            //     lastContent: IMUI.lastContentRender('1111111')
+            // })
         },
         getConcatList() {
             this.http({
@@ -84,13 +67,17 @@ export default {
             })
         },
         async handleSend(message, next, file) {
-            debugger
-            let res = await this.sendMess(message)
-            if (res.data.code === 200) {
-                next()
-                this.$refs.IMUI.updateContact(message.toContactId, {
-                    lastContent: this.$refs.IMUI.lastContentRender(message.content)
-                })
+            const s = this
+            try {
+                let res = await this.sendMess(message)
+                if (res.data.code === 200) {
+                    next()
+                    // s.$refs.IMUI.updateContact(message.toContactId, {
+                    //     lastContent: s.$refs.IMUI.lastContentRender(message.content)
+                    // })
+                }
+            } catch (error) {
+                console.log(error)
             }
         },
         sendMess(message) {
@@ -108,7 +95,7 @@ export default {
                     }
                 }, res => {
                     resolve(res)
-                })
+                }, (e) => {}, false)
             })
         },
         init(data = []) {
@@ -117,9 +104,10 @@ export default {
                 item.avatar = ''
                 item.index = 'A'
                 item.lastContent = '...'
+                item.displayName = item.displayName.substr(0, 8)
+                item.unread = 1
             })
             IMUI.initContacts(data)
-            this.$forceUpdate()
         },
         getContent(id) {
             return new Promise((resolve, reject) => {
@@ -135,42 +123,16 @@ export default {
         },
         async handlePullMessages(contact, next) {
             const { IMUI } = this.$refs
-            let mess = await this.getContent(contact.id)
-            mess.forEach(item => {
-                item.fileName = 'aa'
-                item.fileSize = 123
-                item.type = 'text'
-                item.fromUser = JSON.parse(item.fromUser)
-            })
-            console.log('aaaaaaaaa', mess)
-            let isEnd = false
-            !mess.length && (isEnd = true)
-            next(mess, isEnd)
-
-            // const otheruser = {
-            //     id: "hehe",
-            //     displayName: "I KNOEW",
-            //     avatar: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=4085009425,1005454674&fm=26&gp=0.jpg"
-            // };
-            // const messages = [
-            //     generateMessage(IMUI.currentContactId, this.user),
-            //     generateMessage(IMUI.currentContactId, otheruser),
-            //     generateMessage(IMUI.currentContactId, this.user),
-            //     generateMessage(IMUI.currentContactId, otheruser),
-            //     generateMessage(IMUI.currentContactId, this.user),
-            //     generateMessage(IMUI.currentContactId, this.user),
-            //     generateMessage(IMUI.currentContactId, otheruser),
-            //     {
-            //     ...generateMessage(IMUI.currentContactId, this.user),
-            //     ...{ status: "failed" }
-            //     }
-            // ];
-
-            // console.log(messages);
-            // let isEnd = false;
-            // if (IMUI.getMessages(IMUI.currentContactId).length > 20) isEnd = true;
-
-            // next(messages, isEnd)
+            next([], true)
+            try {
+                let mess = await this.getContent(contact.id)
+                mess.forEach(item => {
+                    item.fromUser = JSON.parse(item.fromUser)
+                })
+                next(mess, true)
+            } catch (error) {
+                console.log('错误信息', error)
+            }
         },
         initEmoji() {
             const { IMUI } = this.$refs
