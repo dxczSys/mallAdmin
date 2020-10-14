@@ -81,16 +81,21 @@ export default {
             const { IMUI } = this.$refs
             if (IMUI) {
                 const contact = IMUI.currentContact
-                IMUI.appendMessage(message)
                 let un = '+1'
                 if (contact.id === id) {
+                    IMUI.appendMessage(message)
                     un = 0
+                    IMUI.updateContact(id, {
+                        unread: un,
+                        lastSendTime: new Date().getTime(),
+                        lastContent: IMUI.lastContentRender(message)
+                    })
+                } else {
+                    IMUI.updateContact(id, {
+                        unread: un,
+                        lastSendTime: new Date().getTime()
+                    })
                 }
-                IMUI.updateContact(id, {
-                    unread: un,
-                    lastSendTime: new Date().getTime(),
-                    lastContent: IMUI.lastContentRender(message)
-                })
             }
         },
         handleEnter(e) {
