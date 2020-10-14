@@ -12,6 +12,7 @@
 </template>
 <script>
 export default {
+    name: 'Contact',
     data() {
         return {
             user: {
@@ -24,14 +25,14 @@ export default {
         }
     },
     mounted() {
-        let shop = JSON.parse(sessionStorage.getItem('shopData'))
+        let shop = JSON.parse(localStorage.getItem('shopData'))
         this.user = {
             id: shop.id,
             avatar: window.SITE_CONFIG['fileUrl'] + shop.shopSign,
             displayName: shop.abbreviation,
         }
         this.getConcatList()
-        this.initEmoji()
+        // this.initEmoji()
         this.receiveMessage()
 
         let but = document.getElementsByClassName('lemon-editor__tip')[0]
@@ -45,6 +46,7 @@ export default {
             window.addEventListener('onmessageWS', (e) => {
                 let data = e.detail.data
                 if (data != 'ping') {
+                    console.log('接收到消息', data)
                     let obj = JSON.parse(data)
                     if (obj.type === 1) {
                         s.updateList(obj.chatList)
@@ -52,23 +54,44 @@ export default {
                         let message = obj.chatMessageVo
                         message.fromUser = JSON.parse(message.fromUser)
                         s.updateMessage(message, obj.msgId)
+                        s.sendNotification()
                     }
                 }
             })
         },
-        updateMessage(message, id) {
-            const { IMUI } = this.$refs
-            const contact = IMUI.currentContact
-            IMUI.appendMessage(message)
-            let un = '+1'
-            if (contact.id) {
-                un = 0
+        sendNotification() {
+            if (Notification && Notification.permission === 'granted') {
+                new Notification('未读消息', {
+                    body: '您有一条新消息！',
+                    icon: require('@/assets/img/xiaoxin.png'),
+                    silent: true
+                })
+            } else {
+                this.$notify({
+                    title: '未读消息',
+                    message: '您有一条新消息！',
+                    iconClass: 'notifition-icon',
+                    duration: 0,
+                    position: 'bottom-right'
+                })
             }
-            IMUI.updateContact(id, {
-                unread: un,
-                lastSendTime: new Date().getTime(),
-                lastContent: IMUI.lastContentRender(message)
-            })
+        },
+        updateMessage(message, id) {
+            console.log('执行了....')
+            const { IMUI } = this.$refs
+            if (IMUI) {
+                const contact = IMUI.currentContact
+                IMUI.appendMessage(message)
+                let un = '+1'
+                if (contact.id === id) {
+                    un = 0
+                }
+                IMUI.updateContact(id, {
+                    unread: un,
+                    lastSendTime: new Date().getTime(),
+                    lastContent: IMUI.lastContentRender(message)
+                })
+            }
         },
         handleEnter(e) {
             let s = this

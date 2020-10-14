@@ -89,7 +89,7 @@ export default {
                                 this.$cookie.set('floorId', floor.id)
                             }
                             if (shop) {
-                                sessionStorage.setItem('shopData', JSON.stringify(shop))
+                                localStorage.setItem('shopData', JSON.stringify(shop))
                                 this.$cookie.set('shopName', shop.shopName)
                                 this.$cookie.set('shopId', shop.id)
                                 createSocket(window.SITE_CONFIG.socket + shop.id)

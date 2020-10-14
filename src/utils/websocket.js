@@ -79,6 +79,7 @@ export const sendWSPush = message => {
 const oncloseWS = () => {
   clearInterval(setIntervalWesocketPush)
   console.log('websocket已断开....正在尝试重连')
+  console.log('状态：', Socket.readyState)
   if (Socket.readyState !== 2) {
     Socket = null
     createSocket(urls)

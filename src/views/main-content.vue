@@ -38,7 +38,7 @@ export default {
     inject: ['refresh'],
     data () {
         return {
-            keepComponets: ['Sale', 'Service']
+            keepComponets: ['Sale', 'Service', 'Contact']
         }
     },
     computed: {

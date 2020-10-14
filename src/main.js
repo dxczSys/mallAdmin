@@ -13,6 +13,7 @@ import { isAuth } from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { getHttp, uploadFile, dateFormat } from '@/utils/tools'
 import httpRequest from '@/utils/httpRequest'
+import { checkPermission } from '@/utils/pwaPush'
 // import VueLazyload from 'vue-lazyload'  //图片懒加载
 
 import LemonIMUI from 'lemon-imui'
@@ -22,6 +23,8 @@ Vue.use(LemonIMUI)
 Vue.use(VueCookie)
 Vue.config.productionTip = false
 
+//推送
+checkPermission()
 // 非生产环境, 适配mockjs模拟数据
 if (process.env.NODE_ENV !== 'production') {
     require('@/mock')
