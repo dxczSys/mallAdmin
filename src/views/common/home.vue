@@ -9,7 +9,7 @@
                                 <div class="item-top">
                                     <div class="item-top-left">
                                         <div class="block-title">本月广告收入(元)</div>
-                                        <div class="primary-info">{{totalAdMoney}}</div>
+                                        <div class="primary-info">{{Math.floor(totalAdMoney * 100) / 100}}</div>
                                     </div>
                                     <div class="item-top-right">
                                         <icon-svg name="guanggao"></icon-svg>
@@ -161,8 +161,8 @@ export default {
             totalAdMoney: '',
             totalAdMoneyCompareLast: 0,
             awaitApproval: 0,
-            totalOrders: 201,
-            totalOrdersCompareLast: 0.1,
+            totalOrders: 0,
+            totalOrdersCompareLast: 0.0,
             chartBar: null,
             monthList: [],
             pickerOptions: {
@@ -833,6 +833,11 @@ export default {
                 }
             }, res => {
                 if (res.data.code == 200) {
+                    const obj = res.data.data
+                    this.totalOrders = parseInt(obj.nowOrderNumber)
+                    this.totalOrdersCompareLast = parseFloat(obj.nowOrderNumberBFB)
+                    this.totalMoney = obj.nowOrderPrice
+                    this.totalMoneyCompareLast = obj.nowOrderPriceBFB
                     this.initMechant(this.monthList[0], this.monthList[1], res.data.data.salesNum, res.data.data.ordersNum)
                 }
             }) 
