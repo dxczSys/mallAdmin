@@ -10,7 +10,7 @@ export const createSocket = url => {
   urls = url
   Socket && Socket.close()
   if (!Socket) {
-    console.log('建立websocket连接')
+    // console.log('建立websocket连接')
     Socket = new WebSocket(urls)
     Socket.onopen = onopenWS
     Socket.onmessage = onmessageWS
@@ -30,7 +30,7 @@ const onopenWS = (e) => {
 const onerrorWS = () => {
   Socket.close()
   clearInterval(setIntervalWesocketPush)
-  console.log('连接失败重连中')
+  // console.log('连接失败重连中')
   if (Socket.readyState !== 3) {
     Socket = null
     createSocket(urls)
@@ -78,8 +78,8 @@ export const sendWSPush = message => {
 /**断开重连 */
 const oncloseWS = () => {
   clearInterval(setIntervalWesocketPush)
-  console.log('websocket已断开....正在尝试重连')
-  console.log('状态：', Socket.readyState)
+  // console.log('websocket已断开....正在尝试重连')
+  // console.log('状态：', Socket.readyState)
   if (Socket.readyState !== 2) {
     Socket = null
     createSocket(urls)

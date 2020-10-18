@@ -225,7 +225,10 @@ export default {
         },
         //组装数据
         assembleTable() {
-            let _arr = [], resArr = [], labelArr = [], _tableData = []
+            let _arr = []  // 如果存在颜色，拿到所有的颜色
+            let resArr = []
+            let labelArr = []
+            let _tableData = []
             if (this.formatList.isColorPicker == 1) {
                 labelArr.push({
                     label: '颜色分类',
@@ -238,7 +241,6 @@ export default {
                     }
                 })
             }
-            
             resArr.push(_arr)
             this.formatList.formatArr.forEach(value => {
                 labelArr.push({
@@ -337,11 +339,12 @@ export default {
             }
         },
         assembleGoodsData() {
+            debugger
             let arr = [], ids = this.releaseForm.kindsId.split(','), self = this
             if (this.assemTableData.length) {
                 this.assemTableData.forEach(item => {
                     let _arr1 = []
-                    if (Object.keys(item).length > 16) {
+                    if (Object.keys(item).length > 4) {
                         for (let key in item) {
                             //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
                             let _obj = {}

@@ -203,11 +203,11 @@ export default {
                 this.getGoodsList()
             }
         },
-        typeDialogVisible(n) {
-            if (!n) {
-                this.payType = '1'
-            }
-        },
+        // typeDialogVisible(n) {
+        //     if (!n) {
+        //         this.payType = '1'
+        //     }
+        // },
         dialogVisible(n) {
             if (!n) {
                 clearInterval(this.timer)
