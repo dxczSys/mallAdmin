@@ -828,7 +828,7 @@ export default {
                 method: 'post',
                 data: {
                     dates: dateArr,
-                    type: 1,
+                    type: 2,
                     shopId: this.$cookie.get('shopId')
                 }
             }, res => {

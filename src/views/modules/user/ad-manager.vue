@@ -10,21 +10,21 @@
                 <div class="last-ad-num">
                     <span>剩余广告位：</span>
                     <div class="ad-last-box">
-                        <span v-if="topAdTotal < 17" class="green-light"></span>
+                        <span v-if="topAdTotal > 3" class="green-light"></span>
                         <span v-else class="red-light"></span>
                         <span>置顶广告位：</span>
-                        <span>{{20 - topAdTotal}}</span>
+                        <span>{{ topAdTotal }}</span>
                     </div>
                     <div class="ad-last-box">
-                        <span v-if="topAdTotal < 27" class="green-light"></span>
+                        <span v-if="topAdTotal > 3" class="green-light"></span>
                         <span v-else class="red-light"></span>
                         <span>促销广告位：</span>
-                        <span>{{30 - saleAdTotal}}</span>
+                        <span>{{ saleAdTotal }}</span>
                     </div>
                 </div>
             </div>
             <div class="apply-button-right">
-                <el-button v-if="topAdTotal < 20 || saleAdTotal < 30" type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
+                <el-button v-if="topAdTotal > 0 || saleAdTotal > 0" type="primary" size="small" @click="$router.push({ name: 'user-apply-ad' })">立即申请</el-button>
             </div>
         </div>
         <div class="ad-list-box">
@@ -145,12 +145,13 @@ export default {
         },
         getLastAd() {
             this.http({
-                url: 'merchant/advert/selAdvertCountByUserShopMall',
+                url: `merchant/chart/advertRent?id=${this.$cookie.get('mallId')}`,
                 method: 'get',
             }, res => {
                 if (res.data.code == 200) {
-                    this.topAdTotal = res.data.data.countA
-                    this.saleAdTotal = res.data.data.countB
+                    let obj = res.data.data
+                    this.topAdTotal = obj[0].topAdvertNumber
+                    this.saleAdTotal = obj[0].advertNumber
                 }else {
                     this.$message.error(res.data.msg || '')
                 }

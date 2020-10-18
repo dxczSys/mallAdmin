@@ -162,7 +162,8 @@ export default {
                 description: [ { required: true, message: '请填写商品描述', trigger: 'blur' } ],
             },
             mainPic: '',
-            assisPics: ''
+            assisPics: '',
+            timer: null
         }
     },
     watch: {
@@ -176,7 +177,8 @@ export default {
         colorPickerTable: {
             handler(n) {
                 if (this.judgeIsSelect()) {
-                    this.assembleTable()
+                    clearTimeout(this.timer)
+                    this.timer = setTimeout(this.assembleTable, 300)
                 }
             },
             deep: true
@@ -339,12 +341,13 @@ export default {
             }
         },
         assembleGoodsData() {
-            debugger
             let arr = [], ids = this.releaseForm.kindsId.split(','), self = this
             if (this.assemTableData.length) {
                 this.assemTableData.forEach(item => {
+                    console.log('没进入循环前', item)
                     let _arr1 = []
-                    if (Object.keys(item).length > 4) {
+                    if (Object.keys(item).length >= 4) {
+                        console.log('进入循环', item)
                         for (let key in item) {
                             //遍历表格一条数据的所有属性，除了颜色，价格，数量，编码
                             let _obj = {}
@@ -353,6 +356,7 @@ export default {
                                 for (let i = 0; i < self.kindsTempData.length; i ++) {
                                     let _kindsArr = self.kindsTempData[i].values
                                     if (self.kindsTempData[i].id == key) {
+                                        console.log('判断key是否相等', self.kindsTempData[i].id)
                                         for (let j = 0; j < _kindsArr.length; j ++) {
                                             if (_kindsArr[j].name == item[key]) {
                                                 _obj.goodValue = _kindsArr[j].id

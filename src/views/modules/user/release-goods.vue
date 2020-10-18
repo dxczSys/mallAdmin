@@ -425,6 +425,7 @@ export default {
             return arr
         },
         handleRelease() {
+            debugger
             let self = this
             this.$refs.releaseForm.validate(valid => {
                 if (valid) {
