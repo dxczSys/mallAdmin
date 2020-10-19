@@ -53,41 +53,44 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name === 'login') {
+    const no = ['login', 'register', 'agreement', 'forget-password']
+    if (no.includes(to.name)) {
         next()
-    }
-    const acc_token = Vue.cookie.get('acc_token')
-    if (acc_token) {
-        if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
-            next()
-        }else {
-            getHttp({
-                url: 'merchant/findUserMenuLisByLoginUser',
-                method: 'get',
-            }, res => {
-                if (res.data.code == 200) {
-                    fnAddDynamicMenuRoutes(res.data.data)
-                    router.options.isAddDynamicMenuRoutes = true
-                    sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
-                    next({ ...to, replace: true })
-                }else {
-                    sessionStorage.setItem('menuList', '[]')
-                    Message({
-                        message: res.data.msg,
-                        type: 'error',
-                        duration: 1500
-                    })
-                    next()
-                }
-            }, err => {
-                clearLoginInfo()
-                router.push({ name: 'login' })
-            })
-        }
     } else {
-        clearLoginInfo()
-        next({ name: 'login' })
+        const acc_token = Vue.cookie.get('acc_token')
+        if (acc_token) {
+            if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
+                next()
+            }else {
+                getHttp({
+                    url: 'merchant/findUserMenuLisByLoginUser',
+                    method: 'get',
+                }, res => {
+                    if (res.data.code == 200) {
+                        fnAddDynamicMenuRoutes(res.data.data)
+                        router.options.isAddDynamicMenuRoutes = true
+                        sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
+                        next({ ...to, replace: true })
+                    }else {
+                        sessionStorage.setItem('menuList', '[]')
+                        Message({
+                            message: res.data.msg,
+                            type: 'error',
+                            duration: 1500
+                        })
+                        next()
+                    }
+                }, err => {
+                    clearLoginInfo()
+                    router.push({ name: 'login' })
+                })
+            }
+        } else {
+            clearLoginInfo()
+            next({ name: 'login' })
+        }
     }
+    
 })
   
 /**
