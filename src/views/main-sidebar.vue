@@ -2,7 +2,7 @@
     <aside class="site-sidebar-wrapper" :class="{'side-folder': sidebarFold}">
         <div class="site-sidebar__inner" :class="{'side-folder': sidebarFold}">
             <el-menu :default-active="menuActiveName || 'home'" :collapse="sidebarFold" :default-openeds="openeds" active-text-color="#3E8EF7" 
-                unique-opened :collapseTransition="false" class="site-sidebar__menu">
+                unique-opened :collapseTransition="false" @select="handleMenuSelect" class="site-sidebar__menu">
                 <el-menu-item v-if="roles.indexOf('4') < 0" index="home" @click="$router.push({ name: 'home' })">
                     <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>
                     <span slot="title">首页</span>
@@ -24,7 +24,7 @@
                 </el-submenu>
             </el-menu>
         </div>
-        <div class="collapse-box" @click="sidebarFold = !sidebarFold">
+        <div class="collapse-box" @click="closeSidebar">
             <icon-svg v-if="sidebarFold" name="right"></icon-svg>
             <icon-svg v-else name="left"></icon-svg>
         </div>
@@ -34,41 +34,21 @@
 <script>
 import SubMenu from './main-sidebar-sub-menu'
 import { isURL } from '@/utils/validate'
+import { mapState, mapMutations } from 'vuex'
 export default {
     data () {
         return {
             dynamicMenuRoutes: [],
-            openeds: ['1', '2'],
+            openeds: ['1', '2', '3'],
             roles: JSON.parse(this.$cookie.get('roleId'))
         }
     },
-    components: {
-        SubMenu
-    },
+    components: { SubMenu },
     computed: {
-        sidebarLayoutSkin: {
-            get () { return this.$store.state.common.sidebarLayoutSkin }
-        },
-        sidebarFold: {
-            get () { return this.$store.state.common.sidebarFold },
-            set (val) { this.$store.commit('common/updateSidebarFold', val) }
-        },
-        menuList: {
-            get () { return this.$store.state.common.menuList },
-            set (val) { this.$store.commit('common/updateMenuList', val) }
-        },
-        menuActiveName: {
-            get () { return this.$store.state.common.menuActiveName },
-            set (val) { this.$store.commit('common/updateMenuActiveName', val) }
-        },
-        mainTabs: {
-            get () { return this.$store.state.common.mainTabs },
-            set (val) { this.$store.commit('common/updateMainTabs', val) }
-        },
-        mainTabsActiveName: {
-            get () { return this.$store.state.common.mainTabsActiveName },
-            set (val) { this.$store.commit('common/updateMainTabsActiveName', val) }
-        }
+        ...mapState('common', {
+            sidebarFold: state => state.sidebarFold,
+            menuActiveName: state => state.menuActiveName,
+        })
     },
     watch: {
         $route: 'routeHandle'
@@ -79,6 +59,13 @@ export default {
         this.routeHandle(this.$route)
     },
     methods: {
+        ...mapMutations('common', ['updateSidebarFold', 'updateMenuActiveName']),
+        closeSidebar() {
+            this.updateSidebarFold(!this.sidebarFold)
+        },
+        handleMenuSelect(index, indexPath) {
+            this.updateMenuActiveName(index)
+        },
         // 路由操作
         routeHandle (route) {
             if (route.meta.isTab) {

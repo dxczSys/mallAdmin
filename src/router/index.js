@@ -1,9 +1,3 @@
-/**
- * 全站路由配置
- *
- * 建议:
- * 1. 代码中路由统一使用name属性跳转(不使用path属性)
- */
 import Vue from 'vue'
 import Router from 'vue-router'
 import { getHttp } from '@/utils/tools'
@@ -48,15 +42,7 @@ const mainRoutes = {
         { path: '/admin-approval-detail', component: _import('modules/admin/approval-detail'), name: 'admin-approval-detail', meta: { title: '审批详情', isTab: false } },
         { path: '/user-edit-goods', component: _import('modules/user/edit-goods'), name: 'user-edit-goods', meta: { title: '编辑商品', isTab: false } },
         { path: '/admin-dealwidth-sale', component: _import('modules/admin/admin-dealwidth-sale'), name: 'admin-dealwidth-sale', meta: { title: '超管售后', isTab: false } },
-    ],
-    beforeEnter (to, from, next) {
-        let acc_token = Vue.cookie.get('acc_token')
-        if (!acc_token || !/\S/.test(acc_token)) {
-            clearLoginInfo()
-            next({ name: 'login' })
-        }
-        next()
-    }
+    ]
 }
 
 const router = new Router({
@@ -67,13 +53,14 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // 添加动态(菜单)路由
-    // 1. 已经添加 or 全局路由, 直接访问
-    // 2. 获取菜单列表, 添加并保存本地存储
-    if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
+    if (to.name === 'login') {
         next()
-    }else {
-        if (Vue.cookie.get('acc_token')) {
+    }
+    const acc_token = Vue.cookie.get('acc_token')
+    if (acc_token) {
+        if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
+            next()
+        }else {
             getHttp({
                 url: 'merchant/findUserMenuLisByLoginUser',
                 method: 'get',
@@ -96,9 +83,10 @@ router.beforeEach((to, from, next) => {
                 clearLoginInfo()
                 router.push({ name: 'login' })
             })
-        }else {
-            next()
         }
+    } else {
+        clearLoginInfo()
+        next({ name: 'login' })
     }
 })
   

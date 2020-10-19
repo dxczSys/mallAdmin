@@ -298,6 +298,7 @@ export default {
         },
         beginTiming() {
             this.timeNum = 299
+            clearInterval(this.countTimer)
             this.countTimer = setInterval(() => {
                 if (this.timeNum > 0) {
                     this.timeNum --

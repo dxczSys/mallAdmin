@@ -685,7 +685,7 @@ export default {
     border-radius: 4px;
 }
 .base-mess-wrapper{
-    padding: 20px;
+    padding: 20px 0;
     .base-form{
         padding-right: 20px;
         /deep/ .el-form-item__content .el-select{

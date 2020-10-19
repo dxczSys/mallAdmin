@@ -6,14 +6,14 @@
         </div>
         <div class="kinds-admin-box">
             <div class="kinds-left">
-                <el-card>
+                <!-- <el-card> -->
                     <el-tree ref="myTree" class="kinds-tree" node-key="id" :expand-on-click-node="false" lazy :default-expanded-keys="expandedKeys" v-if="refreshTree"
                         :load="loadTree" :render-content="renderTree" @node-click="handleTreeNodeClick" @node-expand="expandTree" @node-collapse="collapseTree">
                     </el-tree>
-                </el-card>
+                <!-- </el-card> -->
             </div> 
             <div v-if="currentLevel > 2" class="kinds-right">
-                <el-card>
+                <!-- <el-card> -->
                     <div style="display: flex;align-items: center;">
                         <div style="width: 5px; height: 15px; background-color: #409eff;border-radius: 1px;margin-right: 3px;"></div>
                         <div style="font-weight: 600;">当前节点:{{currentLabel}}--规格条件设置</div>
@@ -51,10 +51,10 @@
                             <el-button @click="handleSaveCondition" type="primary" size="small">保存</el-button>
                         </div>
                     </el-form>
-                </el-card>
+                <!-- </el-card> -->
             </div>
             <div v-if="currentLevel === 1" class="kinds-right">
-                <el-card>
+                <!-- <el-card> -->
                     <div class="kinds-right-header" slot="header">
                         <span>当前商场({{currentLabel}})：选择已存在的类目</span>
                         <el-button type="primary" size="small" @click="saveSelectKinds">保存</el-button>
@@ -72,7 +72,7 @@
                             </el-checkbox>
                         </el-checkbox-group>
                     </div>
-                </el-card>
+                <!-- </el-card> -->
             </div>
         </div>
     </div>
@@ -476,9 +476,9 @@ export default {
     }
 }
 .kinds-tree{
-    height: 560px;
+    // height: 560px;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 16px;
     /deep/ .el-tree-node__content{
         height: 36px;
     }
@@ -570,12 +570,12 @@ export default {
     align-items: center;
 }
 .kinds-list-checkbox{
-    height: 491px;
-    overflow-y: auto;
+    // height: 491px;
+    // overflow-y: auto;
     /deep/ .el-checkbox{
         width: 50%;
         margin-left: 0;
-        margin-bottom: 6px;
+        margin-bottom: 12px;
         margin-right: 0;
     }
     .content-checkbox{

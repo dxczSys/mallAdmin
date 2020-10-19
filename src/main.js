@@ -25,10 +25,6 @@ Vue.config.productionTip = false
 
 //推送
 checkPermission()
-// 非生产环境, 适配mockjs模拟数据
-if (process.env.NODE_ENV !== 'production') {
-    require('@/mock')
-}
 
 // 挂载全局
 Vue.prototype.http = getHttp

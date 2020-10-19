@@ -11,7 +11,8 @@ export default {
     sidebarFold: false,
     // 侧边栏, 菜单
     menuList: [],
-    menuActiveName: '',
+    // 当前激活菜单id
+    menuActiveName: sessionStorage.getItem('MENUACTIVENAME') || '',
     // 内容, 是否需要刷新
     contentIsNeedRefresh: false,
     // 主入口标签页
@@ -35,6 +36,7 @@ export default {
       state.menuList = list
     },
     updateMenuActiveName (state, name) {
+      sessionStorage.setItem('MENUACTIVENAME', name)
       state.menuActiveName = name
     },
     updateContentIsNeedRefresh (state, status) {
