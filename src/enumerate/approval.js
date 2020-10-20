@@ -8,4 +8,3 @@ export const bank_account_type_option = [
         value: 75
     }
 ]
-
