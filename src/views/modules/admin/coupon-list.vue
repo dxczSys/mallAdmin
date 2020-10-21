@@ -7,12 +7,7 @@
     </div>
     <div class="table">
       <el-table :data="tableData" border stripe>
-        <el-table-column v-for="col in columns"
-          :prop="col.id"
-          :key="col.id"
-          :label="col.label"
-          :width="col.width">
-        </el-table-column>
+        
       </el-table>
     </div>
 
