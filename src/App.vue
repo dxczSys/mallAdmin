@@ -6,9 +6,13 @@
 
 <script>
 import { createSocket } from '@/utils/websocket'
+import { mapState } from 'vuex'
 export default {
+  computed: {
+    ...mapState('mall', ['shop_id'])
+  },
   mounted() {
-    let id = this.$cookie.get('shopId')
+    let id = this.shop_id
     id && (createSocket(window.SITE_CONFIG.socket + id))
     window.addEventListener('onmessageWS', (e) => {
       let data = e.detail.data

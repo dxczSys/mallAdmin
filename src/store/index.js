@@ -4,22 +4,16 @@ import cloneDeep from 'lodash/cloneDeep'
 import common from './modules/common'
 import user from './modules/user'
 import mall from './modules/mall'
+import createPersistedState from "vuex-persistedstate"
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+    plugins: [createPersistedState()],
     modules: {
         common,
         user,
         mall
-    },
-    mutations: {
-        // 重置vuex本地储存状态
-        resetStore (state) {
-            Object.keys(state).forEach((key) => {
-                state[key] = cloneDeep(window.SITE_CONFIG['storeState'][key])
-            })
-        }
     },
     strict: process.env.NODE_ENV !== 'production'
 })

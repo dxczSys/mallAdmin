@@ -16,6 +16,7 @@ import MainNavbar from './main-navbar'
 import MainSidebar from './main-sidebar'
 import MainContent from './main-content'
 import myFooter from '../views/common/footer'
+import { mapState, mapMutations } from 'vuex'
 export default {
     provide () {
         return {
@@ -30,7 +31,7 @@ export default {
     },
     data () {
         return {
-            loading: true
+            loading: false
         }
     },
     components: {
@@ -40,41 +41,18 @@ export default {
         myFooter
     },
     computed: {
-        documentClientHeight: {
-            get () { return this.$store.state.common.documentClientHeight },
-            set (val) { this.$store.commit('common/updateDocumentClientHeight', val) }
-        },
-        sidebarFold: {
-            get () { return this.$store.state.common.sidebarFold }
-        },
-        userId: {
-            get () { return this.$store.state.user.id },
-            set (val) { this.$store.commit('user/updateId', val) }
-        },
-        userName: {
-            get () { return this.$store.state.user.name },
-            set (val) { this.$store.commit('user/updateName', val) }
-        }
-    },
-    created () {
-        this.getUserInfo()
+        ...mapState('common', ['sidebarFold', 'documentClientHeight'])
     },
     mounted () {
         this.resetDocumentClientHeight()
     },
     methods: {
-        // 重置窗口可视高度
+        ...mapMutations('common', ['updateDocumentClientHeight']),
         resetDocumentClientHeight () {
-            this.documentClientHeight = document.documentElement['clientHeight']
+            this.updateDocumentClientHeight(document.documentElement['clientHeight'])
             window.onresize = () => {
-                this.documentClientHeight = document.documentElement['clientHeight']
+                this.updateDocumentClientHeight(document.documentElement['clientHeight'])
             }
-        },
-        // 获取当前登录者信息
-        getUserInfo () {
-            this.loading = false
-            this.userId = this.$cookie.get('userId')
-            this.userName = this.$cookie.get('userName') || this.$cookie.get('realUserName')
         }
     }
 }

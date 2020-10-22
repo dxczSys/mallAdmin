@@ -522,6 +522,9 @@ export default {
                                 shopLegalPerson: this.infoForm.legal_person,
                                 shopInfo: this.infoForm.introduction,
                                 shopSign: this.infoForm.shopLogo,
+                                idCardPicPositive: this.infoForm.id_card_national.url,
+                                idCardPicSide: this.infoForm.id_card_copy.url,
+                                shopBusinessLicense: this.infoForm.business_license_copy.url
                             },
                         }
                     }, approvalRes => {

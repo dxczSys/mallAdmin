@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="navbar-right">
-            <!-- <el-badge v-if="roleId.includes('1') || roleId.includes('2')" :value="approvalNum" class="mark-tip">
+            <!-- <el-badge v-if="role_id.includes('1') || role_id.includes('2')" :value="approvalNum" class="mark-tip">
                 <icon-svg name="lingdang"></icon-svg>
             </el-badge> -->
             <div class="navbar-avatar" @click="$router.push({ name: 'setting-update-personInfo' })">
@@ -29,12 +29,12 @@
 
 <script>
 import { clearLoginInfo } from '@/utils'
+import { mapState } from 'vuex'
 export default {
     data () {
         return {
             avatarUrl: require('@/assets/img/avatar_default.png'),
-            approvalNum: 0,
-            roleId: this.$cookie.get('roleId')
+            approvalNum: 0
         }
     },
     computed: {
@@ -51,7 +51,8 @@ export default {
         },
         userName: {
             get () { return this.$store.state.user.name },
-        }
+        },
+        ...mapState('user', ['role_id', 'url'])
     },
     methods: {
         logoutHandle () {
@@ -66,8 +67,8 @@ export default {
         },
     },
     mounted() {
-        if (this.$cookie.get('url')) {
-            this.avatarUrl = window.SITE_CONFIG.fileUrl + this.$cookie.get('url')
+        if (this.url) {
+            this.avatarUrl = window.SITE_CONFIG.fileUrl + this.url
         }
     }
 }

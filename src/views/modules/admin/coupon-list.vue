@@ -12,7 +12,7 @@
     </div>
 
     <el-dialog v-if="dialogVisible" title="新制优惠券" center :visible.sync="dialogVisible" :close-on-click-modal="false" width="40%">
-      <add-coupon></add-coupon>
+      <add-coupon :dialog-visible.sync="dialogVisible"></add-coupon>
     </el-dialog>
   </div>
 </template>

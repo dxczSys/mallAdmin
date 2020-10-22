@@ -57,7 +57,7 @@ export const coupon_modus_options = [
     value: '1'
   },
   {
-    label: '指定金额',
+    label: '指定金额购买(抵扣券)',
     value: '2'
   }
 ]
@@ -73,7 +73,7 @@ export const coupon_condition_options = [
   }
 ]
 
-export const coupon_amount_options = [
+export const coupon_limit_options = [
   {
     label: '1张',
     value: '1'
@@ -111,6 +111,17 @@ export const is_release_options = [
   },
   {
     label: '否',
+    value: '2'
+  }
+]
+
+export const preferential_form_options = [
+  {
+    label: '指定现金',
+    value: '1'
+  },
+  {
+    label: '折扣',
     value: '2'
   }
 ]
