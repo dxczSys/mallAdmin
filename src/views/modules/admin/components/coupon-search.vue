@@ -36,6 +36,7 @@
 </template>
 <script>
 import { coupon_type_options, coupon_status_options } from '@/enumerate/coupon'
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
@@ -53,6 +54,9 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState('user', ['role_id'])
+  },
   created() {
     this.getMallList()
   },
@@ -65,7 +69,7 @@ export default {
         url: 'merchant/shopMall/findTShopMallAll',
         method: 'post',
         data: {
-          roles: JSON.parse(this.$cookie.get('roleId'))
+          roles: this.role_id
         }
       }, res => {
         if (res.data.code == 200) {

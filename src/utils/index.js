@@ -53,25 +53,7 @@ export function treeDataTranslate (data, id = 'id', pid = 'parentId') {
  */
 export function clearLoginInfo () {
     Vue.cookie.delete('acc_token')
-    Vue.cookie.delete('userId')
-
-    Vue.cookie.delete('roleId')
-    Vue.cookie.delete('roleName')
-    Vue.cookie.delete('roleIdentify')
-    Vue.cookie.delete('userName')
-    Vue.cookie.delete('realUserName')
-    Vue.cookie.delete('phone')
-    Vue.cookie.delete('url')
-
-    Vue.cookie.delete('mallName')
-    Vue.cookie.delete('mallId')
-    Vue.cookie.delete('floorName')
-    Vue.cookie.delete('floorId')
-    Vue.cookie.delete('shopName')
-    Vue.cookie.delete('shopId')
-
     sessionStorage.clear()
     localStorage.clear()
-    store.commit('resetStore')
     router.options.isAddDynamicMenuRoutes = false
 }

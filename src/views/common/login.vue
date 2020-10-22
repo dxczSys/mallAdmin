@@ -114,6 +114,8 @@ export default {
                 this.SET_REAL_USER_NAME(_data.realUserName || "")
                 this.SET_PHONE(_data.userTel)
                 this.SET_URL(_data.userPic || "")
+
+
                 // this.$cookie.set("userId", _data.id);
                 // this.$cookie.set("roleId", JSON.stringify(_roleids));
                 // this.$cookie.set("roleName", JSON.stringify(_roleNames));

@@ -5,7 +5,7 @@
                 <el-row :gutter="20">
                     <el-col
                         :span="6"
-                        v-if="roleIds.some(checkIsSuperAdmin)"
+                        v-if="role_id.some(checkIsSuperAdmin)"
                     >
                         <el-card
                             :body-style="{ padding: '15px' }"
@@ -42,7 +42,7 @@
                     </el-col>
                     <el-col
                         :span="6"
-                        v-if="!roleIds.some(checkIsTourist)"
+                        v-if="!role_id.some(checkIsTourist)"
                     >
                         <el-card
                             :body-style="{ padding: '15px' }"
@@ -79,7 +79,7 @@
                     </el-col>
                     <el-col
                         :span="6"
-                        v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)"
+                        v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
                     >
                         <el-card
                             :body-style="{ padding: '15px' }"
@@ -116,7 +116,7 @@
                     </el-col>
                     <el-col
                         :span="6"
-                        v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)"
+                        v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
                     >
                         <el-card
                             @click.native="toApproval"
@@ -139,7 +139,7 @@
                     </el-col>
                     <el-col
                         :span="6"
-                        v-if="roleIds.some(checkIsMechant)"
+                        v-if="role_id.some(checkIsMechant)"
                     >
                         <el-card
                             :body-style="{ padding: '15px' }"
@@ -180,7 +180,7 @@
         <div class="bar-box">
             <div class="filter-box">
                 <div
-                    v-if="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)"
+                    v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
                     class="filter-row"
                 >
                     <span>选择商城：</span>
@@ -198,7 +198,7 @@
                     </el-select>
                 </div>
                 <div
-                    v-if="!roleIds.some(checkIsTourist)"
+                    v-if="!role_id.some(checkIsTourist)"
                     class="filter-row"
                     style="margin-left: 30px"
                 >
@@ -217,18 +217,18 @@
                 </div>
             </div>
             <div
-                v-show="roleIds.some(checkIsSuperAdmin)"
+                v-show="role_id.some(checkIsSuperAdmin)"
                 id="ad-money"
                 class="ad-money"
             ></div>
             <div
-                v-show="roleIds.some(checkIsSuperAdmin) || roleIds.some(checkIsAdmin)"
+                v-show="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
                 id="sales-users"
                 class="sales-users"
             ></div>
         </div>
         <div
-            v-show="roleIds.some(checkIsMechant)"
+            v-show="role_id.some(checkIsMechant)"
             class="merchant-bar-box"
         >
             <div
@@ -237,18 +237,18 @@
             ></div>
         </div>
         <div
-            v-if="roleIds.some(checkIsTourist)"
+            v-if="role_id.some(checkIsTourist)"
             class="welcome-tab"
         ></div>
     </div>
 </template>
 
 <script>
-import echarts from "echarts";
+import echarts from "echarts"
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      roleIds: JSON.parse(this.$cookie.get("roleId")) || [],
       mallId: "",
       mallList: [],
       totalMoney: "",
@@ -297,7 +297,7 @@ export default {
         this.getTransaction();
         this.getCustoms();
         this.getApproval();
-        if (this.roleIds.some(this.checkIsMechant)) {
+        if (this.role_id.some(this.checkIsMechant)) {
           this.getMerchantSaleAndOrders(dateArr);
         }
       }
@@ -305,14 +305,18 @@ export default {
     monthList(n) {
       if (n && n.length == 2) {
         let dateArr = this.initDateList(n[0], n[1]);
-        if (this.roleIds.includes("1") || this.roleIds.includes("2")) {
+        if (this.role_id.includes("1") || this.role_id.includes("2")) {
           this.getAdvertChartData(dateArr);
           this.getSalesAndUsers(dateArr);
-        } else if (this.roleIds.includes("3")) {
+        } else if (this.role_id.includes("3")) {
           this.getMerchantSaleAndOrders(dateArr);
         }
       }
     }
+  },
+  computed: {
+    ...mapState('user', ['role_id']),
+    ...mapState('mall', ['shop_id'])
   },
   methods: {
     initDate(start, end) {
@@ -851,7 +855,7 @@ export default {
           url: "merchant/shopMall/findTShopMallAll",
           method: "post",
           data: {
-            roles: this.roleIds
+            roles: this.role_id
           }
         },
         res => {
@@ -1001,7 +1005,7 @@ export default {
           data: {
             dates: dateArr,
             type: 2,
-            shopId: this.$cookie.get("shopId")
+            shopId: this.shop_id
           }
         },
         res => {
@@ -1027,8 +1031,8 @@ export default {
     this.monthList.push(new Date(`${new Date().getFullYear()}/12`));
     let dateArr = this.initDateList(this.monthList[0], this.monthList[1]);
     if (
-      this.roleIds.some(this.checkIsSuperAdmin) ||
-      this.roleIds.some(this.checkIsAdmin)
+      this.role_id.some(this.checkIsSuperAdmin) ||
+      this.role_id.some(this.checkIsAdmin)
     ) {
       this.getMallList();
       this.getAdMoney();
@@ -1038,7 +1042,7 @@ export default {
       this.getAdvertChartData(dateArr);
       this.getSalesAndUsers(dateArr);
     }
-    if (this.roleIds.some(this.checkIsMechant)) {
+    if (this.role_id.some(this.checkIsMechant)) {
       this.getMerchantSaleAndOrders(dateArr);
     }
   }

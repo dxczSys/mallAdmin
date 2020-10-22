@@ -2,7 +2,7 @@ export default {
   namespaced: true,
   state: {
     user_id: '',
-    role_id: '',
+    role_id: [],
     role_name: '',
     user_name: '',
     real_user_name: '',
@@ -14,10 +14,10 @@ export default {
       state.user_id = val
     },
     SET_ROLE_ID (state, val) {
-      state.role_Id = val
+      state.role_id = val
     },
     SET_ROLE_NAME (state, val) {
-      state.role_Name = val
+      state.role_name = val
     },
     SET_USER_NAME (state, val) {
       state.user_name = val
