@@ -1,18 +1,18 @@
 export default {
   namespaced: true,
   state: {
-    mall: '',
+    mall: {},
     mall_name: '',
     mall_id: '',
     floor_name: '',
     floor_id: '',
-    shop: '',
+    shop: {},
     shop_name: '',
     shop_id: ''
   },
   mutations: {
     SET_MALL(state, val) {
-      state.mall = val
+      state.mall = Object.assign({}, val)
     },
     SET_MALL_NAME(state, val) {
       state.mall_name = val
@@ -27,7 +27,7 @@ export default {
       state.floor_id = val
     },
     SET_SHOP(state, val) {
-      state.shop = val
+      state.shop = Object.assign({}, val)
     },
     SET_SHOP_NAME(state, val) {
       state.shop_name = val

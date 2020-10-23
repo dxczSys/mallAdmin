@@ -29,33 +29,32 @@
               <i class="iconfont iconcaidan"></i>编辑
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item
-                @click.native="$router.push({ name: 'admin-add-mall' })"
-                >新增商城</el-dropdown-item
-              >
-              <el-dropdown-item @click.native="getAllMall"
-                >授权中心</el-dropdown-item
-              >
+              <el-dropdown-item @click.native="$router.push({ name: 'admin-add-mall' })">新增商城</el-dropdown-item>
+              <el-dropdown-item @click.native="getAllMall">授权中心</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </div>
       <div class="organize-right">
         <div style="display: flex; align-items: center">
-          <div
-            style="
+          <div style="
               width: 5px;
               height: 15px;
               background-color: #409eff;
               border-radius: 1px;
               margin-right: 3px;
-            "
-          ></div>
-          <div v-if="currentLevel == 3 && isAdmin" style="font-weight: 600">
+            "></div>
+          <div
+            v-if="currentLevel == 3 && isAdmin"
+            style="font-weight: 600"
+          >
             <span>{{ currentParentLabel }}</span>
             <span style="padding-left: 8px">{{ currentLabel }}</span>
           </div>
-          <div v-if="currentLevel == 3 && !isAdmin" style="font-weight: 600">
+          <div
+            v-if="currentLevel == 3 && !isAdmin"
+            style="font-weight: 600"
+          >
             <span>{{ currentParentLabel }}</span>
             <span style="padding-left: 8px">{{ currentLabel }}楼</span>
           </div>
@@ -66,7 +65,10 @@
             {{ currentLabel }}
           </div>
         </div>
-        <div class="mall-box" v-if="currentLevel == 1">
+        <div
+          class="mall-box"
+          v-if="currentLevel == 1"
+        >
           <div class="mall-item-box">
             <div
               class="mall-item"
@@ -87,10 +89,19 @@
             </div>
           </div>
         </div>
-        <div class="admin-person-mess" v-if="currentLevel == 3 && isAdmin">
+        <div
+          class="admin-person-mess"
+          v-if="currentLevel == 3 && isAdmin"
+        >
           <div class="admin-person-avatar">
-            <img v-if="adminMess.userPic" :src="fileUrl + adminMess.userPic" />
-            <img v-else src="~@/assets/img/avatar_default.png" />
+            <img
+              v-if="adminMess.userPic"
+              :src="fileUrl + adminMess.userPic"
+            />
+            <img
+              v-else
+              src="~@/assets/img/avatar_default.png"
+            />
           </div>
           <div class="admin-person-row">
             <label>姓名：</label>
@@ -120,9 +131,16 @@
             >
               *当前楼层暂无商家入驻
             </div>
-            <div class="shop-item-box" v-if="item.children">
+            <div
+              class="shop-item-box"
+              v-if="item.children"
+            >
               <el-row :gutter="10">
-                <el-col :span="4" v-for="(value, j) in item.children" :key="j">
+                <el-col
+                  :span="4"
+                  v-for="(value, j) in item.children"
+                  :key="j"
+                >
                   <div class="shop-item">
                     <img :src="fileUrl + value.url" />
                     <div>{{ value.label }}</div>
@@ -132,7 +150,10 @@
             </div>
           </div>
         </div>
-        <div class="shop-mess-box" v-if="currentLevel == 4">
+        <div
+          class="shop-mess-box"
+          v-if="currentLevel == 4"
+        >
           <el-row :gutter="10">
             <el-col :span="12">
               <div class="shop-mess-row">
@@ -241,7 +262,11 @@
       </div>
     </div>
 
-    <el-dialog title="授权中心" :visible.sync="dialogVisible" width="400px">
+    <el-dialog
+      title="授权中心"
+      :visible.sync="dialogVisible"
+      width="400px"
+    >
       <div>
         <el-form
           ref="authorizeForm"
@@ -249,7 +274,11 @@
           :rules="rules"
           label-width="80px"
         >
-          <el-form-item label="授权商城" prop="mallId" required>
+          <el-form-item
+            label="授权商城"
+            prop="mallId"
+            required
+          >
             <el-select
               v-model="authorizeForm.mallId"
               placeholder="请选择授权商城"
@@ -264,7 +293,11 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="授予人" prop="userId" required>
+          <el-form-item
+            label="授予人"
+            prop="userId"
+            required
+          >
             <el-select
               v-model="authorizeForm.userId"
               filterable
@@ -283,22 +316,33 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="授予" required>
+          <el-form-item
+            label="授予"
+            required
+          >
             <el-select
               v-model="authorizeForm.roleId"
               placeholder="请选择角色"
               style="width: 100%"
             >
-              <el-option label="商城管理员" value="1"></el-option>
+              <el-option
+                label="商城管理员"
+                value="1"
+              ></el-option>
             </el-select>
           </el-form-item>
         </el-form>
       </div>
       <div slot="footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" @click="handleAuthorize"
-          >确 定</el-button
-        >
+        <el-button
+          size="small"
+          @click="dialogVisible = false"
+        >取 消</el-button>
+        <el-button
+          size="small"
+          type="primary"
+          @click="handleAuthorize"
+        >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -326,30 +370,28 @@ export default {
       authorizeForm: {
         mallId: "",
         userId: "",
-        roleId: "1",
+        roleId: "1"
       },
       mallIdList: [],
       remoteUserList: [],
       shopMessData: {},
       rules: {
         mallId: [
-          { required: true, message: "授权商城不能为空", trigger: "blur" },
+          { required: true, message: "授权商城不能为空", trigger: "blur" }
         ],
-        userId: [
-          { required: true, message: "授予人不能为空", trigger: "blur" },
-        ],
-      },
+        userId: [{ required: true, message: "授予人不能为空", trigger: "blur" }]
+      }
     };
   },
   computed: {
-      ...mapState('user', ['role_id'])
+    ...mapState("user", ["role_id"])
   },
   methods: {
     renderTree(h, { node, data, store }) {
       if (node.level == 1) {
         return (
           <div class="first-level">
-            <icon-svg name="company"></icon-svg>
+            <icon-svg name="company" />
             <span>{data.label}</span>
           </div>
         );
@@ -357,18 +399,18 @@ export default {
         return (
           <div class="others-level">
             <span class="others-level-label">
-              <icon-svg name="mall"></icon-svg>
+              <icon-svg name="mall" />
               <span>{data.label}</span>
             </span>
             <span class="others-level-operate">
               <span
                 class="el-icon-edit edit-tree-node"
                 onClick={() => this.editMall(data.id)}
-              ></span>
+              />
               <span
                 class="el-icon-delete delete-tree-node"
                 onClick={() => this.deleteTreeNode(data.id, node)}
-              ></span>
+              />
             </span>
           </div>
         );
@@ -387,9 +429,11 @@ export default {
         return (
           <div class="others-level">
             <span class="others-level-label">
-              <icon-svg name={iconName}></icon-svg>
+              <icon-svg name={iconName} />
               <span>
-                {_label}&nbsp;&nbsp;{name}
+                {_label}
+                &nbsp;&nbsp;
+                {name}
               </span>
             </span>
             <span class="others-level-operate">
@@ -399,15 +443,15 @@ export default {
                     title="取消授权"
                     onClick={() => this.cancelAuthriod(data, node)}
                     class="iconfont iconshouquan edit-tree-node"
-                  ></span>
+                  />
                 ) : (
-                  <span></span>
+                  <span />
                 )
               ) : (
                 <span
                   class="el-icon-delete delete-tree-node"
                   onClick={() => this.deleteTreeNode(data.id, node)}
-                ></span>
+                />
               )}
             </span>
           </div>
@@ -416,14 +460,14 @@ export default {
         return (
           <div class="others-level">
             <span class="others-level-label">
-              <icon-svg name="dianpu"></icon-svg>
+              <icon-svg name="dianpu" />
               <span>{data.label}</span>
             </span>
             <span class="others-level-operate">
               <span
                 class="el-icon-delete delete-tree-node"
                 onClick={() => this.deleteTreeNode(data.id, node)}
-              ></span>
+              />
             </span>
           </div>
         );
@@ -436,9 +480,9 @@ export default {
         this.http(
           {
             url: `merchant/shopMall/tShopMallSelTree?id=&type=1`,
-            method: "get",
+            method: "get"
           },
-          (res) => {
+          res => {
             if (res.data.code == 200) {
               this.mallList = res.data.data;
               return resolve(res.data.data);
@@ -449,9 +493,9 @@ export default {
         this.http(
           {
             url: `merchant/shopMall/tShopMallSelTree?id=${node.data.id}&type=2`,
-            method: "get",
+            method: "get"
           },
-          (res) => {
+          res => {
             if (res.data.code == 200) {
               return resolve(res.data.data);
             }
@@ -464,9 +508,9 @@ export default {
           this.http(
             {
               url: `merchant/tShop/selShopByFloorId?floorId=${node.data.id}`,
-              method: "get",
+              method: "get"
             },
-            (res1) => {
+            res1 => {
               if (res1.data.code == 200) {
                 return resolve(res1.data.data);
               }
@@ -481,8 +525,8 @@ export default {
       this.$router.push({
         name: "admin-add-mall",
         query: {
-          id: id,
-        },
+          id: id
+        }
       });
     },
     deleteTreeNode(id, node) {
@@ -492,17 +536,16 @@ export default {
         this.$confirm("此操作将删除该节点, 是否继续?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
-          type: "warning",
+          type: "warning"
         })
           .then(() => {
             this.http(
               {
-                url: `merchant/shopMall/tShopMallDelById?id=${id}&type=${
-                  node.level - 1
-                }`,
-                method: "get",
+                url: `merchant/shopMall/tShopMallDelById?id=${id}&type=${node.level -
+                  1}`,
+                method: "get"
               },
-              (res) => {
+              res => {
                 if (res.data.code == 200) {
                   this.$refs.myTree.remove(node);
                   this.$message.success("删除成功！");
@@ -521,10 +564,12 @@ export default {
       if (node.level == 2) {
         this.http(
           {
-            url: `merchant/shopMall/selShopAllByShopMallId?shopMallId=${data.id}`,
-            method: "get",
+            url: `merchant/shopMall/selShopAllByShopMallId?shopMallId=${
+              data.id
+            }`,
+            method: "get"
           },
-          (res) => {
+          res => {
             if (res.data.code == 200) {
               this.floorList = res.data.data;
             }
@@ -535,9 +580,9 @@ export default {
           this.http(
             {
               url: `merchant/selById?userId=${data.id}`,
-              method: "get",
+              method: "get"
             },
-            (res) => {
+            res => {
               if (res.data.code == 200) {
                 this.adminMess = res.data.data;
               }
@@ -546,7 +591,7 @@ export default {
         } else {
           let _arr = [],
             obj = JSON.parse(JSON.stringify(data));
-          node.childNodes.forEach((item) => {
+          node.childNodes.forEach(item => {
             _arr.push(item.data);
           });
           obj.children = _arr;
@@ -556,9 +601,9 @@ export default {
         this.http(
           {
             url: `merchant/shopMall/selTShopInfoByShopId?shopId=${data.id}`,
-            method: "get",
+            method: "get"
           },
-          (res) => {
+          res => {
             if (res.data.code == 200) {
               this.shopMessData = res.data.data;
             }
@@ -570,9 +615,9 @@ export default {
       this.http(
         {
           url: "merchant/shopMall/tShopMallSelByAllAuthorization",
-          method: "get",
+          method: "get"
         },
-        (res) => {
+        res => {
           if (res.data.code == 200) {
             this.mallIdList = res.data.data;
             this.dialogVisible = true;
@@ -585,9 +630,9 @@ export default {
         this.http(
           {
             url: `merchant/dynamicFind?query=${query}`,
-            method: "get",
+            method: "get"
           },
-          (res) => {
+          res => {
             if (res.data.code == 200) {
               this.remoteUserList = res.data.data;
             }
@@ -598,20 +643,22 @@ export default {
       }
     },
     handleAuthorize() {
-      this.$refs.authorizeForm.validate((valid) => {
+      this.$refs.authorizeForm.validate(valid => {
         if (valid) {
           this.http(
             {
-              url: `merchant/shopMall/shopAuthorization?type=1&userId=${this.authorizeForm.userId}&shopId=${this.authorizeForm.mallId}`,
-              method: "get",
+              url: `merchant/shopMall/shopAuthorization?type=1&userId=${
+                this.authorizeForm.userId
+              }&shopId=${this.authorizeForm.mallId}`,
+              method: "get"
             },
-            (res) => {
+            res => {
               if (res.data.code == 200) {
                 this.expandedId.push(this.authorizeForm.mallId);
                 this.$refs.authorizeForm.resetFields();
                 this.dialogVisible = false;
                 this.refreshTree = false;
-                this.$nextTick((_) => {
+                this.$nextTick(_ => {
                   this.refreshTree = true;
                 });
                 this.$message.success("授权成功！");
@@ -637,7 +684,7 @@ export default {
             { style: "color: #409EFF; padding-right: 5px;" },
             data.realName
           ),
-          h("span", null, "的管理员权限?"),
+          h("span", null, "的管理员权限?")
         ]),
         showCancelButton: true,
         confirmButtonText: "确定",
@@ -646,10 +693,12 @@ export default {
           if (action === "confirm") {
             this.http(
               {
-                url: `merchant/shopMall/shopAuthorization?type=2&userId=${data.id}&shopId=${node.parent.data.id}`,
-                method: "get",
+                url: `merchant/shopMall/shopAuthorization?type=2&userId=${
+                  data.id
+                }&shopId=${node.parent.data.id}`,
+                method: "get"
               },
-              (res) => {
+              res => {
                 if (res.data.code == 200) {
                   this.$refs.myTree.remove(node);
                   done();
@@ -659,10 +708,10 @@ export default {
           } else {
             done();
           }
-        },
-      }).then((action) => {});
-    },
-  },
+        }
+      }).then(action => {});
+    }
+  }
 };
 </script>
 

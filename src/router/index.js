@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '@/store'
 import { getHttp } from '@/utils/tools'
 import { isURL } from '@/utils/validate'
 import { clearLoginInfo } from '@/utils'
@@ -12,152 +13,228 @@ const _import = require('./import-' + process.env.NODE_ENV)
 
 // 全局路由(无需嵌套上左右整体布局)
 const globalRoutes = [
-    { path: '/404', component: _import('common/404'), name: '404', meta: { title: '404未找到' } },
-    { path: '/login', component: _import('common/login'), name: 'login', meta: { title: '登录' } },
-    { path: '/register', component: _import('common/register'), name: 'register', meta: { title: '注册' } },
-    { path: '/agreement', component: _import('common/agreement'), name: 'agreement', meta: { title: '入驻协议' } },
-    { path: '/forget-password', component: _import('common/forget-password'), name: 'forget-password', meta: { title: '忘记密码' } }
+  { path: '/404', component: _import('common/404'), name: '404', meta: { title: '404未找到' } },
+  { path: '/login', component: _import('common/login'), name: 'login', meta: { title: '登录' } },
+  { path: '/register', component: _import('common/register'), name: 'register', meta: { title: '注册' } },
+  { path: '/agreement', component: _import('common/agreement'), name: 'agreement', meta: { title: '入驻协议' } },
+  { path: '/forget-password', component: _import('common/forget-password'), name: 'forget-password', meta: { title: '忘记密码' } }
 ]
 
 // 主入口路由(需嵌套上左右整体布局)
 const mainRoutes = {
-    path: '/',
-    component: _import('main'),
-    name: 'main',
-    redirect: { name: 'home' },
-    meta: { title: '首页' },
-    children: [
-        // 通过meta对象设置路由展示方式
-        // 1. isTab: 是否通过tab展示内容, true: 是, false: 否
-        // 2. iframeUrl: 是否通过iframe嵌套展示内容, '以http[s]://开头': 是, '': 否
-        // 提示: 如需要通过iframe嵌套展示内容, 但不通过tab打开, 请自行创建组件使用iframe处理!
-        { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '首页' } },
-        { path: '/user-apply-ad', component: _import('modules/user/applyAd'), name: 'user-apply-ad', meta: { title: '广告位申请', isTab: false } },
-        { path: '/user-sendout-goods', component: _import('modules/user/sendout-goods'), name: 'user-sendout-goods', meta: { title: '发货', isTab: false } },
-        { path: '/user-order-detail', component: _import('modules/user/order-detail'), name: 'user-order-detail', meta: { title: '订单详情', isTab: false } },
-        { path: '/user-dealwith-sale', component: _import('modules/user/dealwith-sale'), name: 'user-dealwith-sale', meta: { title: '售后处理', isTab: false } },
-        { path: '/setting-update-personInfo', component: _import('modules/setting/update-personInfo'), name: 'setting-update-personInfo', meta: { title: '基本信息修改', isTab: false } },
-        { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } },
-        { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } },
-        { path: '/admin-approval-detail', component: _import('modules/admin/approval-detail'), name: 'admin-approval-detail', meta: { title: '审批详情', isTab: false } },
-        { path: '/user-edit-goods', component: _import('modules/user/edit-goods'), name: 'user-edit-goods', meta: { title: '编辑商品', isTab: false } },
-        { path: '/admin-dealwidth-sale', component: _import('modules/admin/admin-dealwidth-sale'), name: 'admin-dealwidth-sale', meta: { title: '超管售后', isTab: false } },
-    ]
+  path: '/',
+  component: _import('main'),
+  name: 'main',
+  redirect: { name: 'home' },
+  meta: { title: '首页' },
+  children: [
+    // 通过meta对象设置路由展示方式
+    // 1. isTab: 是否通过tab展示内容, true: 是, false: 否
+    // 2. iframeUrl: 是否通过iframe嵌套展示内容, '以http[s]://开头': 是, '': 否
+    // 提示: 如需要通过iframe嵌套展示内容, 但不通过tab打开, 请自行创建组件使用iframe处理!
+    { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '首页' } },
+    { path: '/user-apply-ad', component: _import('modules/user/applyAd'), name: 'user-apply-ad', meta: { title: '广告位申请', isTab: false } },
+    { path: '/user-sendout-goods', component: _import('modules/user/sendout-goods'), name: 'user-sendout-goods', meta: { title: '发货', isTab: false } },
+    { path: '/user-order-detail', component: _import('modules/user/order-detail'), name: 'user-order-detail', meta: { title: '订单详情', isTab: false } },
+    { path: '/user-dealwith-sale', component: _import('modules/user/dealwith-sale'), name: 'user-dealwith-sale', meta: { title: '售后处理', isTab: false } },
+    { path: '/setting-update-personInfo', component: _import('modules/setting/update-personInfo'), name: 'setting-update-personInfo', meta: { title: '基本信息修改', isTab: false } },
+    { path: '/setting-update-password', component: _import('modules/setting/update-password'), name: 'setting-update-password', meta: { title: '修改密码', isTab: false } },
+    { path: '/admin-add-mall', component: _import('modules/admin/add-mall'), name: 'admin-add-mall', meta: { title: '新增商城', isTab: false } },
+    { path: '/admin-approval-detail', component: _import('modules/admin/approval-detail'), name: 'admin-approval-detail', meta: { title: '审批详情', isTab: false } },
+    { path: '/user-edit-goods', component: _import('modules/user/edit-goods'), name: 'user-edit-goods', meta: { title: '编辑商品', isTab: false } },
+    { path: '/admin-dealwidth-sale', component: _import('modules/admin/admin-dealwidth-sale'), name: 'admin-dealwidth-sale', meta: { title: '超管售后', isTab: false } },
+  ]
 }
 
 const router = new Router({
-    mode: 'hash',
-    scrollBehavior: () => ({ y: 0 }),
-    isAddDynamicMenuRoutes: false,   // 是否已经添加动态(菜单)路由
-    routes: globalRoutes.concat(mainRoutes)
+  mode: 'hash',
+  scrollBehavior: () => ({ y: 0 }),
+  isAddDynamicMenuRoutes: false,   // 是否已经添加动态(菜单)路由
+  routes: globalRoutes.concat(mainRoutes)
 })
 
 router.beforeEach((to, from, next) => {
-    const no = ['login', 'register', 'agreement', 'forget-password']
-    if (no.includes(to.name)) {
-        next()
-    } else {
-        const acc_token = Vue.cookie.get('acc_token')
-        if (acc_token) {
+  const no = ['login', 'register', 'agreement', 'forget-password']
+  if (no.includes(to.name)) {
+    next()
+  } else {
+    if (!store.state.user.user_id) {
+      getHttp({
+        url: 'merchant/getUserIByUserId',
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          let _data = res.data.data.user
+          let mall = res.data.data.shopMall
+          let shop = res.data.data.shop
+          let floor = res.data.data.shopFloor
+          let _roleids = []
+          let _roleNames = []
+          let roleLists = res.data.data.user.roleLists || []
+          roleLists.forEach(item => {
+            _roleids.push(item.id)
+            _roleNames.push(item.roleName)
+          })
+          store.commit('user/SET_USER_ID', _data.id)
+          store.commit('user/SET_ROLE_ID', _roleids)
+          store.commit('user/SET_ROLE_NAME', _roleNames)
+          store.commit('user/SET_USER_NAME', _data.userName || "")
+          store.commit('user/SET_REAL_USER_NAME', _data.realUserName || "")
+          store.commit('user/SET_PHONE', _data.userTel)
+          store.commit('user/SET_URL', _data.userPic || "")
+          if (mall) {
+            store.commit('mall/SET_MALL', mall)
+            store.commit('mall/SET_MALL_NAME', mall.shopName)
+            store.commit('mall/SET_MALL_ID', mall.id)
+          }
+          if (floor) {
+            store.commit('mall/SET_FLOOR_NAME', floor.shopName)
+            store.commit('mall/SET_FLOOR_ID', floor.id)
+          }
+          if (shop) {
+            store.commit('mall/SET_SHOP', shop)
+            store.commit('mall/SET_SHOP_NAME', shop.shopName)
+            store.commit('mall/SET_SHOP_ID', shop.id)
+          }
+          const acc_token = Vue.cookie.get('acc_token')
+          if (acc_token) {
             if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
-                next()
-            }else {
-                getHttp({
-                    url: 'merchant/findUserMenuLisByLoginUser',
-                    method: 'get',
-                }, res => {
-                    if (res.data.code == 200) {
-                        fnAddDynamicMenuRoutes(res.data.data)
-                        router.options.isAddDynamicMenuRoutes = true
-                        sessionStorage.setItem('menuList', JSON.stringify(res.data.data || '[]'))
-                        next({ ...to, replace: true })
-                    }else {
-                        sessionStorage.setItem('menuList', '[]')
-                        Message({
-                            message: res.data.msg,
-                            type: 'error',
-                            duration: 1500
-                        })
-                        next()
-                    }
-                }, err => {
-                    clearLoginInfo()
-                    router.push({ name: 'login' })
-                })
+              next()
+            } else {
+              getHttp({
+                url: 'merchant/findUserMenuLisByLoginUser',
+                method: 'get',
+              }, res => {
+                if (res.data.code == 200) {
+                  fnAddDynamicMenuRoutes(res.data.data)
+                  router.options.isAddDynamicMenuRoutes = true
+                  store.commit('user/SET_MENU_LIST', res.data.data || [])
+                  next({ ...to, replace: true })
+                } else {
+                  store.commit('user/SET_MENU_LIST', [])
+                  Message({
+                    message: res.data.msg,
+                    type: 'error',
+                    duration: 1500
+                  })
+                  next()
+                }
+              }, err => {
+                clearLoginInfo()
+                router.push({ name: 'login' })
+              })
             }
-        } else {
+          } else {
             clearLoginInfo()
             next({ name: 'login' })
+          }
+        } else {
+          clearLoginInfo()
+          next({ name: 'login' })
         }
+      })
+    } else {
+      const acc_token = Vue.cookie.get('acc_token')
+      if (acc_token) {
+        if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
+          next()
+        } else {
+          getHttp({
+            url: 'merchant/findUserMenuLisByLoginUser',
+            method: 'get',
+          }, res => {
+            if (res.data.code == 200) {
+              fnAddDynamicMenuRoutes(res.data.data)
+              router.options.isAddDynamicMenuRoutes = true
+              store.commit('user/SET_MENU_LIST', res.data.data || [])
+              next({ ...to, replace: true })
+            } else {
+              store.commit('user/SET_MENU_LIST', [])
+              Message({
+                message: res.data.msg,
+                type: 'error',
+                duration: 1500
+              })
+              next()
+            }
+          }, err => {
+            clearLoginInfo()
+            router.push({ name: 'login' })
+          })
+        }
+      } else {
+        clearLoginInfo()
+        next({ name: 'login' })
+      }
     }
-    
+  }
 })
-  
+
 /**
  * 判断当前路由类型, global: 全局路由, main: 主入口路由
  * @param {*} route 当前路由
  */
-function fnCurrentRouteType (route, globalRoutes = []) {
-    var temp = []
-    for (var i = 0; i < globalRoutes.length; i++) {
-        if (route.path === globalRoutes[i].path) {
-            return 'global'
-        }else if (globalRoutes[i].children && globalRoutes[i].children.length >= 1) {
-            temp = temp.concat(globalRoutes[i].children)
-        }
+function fnCurrentRouteType(route, globalRoutes = []) {
+  var temp = []
+  for (var i = 0; i < globalRoutes.length; i++) {
+    if (route.path === globalRoutes[i].path) {
+      return 'global'
+    } else if (globalRoutes[i].children && globalRoutes[i].children.length >= 1) {
+      temp = temp.concat(globalRoutes[i].children)
     }
-    return temp.length >= 1 ? fnCurrentRouteType(route, temp) : 'main'
+  }
+  return temp.length >= 1 ? fnCurrentRouteType(route, temp) : 'main'
 }
-  
+
 /**
  * 添加动态(菜单)路由
  * @param {*} menuList 菜单列表
  * @param {*} routes 递归创建的动态(菜单)路由
  */
-function fnAddDynamicMenuRoutes (menuList = [], routes = []) {
-    var temp = []
-    for (var i = 0; i < menuList.length; i++) {
-        if (menuList[i].list && menuList[i].list.length >= 1) {
-            temp = temp.concat(menuList[i].list)
-        }else if (menuList[i].url && /\S/.test(menuList[i].url)) {
-            menuList[i].url = menuList[i].url.replace(/^\//, '')
-            var route = {
-                path: menuList[i].url.replace('/', '-'),
-                component: null,
-                name: menuList[i].url.replace('/', '-'),
-                meta: {
-                    menuId: menuList[i].menuId,
-                    title: menuList[i].name,
-                    isDynamic: true,
-                    isTab: false,
-                    iframeUrl: ''
-                }
-            }
-            // url以http[s]://开头, 通过iframe展示
-            if (isURL(menuList[i].url)) {
-                route['path'] = `i-${menuList[i].menuId}`
-                route['name'] = `i-${menuList[i].menuId}`
-                route['meta']['iframeUrl'] = menuList[i].url
-            }else {
-                try {
-                    route['component'] = _import(`modules/${menuList[i].url}`) || null
-                } catch (e) {}
-            }
-            routes.push(route)
+function fnAddDynamicMenuRoutes(menuList = [], routes = []) {
+  var temp = []
+  for (var i = 0; i < menuList.length; i++) {
+    if (menuList[i].list && menuList[i].list.length >= 1) {
+      temp = temp.concat(menuList[i].list)
+    } else if (menuList[i].url && /\S/.test(menuList[i].url)) {
+      menuList[i].url = menuList[i].url.replace(/^\//, '')
+      var route = {
+        path: menuList[i].url.replace('/', '-'),
+        component: null,
+        name: menuList[i].url.replace('/', '-'),
+        meta: {
+          menuId: menuList[i].menuId,
+          title: menuList[i].name,
+          isDynamic: true,
+          isTab: false,
+          iframeUrl: ''
         }
+      }
+      // url以http[s]://开头, 通过iframe展示
+      if (isURL(menuList[i].url)) {
+        route['path'] = `i-${menuList[i].menuId}`
+        route['name'] = `i-${menuList[i].menuId}`
+        route['meta']['iframeUrl'] = menuList[i].url
+      } else {
+        try {
+          route['component'] = _import(`modules/${menuList[i].url}`) || null
+        } catch (e) { }
+      }
+      routes.push(route)
     }
+  }
 
-    if (temp.length >= 1) {
-        fnAddDynamicMenuRoutes(temp, routes)
-    }else {
-        mainRoutes.name = 'main-dynamic'
-        mainRoutes.children = routes
-        router.addRoutes([
-            mainRoutes,
-            { path: '*', redirect: { name: '404' } }
-        ])
-        sessionStorage.setItem('dynamicMenuRoutes', JSON.stringify(mainRoutes.children || '[]'))
-    }
+  if (temp.length >= 1) {
+    fnAddDynamicMenuRoutes(temp, routes)
+  } else {
+    mainRoutes.name = 'main-dynamic'
+    mainRoutes.children = routes
+    router.addRoutes([
+      mainRoutes,
+      { path: '*', redirect: { name: '404' } }
+    ])
+    store.commit('user/SET_DYNAMIC_MENU_ROUTES', mainRoutes.children || [])
+  }
 }
-  
+
 export default router

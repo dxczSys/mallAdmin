@@ -352,21 +352,21 @@ export default {
         },
         (res) => {
           if (res.data.code == 200) {
-            let user = res.data.data.user;
-            this.roleLists = user.roleLists;
+            let user = res.data.data.user
+            this.roleLists = user.roleLists
             if (user.userPic) {
-              this.avatar = [{ url: this.fileUrl + user.userPic }];
+              this.avatar = [{ url: this.fileUrl + user.userPic }]
             } else {
               this.avatar = [
-                { url: require("@/assets/img/avatar_default.png") },
-              ];
+                { url: require("@/assets/img/avatar_default.png") }
+              ]
             }
-            this.nikeName = user.userName;
-            this.phone = user.userTel;
-            this.chat = user.uerVx;
-            this.realName = user.realUserName || "";
-            this.email = user.userEmail || "";
-            this.sex = user.userSex || "";
+            this.nikeName = user.userName
+            this.phone = user.userTel
+            this.chat = user.uerVx
+            this.realName = user.realUserName || ""
+            this.email = user.userEmail || ""
+            this.sex = user.userSex || ""
           }
         }
       );

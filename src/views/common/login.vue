@@ -10,44 +10,44 @@
           <div class="login-box-d">
             <div class="box-title">登&nbsp;&nbsp;&nbsp;&nbsp;录</div>
               <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0px">
-                  <el-form-item prop="username">
-                    <el-input
-                      v-model="loginForm.username"
-                      size="large"
-                      placeholder="手机号"
-                      prefix-icon="iconfont iconyonghu"
-                      @keydown.enter.native="handleLogin">
-                    </el-input>
-                  </el-form-item>
-                  <el-form-item
-                    prop="password"
-                    style="margin-bottom: 10px;">
-                    <el-input
-                      type="password"
-                      v-model="loginForm.password"
-                      placeholder="密码"
-                      size="large"
-                      prefix-icon="iconfont iconmima"
-                      @keydown.enter.native="handleLogin"></el-input>
-                  </el-form-item>
-                  <div class="forget-register">
-                      <span
-                          tappable
-                          @click="$router.push({ name: 'forget-password'})"
-                      >忘记密码?</span>
-                      <span
-                          tappable
-                          @click="$router.push({name: 'register'})"
-                      >免费注册</span>
-                  </div>
-                  <el-form-item>
-                      <el-button
-                          @click="handleLogin"
-                          type="primary"
-                          round
-                          style="width: 100%;"
-                      >登&nbsp;&nbsp;录</el-button>
-                  </el-form-item>
+                <el-form-item prop="username">
+                  <el-input
+                    v-model="loginForm.username"
+                    size="large"
+                    placeholder="手机号"
+                    prefix-icon="iconfont iconyonghu"
+                    @keydown.enter.native="handleLogin">
+                  </el-input>
+                </el-form-item>
+                <el-form-item
+                  prop="password"
+                  style="margin-bottom: 10px;">
+                  <el-input
+                    type="password"
+                    v-model="loginForm.password"
+                    placeholder="密码"
+                    size="large"
+                    prefix-icon="iconfont iconmima"
+                    @keydown.enter.native="handleLogin"></el-input>
+                </el-form-item>
+                <div class="forget-register">
+                    <span
+                        tappable
+                        @click="$router.push({ name: 'forget-password'})"
+                    >忘记密码?</span>
+                    <span
+                        tappable
+                        @click="$router.push({name: 'register'})"
+                    >免费注册</span>
+                </div>
+                <el-form-item>
+                    <el-button
+                        @click="handleLogin"
+                        type="primary"
+                        round
+                        style="width: 100%;"
+                    >登&nbsp;&nbsp;录</el-button>
+                </el-form-item>
               </el-form>
           </div>
         </div>
@@ -114,34 +114,16 @@ export default {
                 this.SET_REAL_USER_NAME(_data.realUserName || "")
                 this.SET_PHONE(_data.userTel)
                 this.SET_URL(_data.userPic || "")
-
-
-                // this.$cookie.set("userId", _data.id);
-                // this.$cookie.set("roleId", JSON.stringify(_roleids));
-                // this.$cookie.set("roleName", JSON.stringify(_roleNames));
-                // this.$cookie.set("userName", _data.userName || "");
-                // this.$cookie.set("realUserName", _data.realUserName || "");
-                // this.$cookie.set("phone", _data.userTel);
-                // this.$cookie.set("url", _data.userPic || "");
-
                 if (mall) {
-                  // sessionStorage.setItem("mallData", JSON.stringify(mall));
-                  // this.$cookie.set("mallName", mall.shopName);
-                  // this.$cookie.set("mallId", mall.id);
                   this.SET_MALL(mall)
                   this.SET_MALL_NAME(mall.shopName)
                   this.SET_MALL_ID(mall.id)
                 }
                 if (floor) {
-                  // this.$cookie.set("floorName", floor.shopName);
-                  // this.$cookie.set("floorId", floor.id);
                   this.SET_FLOOR_NAME(floor.shopName)
                   this.SET_FLOOR_ID(floor.id)
                 }
                 if (shop) {
-                  // localStorage.setItem("shopData", JSON.stringify(shop));
-                  // this.$cookie.set("shopName", shop.shopName);
-                  // this.$cookie.set("shopId", shop.id);
                   this.SET_SHOP(shop)
                   this.SET_SHOP_NAME(shop.shopName)
                   this.SET_SHOP_ID(shop.id)
