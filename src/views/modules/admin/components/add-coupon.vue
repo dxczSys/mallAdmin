@@ -50,17 +50,17 @@
         </el-select>
       </el-form-item>
       <el-form-item label="领取截止时间" prop="end_date">
-        <el-date-picker v-model="form.end_date" :picker-options="pickerOptions" type="datetime" placeholder="领取结束时间"></el-date-picker>
+        <el-date-picker v-model="form.end_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="领取结束时间"></el-date-picker>
       </el-form-item>
       <el-form-item label="优惠券生效时间" prop="effect_date">
-        <el-date-picker v-model="form.effect_date" :picker-options="pickerOptions" type="datetime" placeholder="优惠券生效时间"></el-date-picker>
+        <el-date-picker v-model="form.effect_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券生效时间"></el-date-picker>
       </el-form-item>
       <el-form-item label="优惠券过期时间" prop="expired_date">
-        <el-date-picker v-model="form.expired_date" :picker-options="pickerOptions" type="datetime" placeholder="优惠券过期时间"></el-date-picker>
+        <el-date-picker v-model="form.expired_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券过期时间"></el-date-picker>
       </el-form-item>
       <el-form-item label="优惠券所属商城" prop="mall_id">
         <el-select v-model="form.mall_id" placeholder="请选择" style="width: 220px;">
-          <el-option v-for="item in mall_list" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option v-for="item in mall_list" :key="item.id" :label="item.shopName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
 
@@ -91,7 +91,7 @@
           <template slot="append">张</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="是否立即发布" prop="is_release_options">
+      <el-form-item label="是否立即发布" prop="is_release">
         <el-radio-group v-model="form.is_release">
           <el-radio v-for="item in is_release_options" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
         </el-radio-group>
@@ -106,6 +106,7 @@
 <script>
 import { coupon_type_add_options, coupon_modus_options, coupon_condition_options, coupon_limit_options, is_release_options, preferential_form_options } from '@/enumerate/coupon'
 import { number } from '@/directives/number/index'
+import { mapState } from 'vuex'
 export default {
   props: {
     dialogVisible: {
@@ -183,7 +184,8 @@ export default {
         category_id: [ { required: true, message: '请选择类目', trigger: 'change' } ],
         goods_id: [ { required: true, message: '请选择优惠券所属商品', trigger: 'change' } ],
         coupon_instructions: [ { required: true, message: '请输入使用说明', trigger: 'blur' } ],
-        total: [ { required: true, message: '请输入发布总量', trigger: 'blur' } ]
+        total: [ { required: true, message: '请输入发布总量', trigger: 'blur' } ],
+        is_release: [ { required: true, message: '请选择是否立即发布', trigger: 'change' } ],
       },
       pickerOptions: {
         disabledDate(time) {
@@ -194,8 +196,54 @@ export default {
       category_list: []
     }
   },
+  computed: {
+    ...mapState('user', ['role_id'])
+  },
+  created() {
+    this.getMallList()
+  },
   methods: {
-    onSubmit() {},
+    onSubmit() {
+      this.http({
+        url: 'market/coupon/addCoupon',
+        method: 'post',
+        data: {
+          couponName: this.form.coupon_name,
+          couponType: this.form.coupon_type,
+          couponModus: this.form.preferential_form,
+          couponParPrice: this.form.coupon_par_price,
+          couponDistributionForm: this.form.coupon_modus,
+          couponCondition: this.form.coupon_condition,
+          couponLimit: this.form.coupon_limit,
+          receiveEndTime: this.form.end_date,
+          effectDate: this.form.effect_date,
+          expiredDate: this.form.expired_date,
+          shopMallId: this.form.mall_id,
+          couponInstructions: this.form.coupon_instructions,
+          couponNumber: this.form.total,
+          isRelease: this.form.is_release
+        }
+      }, res => {
+        this.$emit('addCoupon', res.data)
+      })
+    },
+    getMallList() {
+      this.http({
+        url: 'merchant/shopMall/findTShopMallAll',
+        method: 'post',
+        data: {
+          roles: this.role_id
+        }
+      }, res => {
+        if (res.data.code == 200) {
+          this.mall_list = res.data.data
+          this.mall_list.unshift({
+            shopName: '所有',
+            id: ''
+          })
+        }
+      })
+    },
     loadNode() {},
     handleCancel() {
       this.$emit('update:dialogVisible', false)

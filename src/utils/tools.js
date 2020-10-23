@@ -54,7 +54,7 @@ export function getHttp(params, callback, err = (e) => { console.log(e) }, isLoa
         http({
             url: url,
             method: params.method,
-            data: http.adornData(params.data || {})
+            data: params.data || {}
         }).then(data => {
             isLoading && loadingInstance.close()
             callback(data)

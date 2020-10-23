@@ -104,7 +104,7 @@ http.adornData = (data = {}, openDefultdata = false, contentType = 'json') => {
         't': new Date().getTime()
     }
     data = openDefultdata ? merge(defaults, data) : data
-    return contentType === 'json' ? JSON.stringify(data) : qs.stringify(data)
+    return data
 }
 
 export default http

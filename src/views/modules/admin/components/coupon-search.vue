@@ -75,7 +75,7 @@ export default {
         if (res.data.code == 200) {
           this.coupon_mall_options = res.data.data
           this.coupon_mall_options.unshift({
-            shopName: '全部',
+            shopName: '所有',
             id: ''
           })
         }
