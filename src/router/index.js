@@ -55,10 +55,11 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   const no = ['login', 'register', 'agreement', 'forget-password']
+  const acc_token = Vue.cookie.get('acc_token')
   if (no.includes(to.name)) {
     next()
   } else {
-    if (!store.state.user.user_id) {
+    if (!store.state.user.user_id && acc_token) {
       getHttp({
         url: 'merchant/getUserIByUserId',
         method: 'get'
@@ -96,7 +97,6 @@ router.beforeEach((to, from, next) => {
             store.commit('mall/SET_SHOP_NAME', shop.shopName)
             store.commit('mall/SET_SHOP_ID', shop.id)
           }
-          const acc_token = Vue.cookie.get('acc_token')
           if (acc_token) {
             if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
               next()
@@ -134,7 +134,6 @@ router.beforeEach((to, from, next) => {
         }
       })
     } else {
-      const acc_token = Vue.cookie.get('acc_token')
       if (acc_token) {
         if (router.options.isAddDynamicMenuRoutes || fnCurrentRouteType(to, globalRoutes) === 'global') {
           next()
