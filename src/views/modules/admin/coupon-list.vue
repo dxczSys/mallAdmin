@@ -1,7 +1,7 @@
 <template>
   <div class="coupon">
     <tabs-title tabs-name="优惠券"></tabs-title>
-    <coupon-search></coupon-search>
+    <coupon-search @search="handleSearch"></coupon-search>
     <div class="add">
       <el-button type="primary" icon="el-icon-plus" size="small" @click="dialogVisible = true">新制优惠券</el-button>
     </div>
@@ -9,7 +9,7 @@
       <el-table :data="tableData" border stripe>
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券名称" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券类型" width="120" align="center" header-align="center">
+        <el-table-column label="优惠券类型" width="100" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.couponType | coupon_type_filter }}
           </template>
@@ -19,7 +19,7 @@
             {{ scope.row.couponModus | preferential_form_filter }}
           </template>
         </el-table-column>
-        <el-table-column label="优惠券面值" width="120" align="center" header-align="center">
+        <el-table-column label="优惠券面值" width="100" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.couponParPrice }}
             <span>{{ scope.row.couponModus == 1 ? '￥' : '折'}}</span>
@@ -40,14 +40,38 @@
             {{ scope.row.couponLimit | coupon_limit_filter }}
           </template>
         </el-table-column>
+        <el-table-column label="优惠券状态" prop="" width="100" align="center" header-align="center">
+          <template slot-scope="scope">
+            {{ scope.row.couponStatus | coupon_status_filter }}
+          </template>
+        </el-table-column>
+        <el-table-column label="优惠券适用商城" width="150" align="center" header-align="center">
+          <template slot-scope="scope">
+            <pre class="coupon-instructions">{{ scope.row.shopMallName.replace(/(,)/g, '\n') }}</pre>
+          </template>
+        </el-table-column>
+        <el-table-column label="优惠券适用商品" width="150" align="center" header-align="center">
+          <template slot-scope="scope">
+            <pre v-if="scope.row.couponType == 3" class="coupon-instructions">{{ scope.row.goodName && (scope.row.goodName.replace(/(,)/g, '\n')) }}</pre>
+          </template>
+        </el-table-column>
         <el-table-column label="领取截止时间" prop="receiveEndTime" width="160" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券生效时间" prop="effectDate" width="160" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券过期时间" prop="expiredDate" width="160" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券所属商城" prop="" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="使用说明" prop="" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="发布总量" prop="" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="是否立即发布" prop="" width="200" align="center" header-align="center"></el-table-column>
-        
+        <el-table-column label="使用说明" width="200" align="center" header-align="center">
+          <template slot-scope="scope">
+            <pre class="coupon-instructions">{{ scope.row.couponInstructions }}</pre>
+          </template>
+        </el-table-column>
+        <el-table-column label="发布总量" prop="couponNumber" width="100" align="center" header-align="center"></el-table-column>
+        <el-table-column fixed="right" label="操作" align="center" header-align="center" width="120">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.couponStatus === 4" type="text" size="small">发布</el-button>
+            <el-button v-if="scope.row.couponStatus === 1" type="text" size="small" @click="handleExpired(scope.row, 2)" style="margin-left: 0;">立即关闭</el-button>
+            <el-button v-if="scope.row.couponStatus === 1 || scope.row.couponStatus === 3" type="text" size="small" @click="handleExpired(scope.row, 1)" style="margin-left: 0;">立即失效</el-button>
+            <el-button v-if="scope.row.couponStatus === 2" type="text" size="small" @click="handleDelete(scope.row)" style="margin-left: 0;">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         @size-change="handleSizeChange"
@@ -93,16 +117,19 @@ export default {
       if (res.code === 200) {
         this.dialogVisible = false
         this.$message.success('新制优惠券成功！')
+        this.currentPage = 1
+        this.pagesize = 10
+        this.getTableData()
       }
     },
-    getTableData() {
+    getTableData(form = {}) {
       this.http({
         url: 'market/coupon/queryCouponList',
         method: 'post',
         data: {
           currentPage: this.currentPage,
           pagesize: this.pagesize,
-          t: {}
+          t: form
         }
       }, res => {
         if (res.data.code === 200) {
@@ -112,13 +139,82 @@ export default {
         }
       })
     },
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {}
+    handleDelete(row) {
+      this.http({
+        url: `market/coupon/couponDelete/${row.id}`,
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          this.$message.success('删除成功！')
+          this.getTableData()
+        }
+      })
+    },
+    handleExpired(row, type) {
+      this.http({
+        url: `market/coupon/couponStatusUpd/${row.id}/${type}`,
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          type === 1 && (this.$message.success('已失效！'))
+          type === 2 && (this.$message.success('已关闭！'))
+          this.getTableData()
+        } else {
+          this.$message.info(res.data.msg)
+        }
+      })
+    },
+    handleSizeChange(val) {
+      this.pagesize = val
+      this.getTableData()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.getTableData()
+    },
+    handleSearch(form) {
+      let params = {}
+      for (let key in form) {
+        if (form[key]) {
+          params[key] = form[key]
+        }
+      }
+      this.getTableData(params)
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
 .add{
   margin-bottom: 20px;
+}
+.coupon-instructions{
+  max-height: 100px;
+  overflow: auto;
+  text-align: left;
+}
+.table{
+  /deep/ .el-table{
+    ::-webkit-scrollbar{  
+      width: 3px;  
+      height: 6px;  
+      background-color: #F5F5F5;  
+    }   
+    ::-webkit-scrollbar-track{  
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);  
+      border-radius: 4px;  
+      background-color: #F5F5F5;  
+    }    
+    ::-webkit-scrollbar-thumb{  
+      border-radius: 4px;  
+      box-shadow: inset 0 0 6px #eee;  
+      background-color: #bdbdbd;  
+    }  
+    ::-webkit-scrollbar-thumb:hover{
+      border-radius: 4px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
 }
 </style>

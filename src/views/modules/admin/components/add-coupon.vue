@@ -49,42 +49,43 @@
           <el-option v-for="item in coupon_limit_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="领取截止时间" prop="end_date">
-        <el-date-picker v-model="form.end_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="领取结束时间"></el-date-picker>
-      </el-form-item>
       <el-form-item label="优惠券生效时间" prop="effect_date">
-        <el-date-picker v-model="form.effect_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券生效时间"></el-date-picker>
+        <el-date-picker v-model="form.effect_date" :picker-options="pickerOptions" @change="effectDateChange" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券生效时间"></el-date-picker>
+      </el-form-item>
+      <el-form-item label="领取截止时间" prop="end_date">
+        <el-date-picker v-model="form.end_date" :picker-options="pickerOptions" @change="endDateChange" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="领取结束时间"></el-date-picker>
       </el-form-item>
       <el-form-item label="优惠券过期时间" prop="expired_date">
-        <el-date-picker v-model="form.expired_date" :picker-options="pickerOptions" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券过期时间"></el-date-picker>
+        <el-date-picker v-model="form.expired_date" :picker-options="pickerOptions" @change="expiredDateChange" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券过期时间"></el-date-picker>
       </el-form-item>
-      <el-form-item label="优惠券所属商城" prop="mall_id">
-        <el-select v-model="form.mall_id" placeholder="请选择" style="width: 220px;">
+      <el-form-item label="优惠券适用商城" prop="mall_id">
+        <el-select v-model="form.mall_id" multiple placeholder="请选择" @change="mallChange" style="width: 220px;">
           <el-option v-for="item in mall_list" :key="item.id" :label="item.shopName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
 
       <!-- 品类券 -->
       <template v-if="form.coupon_type === '2'">
-        <el-form-item label="选择类目" prop="category_id">
-          <el-select v-model="form.category_id" multiple placeholder="请选择" style="width: 100%;">
-            <el-option v-for="item in category_list" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
+        <el-form-item label="优惠券适用类目" prop="category_id">
+          <el-popover placement="bottom-start" width="400" trigger="click">
+            <el-tree :load="loadKindsNode" empty-text="请先选择优惠券适用商城" lazy show-checkbox></el-tree>
+            <el-input slot="reference" v-model="form.category_id" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
+          </el-popover>
         </el-form-item>
       </template>
 
       <!-- 商品券 -->
       <template v-if="form.coupon_type === '3'">
-        <el-form-item label="优惠券所属商品" prop="goods_id">
+        <el-form-item label="优惠券适用商品" prop="goods_id">
           <el-popover placement="bottom-start" width="400" trigger="click">
-            <el-tree :load="loadNode" lazy show-checkbox></el-tree>
-            <el-input slot="reference" v-model="form.goods_id" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
+            <el-tree ref="goodsTree" :load="loadNode" node-key="id" :check-strictly="true" class="goods-tree" @check-change="handleGoodsChange" empty-text="请先选择优惠券适用商城" lazy show-checkbox></el-tree>
+            <el-input slot="reference" v-model="form.goods_name" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
           </el-popover>
         </el-form-item>
       </template>
   
       <el-form-item label="使用说明" prop="coupon_instructions">
-        <el-input v-model="form.coupon_instructions" type="textarea" :rows="3" placeholder="请输入内容"></el-input>
+        <el-input v-model="form.coupon_instructions" type="textarea" :rows="6" placeholder="请输入内容"></el-input>
       </el-form-item>
       <el-form-item label="发布总量" prop="total">
         <el-input v-number="0" v-model="form.total" placeholder="输入0表示不限量" style="width: 220px;">
@@ -158,11 +159,13 @@ export default {
         coupon_full_price: '',
         coupon_limit: '1',
         end_date: '',
-        effect_date: '',
+        effect_date: this._dateFormat('YYYY-mm-dd HH:MM:SS', new Date()),
         expired_date: '',
-        mall_id: '',
+        mall_id: [],
+        mall_name: [],
         category_id: [],
         goods_id: '',
+        goods_name: '',
         coupon_instructions: '',
         total: '',
         is_release: '1'
@@ -192,8 +195,7 @@ export default {
           return time.getTime() < Date.now()
         }
       },
-      mall_list: [],
-      category_list: []
+      mall_list: []
     }
   },
   computed: {
@@ -218,7 +220,10 @@ export default {
           receiveEndTime: this.form.end_date,
           effectDate: this.form.effect_date,
           expiredDate: this.form.expired_date,
-          shopMallId: this.form.mall_id,
+          shopMallId: this.form.mall_id.join(),
+          shopMallName: this.form.mall_name.join(),
+          goodId: this.form.goods_id || undefined,
+          goodName: this.form.goods_name || undefined,
           couponInstructions: this.form.coupon_instructions,
           couponNumber: this.form.total,
           isRelease: this.form.is_release
@@ -237,14 +242,94 @@ export default {
       }, res => {
         if (res.data.code == 200) {
           this.mall_list = res.data.data
-          this.mall_list.unshift({
-            shopName: '所有',
-            id: ''
-          })
+          if (this.mall_list.length) {
+            this.form.mall_id = [this.mall_list[0].id]
+            this.form.mall_name = [this.mall_list[0].shopName]
+          }
         }
       })
     },
-    loadNode() {},
+    mallChange(val) {
+      this.form.mall_name= []
+      if (val.length) {
+        val.forEach(item => {
+          this.mall_list.forEach(mall => {
+            if (mall.id === item) {
+              this.form.mall_name.push(mall.shopName)
+            }
+          })
+        })
+      }
+    },
+    effectDateChange() {
+      if (this.form.expired_date) {
+        if (new Date(this.form.expired_date) < new Date(this.form.effect_date)) {
+          this.form.effect_date = ''
+          this.$message.info('优惠券生效时间应小于过期时间')
+        }
+      }
+    },
+    expiredDateChange() {
+      if (this.form.end_date) {
+        if (new Date(this.form.expired_date) < new Date(this.form.end_date)) {
+          this.form.expired_date = ''
+          this.$message.info('优惠券过期时间应大于领取截止时间')
+        }
+      }
+      if (this.form.effect_date) {
+        if (new Date(this.form.expired_date) < new Date(this.form.effect_date)) {
+          this.form.effect_date = ''
+          this.$message.info('优惠券生效时间应小于过期时间')
+        }
+      }
+    },
+    endDateChange() {
+      if (this.form.expired_date) {
+        if (new Date(this.form.expired_date) < new Date(this.form.end_date)) {
+          this.form.end_date = ''
+          this.$message.info('领取截止时间应小于优惠券过期时间')
+        }
+      }
+    },
+    loadNode(node, resolve) {
+      if (this.form.mall_id.length) {
+        this.http({
+          url: `merchant/shopMall/selShopMallTree`,
+          method: 'post',
+          data: {
+            level: node.level + 1,
+            id: node.level === 0 ? this.form.mall_id : [node.key]
+          }
+        }, res => {
+          if (res.data.code === 200) {
+            let arr = res.data.data
+            if (node.level === 0 || node.level === 1 || node.level === 2) {
+              arr.forEach(item => {
+                item.disabled = true
+              })
+            }
+            if (node.level === 1) {
+              arr.forEach(item => {
+                item.label = item.label + '楼'
+              })
+            }
+            resolve(arr)
+          }
+        })
+      }
+    },
+    handleGoodsChange(nodes, current, leaf) {
+      let arr = this.$refs.goodsTree.getCheckedNodes()
+      let id = []
+      let name = []
+      arr.forEach(item => {
+        id.push(item.id)
+        name.push(item.label)
+      })
+      this.form.goods_id = id.join()
+      this.form.goods_name = name.join()
+    },
+    loadKindsNode(node, resolve) {},
     handleCancel() {
       this.$emit('update:dialogVisible', false)
     }
@@ -252,4 +337,9 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.goods-tree{
+  /deep/ .el-checkbox.is-disabled{
+    display: none;
+  }
+}
 </style>

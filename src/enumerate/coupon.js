@@ -7,10 +7,10 @@ export const coupon_type_options = [
     label: '通用券',
     value: '1'
   },
-  {
-    label: '品类券',
-    value: '2'
-  },
+  // {
+  //   label: '品类券',
+  //   value: '2'
+  // },
   {
     label: '商品券',
     value: '3'
@@ -33,6 +33,10 @@ export const coupon_status_options = [
   {
     label: '关闭',
     value: '3'
+  },
+  {
+    label: '未发布',
+    value: '4'
   }
 ]
 
@@ -41,10 +45,10 @@ export const coupon_type_add_options = [
     label: '通用券',
     value: '1'
   },
-  {
-    label: '品类券',
-    value: '2'
-  },
+  // {
+  //   label: '品类券',
+  //   value: '2'
+  // },
   {
     label: '商品券',
     value: '3'
