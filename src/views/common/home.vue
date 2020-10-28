@@ -1,261 +1,173 @@
 <template>
-    <div class="home-wrapper">
-        <div class="top-box">
-            <div class="info-block">
-                <el-row :gutter="20">
-                    <el-col
-                        :span="6"
-                        v-if="role_id.some(checkIsSuperAdmin)"
-                    >
-                        <el-card
-                            :body-style="{ padding: '15px' }"
-                            class="card-item"
-                        >
-                            <div class="info-item">
-                                <div class="item-top">
-                                    <div class="item-top-left">
-                                        <div class="block-title">本月广告收入(元)</div>
-                                        <div class="primary-info">{{Math.floor(totalAdMoney * 100) / 100}}</div>
-                                    </div>
-                                    <div class="item-top-right">
-                                        <icon-svg name="guanggao"></icon-svg>
-                                    </div>
-                                </div>
-                                <div class="item-bottom">
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalAdMoneyCompareLast >= 0"
-                                    >
-                                        <icon-svg name="zengzhang"></icon-svg>
-                                    </div>
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalAdMoneyCompareLast < 0"
-                                    >
-                                        <icon-svg name="xiajiang"></icon-svg>
-                                    </div>
-                                    <div class="ratio-box">{{Math.floor(totalAdMoneyCompareLast*10000)/100}}%</div>
-                                    <div class="compare-last">同比上月</div>
-                                </div>
-                            </div>
-                        </el-card>
-                    </el-col>
-                    <el-col
-                        :span="6"
-                        v-if="!role_id.some(checkIsTourist)"
-                    >
-                        <el-card
-                            :body-style="{ padding: '15px' }"
-                            class="card-item"
-                        >
-                            <div class="info-item">
-                                <div class="item-top">
-                                    <div class="item-top-left">
-                                        <div class="block-title">本月交易额(元)</div>
-                                        <div class="primary-info">{{totalMoney}}</div>
-                                    </div>
-                                    <div class="item-top-right">
-                                        <icon-svg name="jiaoyi"></icon-svg>
-                                    </div>
-                                </div>
-                                <div class="item-bottom">
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalMoneyCompareLast >= 0"
-                                    >
-                                        <icon-svg name="zengzhang"></icon-svg>
-                                    </div>
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalMoneyCompareLast < 0"
-                                    >
-                                        <icon-svg name="xiajiang"></icon-svg>
-                                    </div>
-                                    <div class="ratio-box">{{Math.floor(totalMoneyCompareLast*10000)/100}}%</div>
-                                    <div class="compare-last">同比上月</div>
-                                </div>
-                            </div>
-                        </el-card>
-                    </el-col>
-                    <el-col
-                        :span="6"
-                        v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
-                    >
-                        <el-card
-                            :body-style="{ padding: '15px' }"
-                            class="card-item"
-                        >
-                            <div class="info-item">
-                                <div class="item-top">
-                                    <div class="item-top-left">
-                                        <div class="block-title">商城用户</div>
-                                        <div class="primary-info">{{totalUser}}</div>
-                                    </div>
-                                    <div class="item-top-right">
-                                        <icon-svg name="yonghu"></icon-svg>
-                                    </div>
-                                </div>
-                                <div class="item-bottom">
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalUserCompareLast >= 0"
-                                    >
-                                        <icon-svg name="zengzhang"></icon-svg>
-                                    </div>
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalUserCompareLast < 0"
-                                    >
-                                        <icon-svg name="xiajiang"></icon-svg>
-                                    </div>
-                                    <div class="ratio-box">{{Math.floor(totalUserCompareLast*10000)/100}}%</div>
-                                    <div class="compare-last">同比上月</div>
-                                </div>
-                            </div>
-                        </el-card>
-                    </el-col>
-                    <el-col
-                        :span="6"
-                        v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
-                    >
-                        <el-card
-                            @click.native="toApproval"
-                            :body-style="{ padding: '15px' }"
-                            class="card-item"
-                        >
-                            <div class="info-item">
-                                <div class="item-top">
-                                    <div class="item-top-left">
-                                        <div class="block-title">待审批</div>
-                                        <div class="primary-info">共{{awaitApproval}}条</div>
-                                    </div>
-                                    <div class="item-top-right">
-                                        <icon-svg name="daishenpi"></icon-svg>
-                                    </div>
-                                </div>
-                                <div>请及时审批</div>
-                            </div>
-                        </el-card>
-                    </el-col>
-                    <el-col
-                        :span="6"
-                        v-if="role_id.some(checkIsMechant)"
-                    >
-                        <el-card
-                            :body-style="{ padding: '15px' }"
-                            class="card-item"
-                        >
-                            <div class="info-item">
-                                <div class="item-top">
-                                    <div class="item-top-left">
-                                        <div class="block-title">本月成交订单量</div>
-                                        <div class="primary-info">{{totalOrders}}</div>
-                                    </div>
-                                    <div class="item-top-right">
-                                        <icon-svg name="orders"></icon-svg>
-                                    </div>
-                                </div>
-                                <div class="item-bottom">
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalOrdersCompareLast >= 0"
-                                    >
-                                        <icon-svg name="zengzhang"></icon-svg>
-                                    </div>
-                                    <div
-                                        class="scale-line"
-                                        v-if="totalOrdersCompareLast < 0"
-                                    >
-                                        <icon-svg name="xiajiang"></icon-svg>
-                                    </div>
-                                    <div class="ratio-box">{{Math.floor(totalOrdersCompareLast*10000)/100}}%</div>
-                                    <div class="compare-last">同比上月</div>
-                                </div>
-                            </div>
-                        </el-card>
-                    </el-col>
-                </el-row>
-            </div>
-        </div>
-        <div class="bar-box">
-            <div class="filter-box">
-                <div
-                    v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
-                    class="filter-row"
-                >
-                    <span>选择商城：</span>
-                    <el-select
-                        v-model="mallId"
-                        placeholder="请选择商城"
-                        style="width: 200px;"
-                    >
-                        <el-option
-                            v-for="(item, index) in mallList"
-                            :key="index"
-                            :label="item.shopName"
-                            :value="item.id"
-                        ></el-option>
-                    </el-select>
+  <div class="home-wrapper">
+    <div class="top-box">
+      <div class="info-block">
+        <el-row :gutter="20">
+          <el-col :span="6" v-if="role_id.some(checkIsSuperAdmin)">
+            <el-card :body-style="{ padding: '15px' }" class="card-item">
+              <div class="info-item">
+                <div class="item-top">
+                  <div class="item-top-left">
+                    <div class="block-title">本月广告收入(元)</div>
+                    <div class="primary-info">{{Math.floor(totalAdMoney * 100) / 100}}</div>
+                  </div>
+                  <div class="item-top-right">
+                    <icon-svg name="guanggao"></icon-svg>
+                  </div>
                 </div>
-                <div
-                    v-if="!role_id.some(checkIsTourist)"
-                    class="filter-row"
-                    style="margin-left: 30px"
-                >
-                    <span>选择月份：</span>
-                    <el-date-picker
-                        v-model="monthList"
-                        type="monthrange"
-                        align="left"
-                        unlink-panels
-                        range-separator="至"
-                        style="width: 400px;"
-                        :picker-options="pickerOptions"
-                        start-placeholder="开始月份"
-                        end-placeholder="结束月份"
-                    ></el-date-picker>
+                <div class="item-bottom">
+                  <div class="scale-line" v-if="totalAdMoneyCompareLast >= 0">
+                    <icon-svg name="zengzhang"></icon-svg>
+                  </div>
+                  <div class="scale-line" v-if="totalAdMoneyCompareLast < 0">
+                    <icon-svg name="xiajiang"></icon-svg>
+                  </div>
+                  <div class="ratio-box">{{Math.floor(totalAdMoneyCompareLast*10000)/100}}%</div>
+                  <div class="compare-last">同比上月</div>
                 </div>
-            </div>
-            <div
-                v-show="role_id.some(checkIsSuperAdmin)"
-                id="ad-money"
-                class="ad-money"
-            ></div>
-            <div
-                v-show="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)"
-                id="sales-users"
-                class="sales-users"
-            ></div>
-        </div>
-        <div
-            v-show="role_id.some(checkIsMechant)"
-            class="merchant-bar-box"
-        >
-            <div
-                id="merchant-bar-line"
-                class="merchant-bar-line"
-            ></div>
-        </div>
-        <div
-            v-if="role_id.some(checkIsTourist)"
-            class="welcome-tab"
-        ></div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="6" v-if="!role_id.some(checkIsTourist)">
+            <el-card :body-style="{ padding: '15px' }" class="card-item">
+              <div class="info-item">
+                <div class="item-top">
+                  <div class="item-top-left">
+                    <div class="block-title">本月交易额(元)</div>
+                    <div class="primary-info">{{totalMoney}}</div>
+                  </div>
+                  <div class="item-top-right">
+                    <icon-svg name="jiaoyi"></icon-svg>
+                  </div>
+                </div>
+                <div class="item-bottom">
+                  <div class="scale-line" v-if="totalMoneyCompareLast >= 0">
+                    <icon-svg name="zengzhang"></icon-svg>
+                  </div>
+                  <div class="scale-line" v-if="totalMoneyCompareLast < 0">
+                    <icon-svg name="xiajiang"></icon-svg>
+                  </div>
+                  <div class="ratio-box">{{Math.floor(totalMoneyCompareLast*10000)/100}}%</div>
+                  <div class="compare-last">同比上月</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="6" v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)">
+            <el-card :body-style="{ padding: '15px' }" class="card-item">
+              <div class="info-item">
+                <div class="item-top">
+                  <div class="item-top-left">
+                    <div class="block-title">商城用户</div>
+                    <div class="primary-info">{{totalUser}}</div>
+                  </div>
+                  <div class="item-top-right">
+                    <icon-svg name="yonghu"></icon-svg>
+                  </div>
+                </div>
+                <div class="item-bottom">
+                  <div class="scale-line" v-if="totalUserCompareLast >= 0">
+                    <icon-svg name="zengzhang"></icon-svg>
+                  </div>
+                  <div class="scale-line" v-if="totalUserCompareLast < 0">
+                    <icon-svg name="xiajiang"></icon-svg>
+                  </div>
+                  <div class="ratio-box">{{Math.floor(totalUserCompareLast*10000)/100}}%</div>
+                  <div class="compare-last">同比上月</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="6" v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)">
+            <el-card @click.native="toApproval" :body-style="{ padding: '15px' }" class="card-item">
+              <div class="info-item">
+                <div class="item-top">
+                  <div class="item-top-left">
+                    <div class="block-title">待审批</div>
+                    <div class="primary-info">共{{awaitApproval}}条</div>
+                  </div>
+                  <div class="item-top-right">
+                    <icon-svg name="daishenpi"></icon-svg>
+                  </div>
+                </div>
+                <div>请及时审批</div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="6" v-if="role_id.some(checkIsMechant)">
+            <el-card :body-style="{ padding: '15px' }" class="card-item">
+              <div class="info-item">
+                <div class="item-top">
+                  <div class="item-top-left">
+                    <div class="block-title">本月成交订单量</div>
+                    <div class="primary-info">{{totalOrders}}</div>
+                  </div>
+                  <div class="item-top-right">
+                    <icon-svg name="orders"></icon-svg>
+                  </div>
+                </div>
+                <div class="item-bottom">
+                  <div class="scale-line" v-if="totalOrdersCompareLast >= 0">
+                    <icon-svg name="zengzhang"></icon-svg>
+                  </div>
+                  <div class="scale-line" v-if="totalOrdersCompareLast < 0">
+                    <icon-svg name="xiajiang"></icon-svg>
+                  </div>
+                  <div class="ratio-box">{{Math.floor(totalOrdersCompareLast*10000)/100}}%</div>
+                  <div class="compare-last">同比上月</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
     </div>
+    <div class="bar-box">
+      <div class="filter-box">
+        <div v-if="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)" class="filter-row">
+          <span>选择商城：</span>
+          <el-select v-model="mallId" placeholder="请选择商城" style="width: 200px;">
+            <el-option v-for="(item, index) in mallList" :key="index" :label="item.shopName" :value="item.id"></el-option>
+          </el-select>
+        </div>
+        <div v-if="!role_id.some(checkIsTourist)" class="filter-row" style="margin-left: 30px">
+          <span>选择月份：</span>
+          <el-date-picker
+            v-model="monthList"
+            type="monthrange"
+            align="left"
+            unlink-panels
+            range-separator="至"
+            style="width: 400px;"
+            :picker-options="pickerOptions"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份">
+          </el-date-picker>
+        </div>
+      </div>
+      <div v-show="role_id.some(checkIsSuperAdmin)" id="ad-money" class="ad-money"></div>
+      <div v-show="role_id.some(checkIsSuperAdmin) || role_id.some(checkIsAdmin)" id="sales-users" class="sales-users"></div>
+    </div>
+    <div v-show="role_id.some(checkIsMechant)" class="merchant-bar-box">
+      <div id="merchant-bar-line" class="merchant-bar-line"></div>
+    </div>
+    <div v-if="role_id.some(checkIsTourist)" class="welcome-tab"></div>
+  </div>
 </template>
 
 <script>
-import echarts from "echarts"
-import { mapState } from 'vuex'
+import echarts from "echarts";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
-      mallId: "",
+      mallId: '',
       mallList: [],
-      totalMoney: "",
+      totalMoney: '',
       totalMoneyCompareLast: 0,
       totalUser: 0,
       totalUserCompareLast: 0,
-      totalAdMoney: "",
+      totalAdMoney: '',
       totalAdMoneyCompareLast: 0,
       awaitApproval: 0,
       totalOrders: 0,
@@ -265,7 +177,7 @@ export default {
       pickerOptions: {
         shortcuts: [
           {
-            text: "今年至今",
+            text: '今年至今',
             onClick(picker) {
               const end = new Date();
               const start = new Date(new Date().getFullYear(), 0);
@@ -290,33 +202,33 @@ export default {
   watch: {
     mallId(n) {
       if (this.monthList && this.monthList.length == 2) {
-        let dateArr = this.initDateList(this.monthList[0], this.monthList[1]);
-        this.getAdvertChartData(dateArr);
-        this.getSalesAndUsers(dateArr);
-        this.getAdMoney();
-        this.getTransaction();
-        this.getCustoms();
-        this.getApproval();
+        let dateArr = this.initDateList(this.monthList[0], this.monthList[1])
+        this.getAdvertChartData(dateArr)
+        this.getSalesAndUsers(dateArr)
+        this.getAdMoney()
+        this.getTransaction()
+        this.getCustoms()
+        this.getApproval()
         if (this.role_id.some(this.checkIsMechant)) {
-          this.getMerchantSaleAndOrders(dateArr);
+          this.getMerchantSaleAndOrders(dateArr)
         }
       }
     },
     monthList(n) {
       if (n && n.length == 2) {
-        let dateArr = this.initDateList(n[0], n[1]);
+        let dateArr = this.initDateList(n[0], n[1])
         if (this.role_id.includes("1") || this.role_id.includes("2")) {
-          this.getAdvertChartData(dateArr);
-          this.getSalesAndUsers(dateArr);
+          this.getAdvertChartData(dateArr)
+          this.getSalesAndUsers(dateArr)
         } else if (this.role_id.includes("3")) {
-          this.getMerchantSaleAndOrders(dateArr);
+          this.getMerchantSaleAndOrders(dateArr)
         }
       }
     }
   },
   computed: {
-    ...mapState('user', ['role_id']),
-    ...mapState('mall', ['shop_id'])
+    ...mapState("user", ["role_id"]),
+    ...mapState("mall", ["shop_id"])
   },
   methods: {
     initDate(start, end) {
@@ -325,21 +237,21 @@ export default {
         arr = [];
       if (s.getFullYear() == e.getFullYear()) {
         while (s <= e) {
-          arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`);
-          s.setMonth(s.getMonth() + 1);
+          arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
+          s.setMonth(s.getMonth() + 1)
         }
       } else {
         while (s <= e) {
-          arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`);
+          arr.push(`${s.getFullYear()}.${s.getMonth() + 1}`)
           if (s.getMonth() + 1 > 11) {
-            s.setFullYear(s.getFullYear() + 1);
-            s.setMonth(0);
+            s.setFullYear(s.getFullYear() + 1)
+            s.setMonth(0)
           } else {
-            s.setMonth(s.getMonth() + 1);
+            s.setMonth(s.getMonth() + 1)
           }
         }
       }
-      return arr;
+      return arr
     },
 
     //计算出时间列表
@@ -352,7 +264,7 @@ export default {
           arr.push(
             new Date(`${s.getFullYear()}/${s.getMonth() + 1}/01 08:00:00`)
           );
-          s.setMonth(s.getMonth() + 1);
+          s.setMonth(s.getMonth() + 1)
         }
       } else {
         while (s <= e) {
@@ -360,19 +272,19 @@ export default {
             new Date(`${s.getFullYear()}-${s.getMonth() + 1}-01 08:00:00`)
           );
           if (s.getMonth() + 1 > 11) {
-            s.setFullYear(s.getFullYear() + 1);
-            s.setMonth(0);
+            s.setFullYear(s.getFullYear() + 1)
+            s.setMonth(0)
           } else {
-            s.setMonth(s.getMonth() + 1);
+            s.setMonth(s.getMonth() + 1)
           }
         }
       }
-      return arr;
+      return arr
     },
 
     //广告位收入报表
     initChart(start, end, topAd, proAd, topAdCopare, proAdCompare) {
-      let date = this.initDate(start, end);
+      let date = this.initDate(start, end)
       let option = {
         title: [
           {
@@ -553,15 +465,15 @@ export default {
         ]
       };
       this.chartBar = echarts.init(document.getElementById("ad-money"));
-      this.chartBar.setOption(option);
+      this.chartBar.setOption(option)
       window.addEventListener("resize", () => {
-        this.chartBar.resize();
-      });
+        this.chartBar.resize()
+      })
     },
 
     //交易额 用户量
     initSales(start, end, sales, users) {
-      let _date = this.initDate(start, end);
+      let _date = this.initDate(start, end)
       let option = {
         backgroundColor: "#1A1835",
         title: {
@@ -721,7 +633,7 @@ export default {
         ]
       };
       this.salesLine = echarts.init(document.getElementById("sales-users"));
-      this.salesLine.setOption(option);
+      this.salesLine.setOption(option)
       window.addEventListener("resize", () => {
         this.salesLine.resize();
       });
@@ -860,32 +772,36 @@ export default {
         },
         res => {
           if (res.data.code == 200) {
-            this.mallList = res.data.data;
-            this.mallList.unshift({
-              shopName: "全部",
-              id: ""
-            });
+            this.mallList = res.data.data
+            if (this.role_id.some(this.checkIsSuperAdmin)) {
+              this.mallList.unshift({
+                shopName: '全部',
+                id: ''
+              })
+            } else {
+              this.mallList.length && (this.mallId = this.mallList[0].id)
+            }
           }
         }
-      );
+      )
     },
     checkIsSuperAdmin(item) {
-      if (item == "1") {
-        return true;
+      if (item == '1') {
+        return true
       }
     },
     checkIsAdmin(item) {
-      if (item == "2") {
-        return true;
+      if (item == '2') {
+        return true
       }
     },
     checkIsMechant(item) {
-      if (item == "3") {
-        return true;
+      if (item == '3') {
+        return true
       }
     },
     checkIsTourist(item) {
-      if (item == "4") {
+      if (item == '4') {
         return true;
       }
     },
@@ -1034,16 +950,16 @@ export default {
       this.role_id.some(this.checkIsSuperAdmin) ||
       this.role_id.some(this.checkIsAdmin)
     ) {
-      this.getMallList();
-      this.getAdMoney();
-      this.getTransaction();
-      this.getCustoms();
-      this.getApproval();
-      this.getAdvertChartData(dateArr);
-      this.getSalesAndUsers(dateArr);
+      this.getMallList()
+      this.getAdMoney()
+      this.getTransaction()
+      this.getCustoms()
+      this.getApproval()
+      this.getAdvertChartData(dateArr)
+      this.getSalesAndUsers(dateArr)
     }
     if (this.role_id.some(this.checkIsMechant)) {
-      this.getMerchantSaleAndOrders(dateArr);
+      this.getMerchantSaleAndOrders(dateArr)
     }
   }
 };

@@ -2,7 +2,7 @@
   <div class="add-coupon">
     <el-form :model="form" ref="form" :rules="rules" label-width="120px" size="small">
       <el-form-item label="优惠券名称" prop="coupon_name">
-        <el-input v-model="form.coupon_name" placeholder="请输入优惠券名称"></el-input>
+        <el-input v-model="form.coupon_name" maxlength="10" placeholder="请输入优惠券名称(最多10个字)"></el-input>
       </el-form-item>
       <el-form-item label="优惠券类型" prop="coupon_type">
         <el-radio-group v-model="form.coupon_type">

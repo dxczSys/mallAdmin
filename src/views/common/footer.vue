@@ -28,7 +28,7 @@ export default {
 .footer-copyright {
   text-align: center;
   .copyright-box {
-    padding-top: 20px;
+    padding-top: 12px;
     padding-bottom: 5px;
     span:last-child {
       cursor: pointer;

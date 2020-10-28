@@ -40,6 +40,25 @@ export const coupon_status_options = [
   }
 ]
 
+export const coupon_search_status_options = [
+  {
+    label: '所有',
+    value: ''
+  },
+  {
+    label: '正常',
+    value: '1'
+  },
+  {
+    label: '已失效',
+    value: '2'
+  },
+  {
+    label: '关闭',
+    value: '3'
+  }
+]
+
 export const coupon_type_add_options = [
   {
     label: '通用券',
@@ -126,6 +145,21 @@ export const preferential_form_options = [
   },
   {
     label: '折扣',
+    value: '2'
+  }
+]
+
+export const use_states_options = [
+  {
+    label: '所有',
+    value: ''
+  },
+  {
+    label: '未使用',
+    value: '1'
+  },
+  {
+    label: '已使用',
     value: '2'
   }
 ]
