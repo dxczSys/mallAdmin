@@ -45,7 +45,6 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
       </el-pagination>
-      <iframe ref="frame" src="http://192.168.1.106:9091#name=1" frameborder="0"></iframe>
     </div>
   </div>
 </template>
@@ -68,13 +67,6 @@ export default {
       currentPage: 1,
       pagesize: 10,
       total: 0
-    }
-  },
-  mounted() {
-    console.log(this.$refs.frame)
-    let iframe = this.$refs.frame
-    iframe.onload = () => {
-      iframe.contentWindow.postMessage('发消息了')
     }
   },
   methods: {

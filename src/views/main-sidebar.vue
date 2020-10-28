@@ -74,7 +74,7 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      openeds: ["1", "2", "3"]
+      openeds: ["1", "2", "3", '19']
     };
   },
   components: { SubMenu },

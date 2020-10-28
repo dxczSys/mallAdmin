@@ -650,7 +650,7 @@ export default {
       })
     },
     cancelAuthriod(data, node) {
-      const h = this.$createElement;
+      const h = this.$createElement
       this.$msgbox({
         title: "取消授权",
         message: h("div", null, [
@@ -665,32 +665,42 @@ export default {
             { style: "color: #409EFF; padding-right: 5px;" },
             data.realName
           ),
-          h("span", null, "的管理员权限?")
+          h("span", null, `的${ data.label }权限?`)
         ]),
         showCancelButton: true,
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         beforeClose: (action, instance, done) => {
           if (action === "confirm") {
+            let p = {
+              roles: [],
+              type: 2,
+              userId: data.id,
+              shopMallId: node.parent.data.id
+            }
+            if (data.type === 'admin') {
+              p.roles = [2]
+            } else {
+              p.roles = [5]
+            }
             this.http(
               {
-                url: `merchant/shopMall/shopAuthorization?type=2&userId=${
-                  data.id
-                }&shopId=${node.parent.data.id}`,
-                method: "get"
+                url: `merchant/shopMall/shopMallAuthorization`,
+                method: 'post',
+                data: p
               },
               res => {
                 if (res.data.code == 200) {
-                  this.$refs.myTree.remove(node);
-                  done();
+                  this.$refs.myTree.remove(node)
+                  done()
                 }
               }
-            );
+            )
           } else {
-            done();
+            done()
           }
         }
-      }).then(action => {});
+      }).then(action => {})
     }
   }
 };
