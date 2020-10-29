@@ -89,19 +89,10 @@
             </div>
           </div>
         </div>
-        <div
-          class="admin-person-mess"
-          v-if="currentLevel == 3 && isAdmin"
-        >
+        <div class="admin-person-mess" v-if="currentLevel == 3 && isAdmin">
           <div class="admin-person-avatar">
-            <img
-              v-if="adminMess.userPic"
-              :src="fileUrl + adminMess.userPic"
-            />
-            <img
-              v-else
-              src="~@/assets/img/avatar_default.png"
-            />
+            <img v-if="adminMess.userPic" :src="fileUrl + adminMess.userPic" />
+            <img v-else src="~@/assets/img/avatar_default.png" />
           </div>
           <div class="admin-person-row">
             <label>姓名：</label>
@@ -323,10 +314,10 @@ export default {
       roles_options,
       fileUrl: window.SITE_CONFIG.fileUrl,
       refreshTree: true,
-      expandedId: ["a1"],
-      filterText: "",
-      currentParentLabel: "",
-      currentLabel: "易码商城",
+      expandedId: ['a1'],
+      filterText: '',
+      currentParentLabel: '',
+      currentLabel: '易码商城',
       currentLevel: 1,
       isAdmin: false,
       adminMess: {},
@@ -384,7 +375,7 @@ export default {
         let iconName = "",
           _label = "",
           name = ""
-        if (data.type == "admin") {
+        if (data.type === 'admin' || data.type === 'coupon') {
           iconName = "administraor"
           _label = data.label
           name = data.realName
@@ -396,11 +387,7 @@ export default {
           <div class="others-level">
             <span class="others-level-label">
               <icon-svg name={iconName} />
-              <span>
-                {_label}
-                &nbsp;&nbsp;
-                {name}
-              </span>
+              <span>{_label}&nbsp;&nbsp;{name}</span>
             </span>
             <span class="others-level-operate">
               {data.type == "admin" ? (
@@ -524,13 +511,11 @@ export default {
       this.currentLabel = data.label
       this.currentLevel = node.level
       node.level != 1 && (this.currentParentLabel = node.parent.data.label)
-      data.type == "admin" ? (this.isAdmin = true) : (this.isAdmin = false)
+      data.type === 'admin' || data.type === 'coupon' ? (this.isAdmin = true) : (this.isAdmin = false)
       if (node.level == 2) {
         this.http(
           {
-            url: `merchant/shopMall/selShopAllByShopMallId?shopMallId=${
-              data.id
-            }`,
+            url: `merchant/shopMall/selShopAllByShopMallId?shopMallId=${data.id}`,
             method: "get"
           },
           res => {
@@ -540,7 +525,7 @@ export default {
           }
         );
       } else if (node.level == 3) {
-        if (data.type == "admin") {
+        if (data.type == 'admin' || data.type === 'coupon') {
           this.http(
             {
               url: `merchant/selById?userId=${data.id}`,
@@ -551,7 +536,7 @@ export default {
                 this.adminMess = res.data.data
               }
             }
-          );
+          )
         } else {
           let _arr = [],
             obj = JSON.parse(JSON.stringify(data))

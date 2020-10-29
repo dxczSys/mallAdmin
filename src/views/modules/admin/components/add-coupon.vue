@@ -214,6 +214,7 @@ export default {
           couponType: this.form.coupon_type,
           couponModus: this.form.preferential_form,
           couponParPrice: this.form.coupon_par_price,
+          couponPrice: this.form.coupon_price,
           couponDistributionForm: this.form.coupon_modus,
           couponCondition: this.form.coupon_condition,
           couponLimit: this.form.coupon_limit,

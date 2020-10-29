@@ -30,6 +30,12 @@
             {{ scope.row.couponDistributionForm | coupon_modus_filter }}
           </template>
         </el-table-column>
+        <el-table-column label="优惠券价格" width="100" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            <span v-if="scope.row.couponDistributionForm === 2">{{ scope.row.couponPrice }}￥</span>
+            <span v-else>免费</span>
+          </template>
+        </el-table-column>
         <el-table-column label="使用门槛" width="100" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.couponCondition | coupon_condition_filter }}
@@ -66,7 +72,7 @@
         <el-table-column label="发布总量" prop="couponNumber" width="100" align="center" header-align="center"></el-table-column>
         <el-table-column fixed="right" label="操作" align="center" header-align="center" width="120">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.couponStatus === 4" type="text" size="small">发布</el-button>
+            <el-button v-if="scope.row.couponStatus === 4" type="text" size="small" @click="handleRelease(scope.row)">发布</el-button>
             <el-button v-if="scope.row.couponStatus === 1" type="text" size="small" @click="handleExpired(scope.row, 2)" style="margin-left: 0;">立即关闭</el-button>
             <el-button v-if="scope.row.couponStatus === 1 || scope.row.couponStatus === 3" type="text" size="small" @click="handleExpired(scope.row, 1)" style="margin-left: 0;">立即失效</el-button>
             <el-button v-if="scope.row.couponStatus === 2" type="text" size="small" @click="handleDelete(scope.row)" style="margin-left: 0;">删除</el-button>
@@ -158,6 +164,19 @@ export default {
         if (res.data.code === 200) {
           type === 1 && (this.$message.success('已失效！'))
           type === 2 && (this.$message.success('已关闭！'))
+          this.getTableData()
+        } else {
+          this.$message.info(res.data.msg)
+        }
+      })
+    },
+    handleRelease(row) {
+      this.http({
+        url: `market/coupon/couponRelease/${row.id}`,
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          this.$message.success('发布成功')
           this.getTableData()
         } else {
           this.$message.info(res.data.msg)
