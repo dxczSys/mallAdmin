@@ -126,6 +126,8 @@ export default {
         this.currentPage = 1
         this.pagesize = 10
         this.getTableData()
+      } else {
+        this.$message.info(res.data.msg)
       }
     },
     getTableData(form = {}) {

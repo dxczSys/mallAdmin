@@ -217,6 +217,7 @@ export default {
           couponPrice: this.form.coupon_price,
           couponDistributionForm: this.form.coupon_modus,
           couponCondition: this.form.coupon_condition,
+          couponFullPrice: this.form.coupon_full_price,
           couponLimit: this.form.coupon_limit,
           receiveEndTime: this.form.end_date,
           effectDate: this.form.effect_date,

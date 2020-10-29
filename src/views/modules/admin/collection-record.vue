@@ -35,6 +35,7 @@
         <el-table-column label="优惠券过期时间" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券状态" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
         <el-table-column label="使用状态" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="领取时间" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
       </el-table>
       <el-pagination
         @size-change="handleSizeChange"
@@ -70,7 +71,16 @@ export default {
     }
   },
   methods: {
-    getTableData() {},
+    getTableData() {
+      this.http({
+        url: `market/coupon/queryCouponReceiveDetail/${this.currentPage}/${this.pagesize}`,
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+
+        }
+      })
+    },
     handleSearch() {},
     handleSizeChange(val) {},
     handleCurrentChange(val) {}
