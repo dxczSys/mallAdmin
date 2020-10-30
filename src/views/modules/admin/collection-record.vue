@@ -4,7 +4,7 @@
     <div class="search">
       <el-form :model="searchForm" ref="searchForm" label-width="100px" :inline="true" size="small">
         <el-form-item label="优惠券名称">
-          <el-input v-model="searchForm.couponName" placeholder="优惠券名称"></el-input>
+          <el-input v-model="searchForm.couponName" clearable placeholder="优惠券名称"></el-input>
         </el-form-item>
         <el-form-item label="优惠券状态">
           <el-select v-model="searchForm.couponStatus" clearable @change="handleSearch" placeholder="请选择">
@@ -17,7 +17,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="领取人">
-          <el-input v-model="searchForm.receivePerson" placeholder="领取人"></el-input>
+          <el-input v-model="searchForm.receiveUser" clearable placeholder="领取人"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
@@ -27,15 +27,32 @@
     <div class="table">
       <el-table :data="tableData" border stripe>
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券名称" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="领取人" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券面值" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="使用门槛" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券生效时间" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券过期时间" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠券状态" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="使用状态" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="领取时间" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="优惠券名称" prop="couponName" min-width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="领取人" prop="phone" width="150" align="center" header-align="center"></el-table-column>
+        <el-table-column label="优惠券面值" width="150" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            {{ scope.row.couponParPrice }}
+            <span>{{ scope.row.couponModus == 1 ? '￥' : '折'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="使用门槛" width="120" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            {{ scope.row.couponCondition | coupon_condition_filter }}
+          </template>
+        </el-table-column>
+        <el-table-column label="优惠券生效时间" prop="effectDate" width="180" align="center" header-align="center"></el-table-column>
+        <el-table-column label="优惠券过期时间" prop="expiredDate" width="180" align="center" header-align="center"></el-table-column>
+        <el-table-column label="优惠券状态" width="150" align="center" header-align="center">
+          <template slot-scope="scope">
+            {{ scope.row.couponStatus | coupon_status_filter }}
+          </template>
+        </el-table-column>
+        <el-table-column label="使用状态" width="150" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            {{ scope.row.isUse === 0 ? '是' : '否' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="领取时间" prop="createTime" width="180" align="center" header-align="center"></el-table-column>
       </el-table>
       <el-pagination
         @size-change="handleSizeChange"
@@ -52,8 +69,10 @@
 <script>
 import tabsTitle from '@/components/tabs-title'
 import { coupon_search_status_options, use_states_options } from '@/enumerate/coupon'
+import * as couponFilter from '@/filters/coupon'
 export default {
   components: { tabsTitle },
+  filters: { ...couponFilter },
   data() {
     return {
       coupon_search_status_options,
@@ -81,7 +100,12 @@ export default {
         data: {
           currentPage: this.currentPage,
           pagesize: this.pagesize,
-          t: this.searchForm
+          t: {
+            couponName: this.searchForm.couponName || undefined,
+            couponStatus: this.searchForm.couponStatus || undefined,
+            useStatus: this.searchForm.useStatus || undefined,
+            receiveUser: this.searchForm.receiveUser || undefined
+          }
         }
       }, res => {
         if (res.data.code === 200) {
