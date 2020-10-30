@@ -1,26 +1,26 @@
 <template>
   <div class="add-coupon">
-    <el-form :model="form" ref="form" :rules="rules" label-width="120px" size="small">
+    <el-form :model="form" ref="form" :rules="rules" label-width="120px" size="small" :disabled="isView">
       <el-form-item label="优惠券名称" prop="coupon_name">
-        <el-input v-model="form.coupon_name" maxlength="10" placeholder="请输入优惠券名称(最多10个字)"></el-input>
+        <el-input v-model="form.coupon_name" maxlength="10" @input="autoInstructions" placeholder="请输入优惠券名称(最多10个字)"></el-input>
       </el-form-item>
       <el-form-item label="优惠券类型" prop="coupon_type">
-        <el-radio-group v-model="form.coupon_type">
+        <el-radio-group v-model="form.coupon_type" @change="autoInstructions">
           <el-radio v-for="item in coupon_type_add_options" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="优惠形式" prop="preferential_form">
-        <el-radio-group v-model="form.preferential_form">
+        <el-radio-group v-model="form.preferential_form" @change="autoInstructions">
           <el-radio v-for="item in preferential_form_options" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="form.preferential_form === '1'" label="优惠券面值" prop="coupon_par_price">
-        <el-input v-number="2" v-model="form.coupon_par_price" style="width: 220px;">
+        <el-input v-number="2" v-model="form.coupon_par_price" @input="autoInstructions" style="width: 220px;">
           <template slot="append">￥</template>
         </el-input>
       </el-form-item>
       <el-form-item v-else label="优惠券面值" prop="coupon_par_price">
-        <el-input v-number="2" v-model="form.coupon_par_price" style="width: 220px;">
+        <el-input v-number="2" v-model="form.coupon_par_price" @input="autoInstructions" style="width: 220px;">
           <template slot="append">折</template>
         </el-input>
       </el-form-item>
@@ -35,12 +35,12 @@
         </el-input>
       </el-form-item>
       <el-form-item label="使用门槛" prop="coupon_condition">
-        <el-radio-group v-model="form.coupon_condition">
+        <el-radio-group v-model="form.coupon_condition" @change="autoInstructions">
           <el-radio v-for="item in coupon_condition_options" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="form.coupon_condition === '2'" label="需满减金额" prop="coupon_full_price">
-        <el-input v-number="2" v-model="form.coupon_full_price" style="width: 220px;">
+        <el-input v-number="2" v-model="form.coupon_full_price" @input="autoInstructions" style="width: 220px;">
           <template slot="append">￥</template>
         </el-input>
       </el-form-item>
@@ -97,7 +97,7 @@
           <el-radio v-for="item in is_release_options" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="!isView">
         <el-button @click="handleCancel">取消</el-button>
         <el-button type="primary" @click="onSubmit">立即制券</el-button>
       </el-form-item>
@@ -111,6 +111,14 @@ import { mapState } from 'vuex'
 export default {
   props: {
     dialogVisible: {
+      type: Boolean,
+      default: false
+    },
+    couponDetail: {
+      type: Object,
+      default: () => { return {} }
+    },
+    isView: {
       type: Boolean,
       default: false
     }
@@ -198,6 +206,35 @@ export default {
       mall_list: []
     }
   },
+  watch: {
+    couponDetail: {
+      handler(v) {
+        if (this.isView && v && Object.keys(v).length) {
+          this.form.coupon_name = this.couponDetail.couponName
+          this.form.coupon_type = this.couponDetail.couponType + ''
+          this.form.preferential_form = this.couponDetail.couponModus + ''
+          this.form.coupon_par_price = this.couponDetail.couponParPrice
+          this.form.coupon_price = this.couponDetail.couponPrice
+          this.form.coupon_modus = this.couponDetail.couponDistributionForm + ''
+          this.form.coupon_condition = this.couponDetail.couponCondition + ''
+          this.form.coupon_full_price = this.couponDetail.couponFullPrice
+          this.form.coupon_limit = this.couponDetail.couponLimit + ''
+          this.form.end_date = this.couponDetail.receiveEndTime
+          this.form.effect_date = this.couponDetail.effectDate
+          this.form.expired_date = this.couponDetail.expiredDate
+          this.form.mall_id = this.couponDetail.shopMallId.split(',')
+          this.form.mall_name = this.couponDetail.shopMallName.split(',')
+          this.form.goods_id = this.couponDetail.goodId
+          this.form.goods_name = this.couponDetail.goodName
+          this.form.coupon_instructions = this.couponDetail.couponInstructions
+          this.form.total = this.couponDetail.couponNumber
+          this.form.is_release = this.couponDetail.isRelease + ''
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   computed: {
     ...mapState('user', ['role_id'])
   },
@@ -270,6 +307,7 @@ export default {
           this.$message.info('优惠券生效时间应小于过期时间')
         }
       }
+      this.autoInstructions()
     },
     expiredDateChange() {
       if (this.form.end_date) {
@@ -284,6 +322,7 @@ export default {
           this.$message.info('优惠券生效时间应小于过期时间')
         }
       }
+      this.autoInstructions()
     },
     endDateChange() {
       if (this.form.expired_date) {
@@ -334,6 +373,41 @@ export default {
     loadKindsNode(node, resolve) {},
     handleCancel() {
       this.$emit('update:dialogVisible', false)
+    },
+    autoInstructions(content, type) {
+      let arr = []
+      if (this.form.coupon_name) {
+        arr.push(`${ this.form.coupon_name }`)
+      }
+      if (this.form.effect_date && this.form.expired_date) {
+        arr.push(`活动时间：${ this.form.effect_date }到${ this.form.expired_date }`)
+      }
+      if (this.form.coupon_type && this.form.preferential_form && parseFloat(this.form.coupon_par_price) && this.form.coupon_modus && this.form.coupon_condition) {
+        let str = '优惠内容：'
+        if (this.form.coupon_modus == '2' && !parseFloat(this.form.coupon_price)) {
+          return
+        }
+        if (this.form.coupon_condition == '2' && !parseFloat(this.form.coupon_full_price)) {
+          return
+        }
+        if (this.form.coupon_type == '1') {
+          str += '全部商品可用，'
+        } else {
+          str += '部分商品可用，'
+        }
+        if (this.form.preferential_form == '1') {
+          str += `${this.form.coupon_par_price}元优惠券，`
+        } else {
+          str += `${this.form.coupon_par_price}折优惠券，`
+        }
+        if (this.form.coupon_condition == '1') {
+          str += '满任意金额可用'
+        } else {
+          str += `消费满${this.form.coupon_full_price}元可用`
+        }
+        arr.push(str)
+      }
+      this.form.coupon_instructions = arr.join('\n')
     }
   }
 }

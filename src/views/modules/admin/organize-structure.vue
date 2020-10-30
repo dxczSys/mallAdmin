@@ -390,14 +390,8 @@ export default {
               <span>{_label}&nbsp;&nbsp;{name}</span>
             </span>
             <span class="others-level-operate">
-              {data.type == "admin" ? (
-                this.role_id.includes("1") ? (
-                  <span
-                    title="取消授权"
-                    onClick={() => this.cancelAuthriod(data, node)}
-                    class="iconfont iconshouquan edit-tree-node"
-                  />
-                ) : (
+              {data.type == 'admin' || data.type == 'coupon' ? (
+                this.role_id.includes('1') ? (<span title="取消授权" onClick={() => this.cancelAuthriod(data, node)} class="iconfont iconshouquan edit-tree-node" />) : (
                   <span />
                 )
               ) : (
@@ -676,6 +670,7 @@ export default {
               },
               res => {
                 if (res.data.code == 200) {
+                  this.$message.success('取消授权成功')
                   this.$refs.myTree.remove(node)
                   done()
                 }

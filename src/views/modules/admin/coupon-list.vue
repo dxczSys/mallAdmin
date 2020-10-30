@@ -56,22 +56,23 @@
             <pre class="coupon-instructions">{{ scope.row.shopMallName.replace(/(,)/g, '\n') }}</pre>
           </template>
         </el-table-column>
-        <el-table-column label="优惠券适用商品" width="150" align="center" header-align="center">
+        <!-- <el-table-column label="优惠券适用商品" width="150" align="center" header-align="center">
           <template slot-scope="scope">
             <pre v-if="scope.row.couponType == 3" class="coupon-instructions">{{ scope.row.goodName && (scope.row.goodName.replace(/(,)/g, '\n')) }}</pre>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="领取截止时间" prop="receiveEndTime" width="160" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券生效时间" prop="effectDate" width="160" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券过期时间" prop="expiredDate" width="160" align="center" header-align="center"></el-table-column>
-        <el-table-column label="使用说明" width="200" align="center" header-align="center">
+        <!-- <el-table-column label="使用说明" width="200" align="center" header-align="center">
           <template slot-scope="scope">
             <pre class="coupon-instructions">{{ scope.row.couponInstructions }}</pre>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="发布总量" prop="couponNumber" width="100" align="center" header-align="center"></el-table-column>
         <el-table-column fixed="right" label="操作" align="center" header-align="center" width="120">
           <template slot-scope="scope">
+            <el-button type="text" size="small" @click="viewDetail(scope.row)">查看</el-button>
             <el-button v-if="scope.row.couponStatus === 4" type="text" size="small" @click="handleRelease(scope.row)">发布</el-button>
             <el-button v-if="scope.row.couponStatus === 1" type="text" size="small" @click="handleExpired(scope.row, 2)" style="margin-left: 0;">立即关闭</el-button>
             <el-button v-if="scope.row.couponStatus === 1 || scope.row.couponStatus === 3" type="text" size="small" @click="handleExpired(scope.row, 1)" style="margin-left: 0;">立即失效</el-button>
@@ -93,6 +94,10 @@
     <el-dialog v-if="dialogVisible" title="新制优惠券" center :visible.sync="dialogVisible" :close-on-click-modal="false" width="40%">
       <add-coupon :dialog-visible.sync="dialogVisible" @addCoupon="addCoupon"></add-coupon>
     </el-dialog>
+
+    <el-dialog v-if="viewDialogVisible" title="查看优惠券" center :visible.sync="viewDialogVisible" width="40%">
+      <add-coupon :coupon-detail="couponDetail" :is-view="true"></add-coupon>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -109,7 +114,9 @@ export default {
       currentPage: 1,
       pagesize: 10,
       total: 0,
-      dialogVisible: false
+      dialogVisible: false,
+      viewDialogVisible: false,
+      couponDetail: {}
     }
   },
   created() {
@@ -182,6 +189,17 @@ export default {
           this.getTableData()
         } else {
           this.$message.info(res.data.msg)
+        }
+      })
+    },
+    viewDetail(row) {
+      this.http({
+        url: `market/coupon/queryCouponInfoById/${row.id}`,
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          this.couponDetail = res.data.data
+          this.viewDialogVisible = true
         }
       })
     },

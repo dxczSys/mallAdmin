@@ -20,7 +20,7 @@
           <el-input v-model="searchForm.receivePerson" placeholder="领取人"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -62,7 +62,7 @@ export default {
         couponName: '',
         couponStatus: '',
         useStatus: '',
-        receivePerson: ''
+        receiveUser: ''
       },
       tableData: [],
       currentPage: 1,
@@ -70,20 +70,38 @@ export default {
       total: 0
     }
   },
+  created() {
+    this.getTableData()
+  },
   methods: {
     getTableData() {
       this.http({
-        url: `market/coupon/queryCouponReceiveDetail/${this.currentPage}/${this.pagesize}`,
-        method: 'get'
+        url: `market/coupon/queryCouponReceiveDetail`,
+        method: 'post',
+        data: {
+          currentPage: this.currentPage,
+          pagesize: this.pagesize,
+          t: this.searchForm
+        }
       }, res => {
         if (res.data.code === 200) {
-
+          let obj = res.data.data
+          this.tableData = obj.rows
+          this.total = obj.total
         }
       })
     },
-    handleSearch() {},
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {}
+    handleSearch() {
+      this.getTableData()
+    },
+    handleSizeChange(val) {
+      this.pagesize = val
+      this.getTableData()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.getTableData()
+    }
   }
 }
 </script>

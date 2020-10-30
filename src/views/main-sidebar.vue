@@ -74,12 +74,12 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      openeds: ["1", "2", "3", '19']
-    };
+      openeds: ['19', '1', '2', '3']
+    }
   },
   components: { SubMenu },
   computed: {
-    ...mapState("common", ["sidebarFold", "menuActiveName"]),
+    ...mapState('common', ['sidebarFold', 'menuActiveName']),
     ...mapState("user", ["role_id", "menu_list", "dynamic_menu_routes"])
   },
   watch: {

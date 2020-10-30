@@ -2,7 +2,7 @@
   <div class="search">
     <el-form :model="searchForm" label-width="110px" size="small" inline>
       <el-form-item label="优惠券名称">
-        <el-input v-model="searchForm.couponName" placeholder="请输入优惠券名称" style="width: 220px;"></el-input>
+        <el-input v-model="searchForm.couponName" clearable placeholder="请输入优惠券名称" style="width: 220px;"></el-input>
       </el-form-item>
       <el-form-item label="优惠券类型">
         <el-select v-model="searchForm.couponType" clearable @change="handleSearch" placeholder="请选择" style="width: 220px;">

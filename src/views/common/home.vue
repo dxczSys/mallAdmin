@@ -28,7 +28,7 @@
               </div>
             </el-card>
           </el-col>
-          <el-col :span="6" v-if="!role_id.some(checkIsTourist)">
+          <el-col :span="6" v-if="!role_id.some(checkIsTourist) && !role_id.some(checkIsCoupon)">
             <el-card :body-style="{ padding: '15px' }" class="card-item">
               <div class="info-item">
                 <div class="item-top">
@@ -130,7 +130,7 @@
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.shopName" :value="item.id"></el-option>
           </el-select>
         </div>
-        <div v-if="!role_id.some(checkIsTourist)" class="filter-row" style="margin-left: 30px">
+        <div v-if="!role_id.some(checkIsTourist) && !role_id.some(checkIsCoupon)" class="filter-row" style="margin-left: 30px">
           <span>选择月份：</span>
           <el-date-picker
             v-model="monthList"
@@ -802,7 +802,12 @@ export default {
     },
     checkIsTourist(item) {
       if (item == '4') {
-        return true;
+        return true
+      }
+    },
+    checkIsCoupon(item) {
+      if (item == '5') {
+        return true
       }
     },
     getAdMoney() {
