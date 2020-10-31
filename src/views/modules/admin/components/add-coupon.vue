@@ -243,32 +243,36 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.http({
-        url: 'market/coupon/addCoupon',
-        method: 'post',
-        data: {
-          couponName: this.form.coupon_name,
-          couponType: this.form.coupon_type,
-          couponModus: this.form.preferential_form,
-          couponParPrice: this.form.coupon_par_price,
-          couponPrice: this.form.coupon_price,
-          couponDistributionForm: this.form.coupon_modus,
-          couponCondition: this.form.coupon_condition,
-          couponFullPrice: this.form.coupon_full_price,
-          couponLimit: this.form.coupon_limit,
-          receiveEndTime: this.form.end_date,
-          effectDate: this.form.effect_date,
-          expiredDate: this.form.expired_date,
-          shopMallId: this.form.mall_id.join(),
-          shopMallName: this.form.mall_name.join(),
-          goodId: this.form.goods_id || undefined,
-          goodName: this.form.goods_name || undefined,
-          couponInstructions: this.form.coupon_instructions,
-          couponNumber: this.form.total,
-          isRelease: this.form.is_release
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.http({
+            url: 'market/coupon/addCoupon',
+            method: 'post',
+            data: {
+              couponName: this.form.coupon_name,
+              couponType: this.form.coupon_type,
+              couponModus: this.form.preferential_form,
+              couponParPrice: this.form.coupon_par_price,
+              couponPrice: this.form.coupon_price,
+              couponDistributionForm: this.form.coupon_modus,
+              couponCondition: this.form.coupon_condition,
+              couponFullPrice: this.form.coupon_full_price,
+              couponLimit: this.form.coupon_limit,
+              receiveEndTime: this.form.end_date,
+              effectDate: this.form.effect_date,
+              expiredDate: this.form.expired_date,
+              shopMallId: this.form.mall_id.join(),
+              shopMallName: this.form.mall_name.join(),
+              goodId: this.form.goods_id || undefined,
+              goodName: this.form.goods_name || undefined,
+              couponInstructions: this.form.coupon_instructions,
+              couponNumber: this.form.total,
+              isRelease: this.form.is_release
+            }
+          }, res => {
+            this.$emit('addCoupon', res.data)
+          })
         }
-      }, res => {
-        this.$emit('addCoupon', res.data)
       })
     },
     getMallList() {

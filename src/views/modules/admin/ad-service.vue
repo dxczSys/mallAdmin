@@ -1,17 +1,6 @@
 <template>
   <div class="ad-service-wrapper">
-    <div style="display: flex; align-items: center; margin-bottom: 20px">
-      <div
-        style="
-          width: 5px;
-          height: 15px;
-          background-color: #409eff;
-          border-radius: 1px;
-          margin-right: 3px;
-        "
-      ></div>
-      <div style="font-weight: 600">广告位管理</div>
-    </div>
+    <tabs-title tabs-name="广告位管理"></tabs-title>
     <div class="filter-box">
       <el-row :gutter="40">
         <el-col class="filter-col" :span="8">
@@ -60,114 +49,51 @@
     </div>
     <div class="table-box">
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column
-          type="index"
-          width="50"
-          align="center"
-          header-align="center"
-        ></el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          prop="prop"
-          label="广告位类型"
-          width="100"
-        >
+        <el-table-column type="index" width="50" align="center" header-align="center"></el-table-column>
+        <el-table-column header-align="center" align="center" prop="prop" label="广告位类型" width="100">
           <template slot-scope="scope">
-            <span>{{
-              scope.row.advertType == "1" ? "置顶广告位" : "促销广告位"
-            }}</span>
+            <span>{{ scope.row.advertType == "1" ? "置顶广告位" : "促销广告位" }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          prop="advertShopMall"
-          label="所在商场"
-        ></el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          prop="advertShop"
-          label="商铺名称"
-        ></el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          prop="advertShop"
-          label="状态"
-          width="90"
-        >
+        <el-table-column header-align="center" align="center" prop="adveridentify" label="订单编号"></el-table-column>
+        <el-table-column header-align="center" align="center" prop="advertShopMall" label="所在商场"></el-table-column>
+        <el-table-column header-align="center" align="center" prop="advertShop" label="商铺名称"></el-table-column>
+        <el-table-column header-align="center" align="center" label="状态" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.advertApprovalStatus == '2'">正常使用</span>
             <span v-if="scope.row.advertApprovalStatus == '4'">强制下架</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          label="下架原因"
-          width="150"
-          show-overflow-tooltip
-        >
+        <el-table-column header-align="center" label="下架原因" width="200" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span>{{
-              scope.row.advertIsUpperInfo ? scope.row.advertIsUpperInfo : "无"
-            }}</span>
+            <span>{{ scope.row.advertIsUpperInfo ? scope.row.advertIsUpperInfo : "无" }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          label="是否到期"
-          width="80"
-        >
+        <el-table-column header-align="center" align="center" label="是否到期" width="80">
           <template slot-scope="scope">
             <span>{{ scope.row.advertIsExpire == "1" ? "是" : "否" }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          label="剩余时长"
-          width="90"
-        >
+        <el-table-column header-align="center" align="center" label="剩余时长" width="90">
           <template slot-scope="scope">
             <span>{{ getOverDay(scope.row.advertExpireTime) }}天</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          label="已提醒"
-          width="65"
-        >
+        <el-table-column header-align="center" align="center" label="已提醒" width="80">
           <template slot-scope="scope">
             <span>{{ scope.row.advertTipNums || 0 }}次</span>
           </template>
         </el-table-column>
-        <el-table-column
-          header-align="center"
-          align="center"
-          width="120"
-          label="操作"
-        >
+        <el-table-column header-align="center" align="center" label="是否已开发票" width="120">
           <template slot-scope="scope">
-            <el-button
-              v-if="scope.row.advertApprovalStatus != '4'"
-              @click="warnExpire(scope.row)"
-              type="text"
-              >提醒到期</el-button
-            >
-            <el-button
-              v-if="
-                scope.row.advertIsExpire == '2' &&
-                scope.row.advertApprovalStatus != '4'
-              "
-              @click="handleStop(scope)"
-              type="text"
-              style="color: #f56c6c; margin: 0"
-              >强制下架</el-button
-            >
+            <span>{{ scope.row.adverisInvoice === 1? '是' : '否' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column header-align="center" align="center" width="120" label="操作">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.advertApprovalStatus != '4'" @click="warnExpire(scope.row)" type="text">提醒到期</el-button>
+            <el-button v-if="scope.row.advertIsExpire == '2' && scope.row.advertApprovalStatus != '4'" @click="handleStop(scope)" type="text" style="color: #f56c6c; margin: 0;">强制下架</el-button>
+            <el-button v-if="scope.row.adverisInvoice === 2" @click="handleInvoice(scope)" type="text">已开发票</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -179,8 +105,7 @@
         :page-sizes="[10, 20, 50]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      >
+        :total="total">
       </el-pagination>
     </div>
   </div>
@@ -188,7 +113,9 @@
 
 <script>
 import { mapState } from 'vuex'
+import tabsTitle from '@/components/tabs-title'
 export default {
+  components: { tabsTitle },
   data() {
     return {
       mallId: "",
@@ -228,25 +155,25 @@ export default {
     getOverDay(time) {
       let curtime = new Date(),
         stopTime = new Date(time),
-        str = "";
-      let num = (stopTime - curtime) / 1000 / 60 / 60 / 24;
+        str = ""
+      let num = (stopTime - curtime) / 1000 / 60 / 60 / 24
       if (num > 0) {
         if (num < 1) {
-          return 1;
+          return 1
         } else {
-          return Math.floor(num);
+          return Math.floor(num)
         }
       } else {
-        return 0;
+        return 0
       }
     },
     handleCurrentChange(v) {
-      this.currentPage = v;
-      this.getTableData();
+      this.currentPage = v
+      this.getTableData()
     },
     handleSizeChange(v) {
-      this.pageSize = v;
-      this.getTableData();
+      this.pageSize = v
+      this.getTableData()
     },
     getMallList() {
       this.http(
@@ -259,7 +186,7 @@ export default {
         },
         (res) => {
           if (res.data.code == 200) {
-            this.mallList = res.data.data;
+            this.mallList = res.data.data
           }
         }
       );
@@ -282,8 +209,8 @@ export default {
         },
         (res) => {
           if (res.data.code == 200) {
-            this.total = res.data.data.total;
-            this.tableData = res.data.data.rows;
+            this.total = res.data.data.total
+            this.tableData = res.data.data.rows
           }
         }
       );
@@ -303,12 +230,12 @@ export default {
             },
             (res) => {
               if (res.data.code == 200) {
-                this.$message.success("短信提醒成功！");
+                this.$message.success("短信提醒成功！")
               }
             }
           );
         })
-        .catch(() => {});
+        .catch(() => {})
     },
     handleStop(scope) {
       this.$prompt("下架原因", "强制下架", {
@@ -329,21 +256,40 @@ export default {
             },
             (res) => {
               if (res.data.code == 200) {
-                scope.row.advertIsUpperInfo = value;
-                scope.row.advertApprovalStatus = "4";
-                this.$message.success("已强制下架！");
+                scope.row.advertIsUpperInfo = value
+                scope.row.advertApprovalStatus = "4"
+                this.$message.success("已强制下架！")
               } else {
-                this.$message.success("短信发送失败");
+                this.$message.success("短信发送失败")
               }
             }
           );
         })
         .catch(() => {});
     },
+    handleInvoice(scope) {
+      this.$confirm('确认已开发票?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.http({
+          url: `merchant/advert/updateIsInvoice?advertId=${ scope.row.id }&isInvoice=1`,
+          method: 'get'
+        }, res => {
+          if (res.data.code === 200) {
+            this.$message.success('操作成功！')
+            scope.row.adverisInvoice = 1
+          } else {
+            this.$message.info(res.data.msg)
+          }
+        })
+      }).catch(() => {})
+    }
   },
-  mounted() {
-    this.getMallList();
-    this.getTableData();
+  created() {
+    this.getMallList()
+    this.getTableData()
   },
 };
 </script>

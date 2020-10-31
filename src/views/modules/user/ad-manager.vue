@@ -1,17 +1,6 @@
 <template>
   <div class="ad-manager-wrapper">
-    <div style="display: flex; align-items: center; margin-bottom: 20px">
-      <div
-        style="
-          width: 5px;
-          height: 15px;
-          background-color: #409eff;
-          border-radius: 1px;
-          margin-right: 3px;
-        "
-      ></div>
-      <div style="font-weight: 600">广告位管理</div>
-    </div>
+    <tabs-title tabs-name="广告位管理"></tabs-title>
     <div class="apply-button">
       <div class="apply-button-left">
         <div class="current-mall">当前商城：{{ mall_name || '易码商城' }}</div>
@@ -37,18 +26,16 @@
           type="primary"
           size="small"
           @click="$router.push({ name: 'user-apply-ad' })"
-          >立即申请</el-button
-        >
+          >立即申请</el-button>
       </div>
     </div>
+    <div style="color: #E6A23C; font-size: 13px; padding: 10px;">如需开票，请将广告订单编号+金额+您所在商场名称+您的店铺楼层+您的店铺名称发送至财务邮箱 xxx@qq.com</div>
     <div class="ad-list-box">
       <el-row :gutter="10">
         <el-col :span="6" v-for="(item, index) in adList" :key="index">
           <el-card class="ad-list-item" :body-style="{ padding: '0px' }">
-            <img
-              class="card-image"
-              :src="item.advertType == '1' ? urlTop : urlSale"
-            />
+            <div class="ad-index">广告订单编号：{{ item.adveridentify }}</div>
+            <img class="card-image" :src="item.advertType == '1' ? urlTop : urlSale" />
             <div style="padding: 14px">
               <div class="card-title">
                 {{ item.advertType == "1" ? "置顶广告位" : "促销广告位" }}
@@ -139,7 +126,9 @@
 
 <script>
 import { mapState } from 'vuex'
+import tabsTitle from '@/components/tabs-title'
 export default {
+  components: { tabsTitle },
   data() {
     return {
       adList: [],
@@ -338,6 +327,9 @@ export default {
   background-color: #67c23a;
   margin-right: 5px;
   animation: breathe 1500ms infinite alternate;
+}
+.ad-index{
+  padding: 8px 16px;
 }
 @keyframes breathe {
   0% {

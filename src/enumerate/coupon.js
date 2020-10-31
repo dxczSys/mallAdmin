@@ -164,3 +164,18 @@ export const use_states_options = [
   }
 ]
 
+export const arrive_account_options = [
+  {
+    label: '所有',
+    value: ''
+  },
+  {
+    label: '是',
+    value: '1'
+  },
+  {
+    label: '否',
+    value: '2'
+  }
+]
+
