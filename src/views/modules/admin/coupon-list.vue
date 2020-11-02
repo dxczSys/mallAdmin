@@ -195,7 +195,7 @@ export default {
     },
     viewDetail(row) {
       this.http({
-        url: `market/coupon/queryCouponInfoById/${row.id}`,
+        url: `market/coupon/getCouponInfo/${row.id}`,
         method: 'get'
       }, res => {
         if (res.data.code === 200) {

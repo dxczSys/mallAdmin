@@ -1,5 +1,5 @@
 <template>
-  <div class="tabs-title">
+  <div class="tabs-title" :style="{'margin-top': `${ top }px`}">
     <div class="front-block"></div>
     <div class="content">{{ tabsName }}</div>
   </div>
@@ -10,6 +10,10 @@ export default {
     tabsName: {
       type: String,
       default: ''
+    },
+    top: {
+      type: Number,
+      default: 0
     }
   },
   data() {
