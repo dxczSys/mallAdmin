@@ -68,9 +68,9 @@
 </template>
 
 <script>
-import SubMenu from "./main-sidebar-sub-menu";
-import { isURL } from "@/utils/validate";
-import { mapState, mapMutations } from "vuex";
+import SubMenu from "./main-sidebar-sub-menu"
+import { isURL } from "@/utils/validate"
+import { mapState, mapMutations } from "vuex"
 export default {
   data() {
     return {

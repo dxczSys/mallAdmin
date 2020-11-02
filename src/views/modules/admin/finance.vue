@@ -3,7 +3,7 @@
     <tabs-title tabs-name="财务管理"></tabs-title>
     <el-row :gutter="20" style="margin-top: 20px;">
       <el-col :span="6">
-        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 1}" @click.native="index = 1" class="card-item">
+        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 1}" @click.native="switchTab(1)" class="card-item">
           <div class="info-item">
             <div class="item-top">
               <div class="item-top-left">
@@ -18,7 +18,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 2}" @click.native="index = 2" class="card-item">
+        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 2}" @click.native="switchTab(2)" class="card-item">
           <div class="info-item">
             <div class="item-top">
               <div class="item-top-left">
@@ -33,11 +33,11 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 3}" @click.native="index = 3" class="card-item">
+        <el-card :body-style="{ padding: '15px' }" :class="{'current-box': index === 3}" @click.native="switchTab(3)" class="card-item">
           <div class="info-item">
             <div class="item-top">
               <div class="item-top-left">
-                <div class="block-title">已验总金额</div>
+                <div class="block-title">总金额</div>
                 <div class="primary-info">￥{{ all_money }}</div>
               </div>
               <div class="item-top-right">
@@ -67,17 +67,16 @@
     <div class="table">
       <el-table :data="tableData" border stripe>
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺名称" prop="couponName" min-width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺所属商城" prop="couponName" width="220" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺账户名" prop="couponName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺账户号" prop="couponName" width="240" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商铺名称" prop="shopName" min-width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商铺所属商城" prop="shopMallName" width="220" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商铺账户名" prop="userName" width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商铺账户号" prop="accountName" width="240" align="center" header-align="center"></el-table-column>
         <el-table-column label="待结总金额" width="220" align="center" header-align="center">
           <template slot-scope="scope"> 
-            {{ scope.row.couponParPrice }}
-            <span>{{ scope.row.couponModus == 1 ? '￥' : '折'}}</span>
+            {{ scope.row.toBeSettledMoney }}￥
           </template>
         </el-table-column>
-        <el-table-column label="划账时间" prop="couponName" width="240" align="center" header-align="center"></el-table-column>
+        <el-table-column label="划账时间" prop="createTime" width="240" align="center" header-align="center"></el-table-column>
         <el-table-column label="是否已划账" width="130" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.isPay === 1? '是' : '否' }}
@@ -128,12 +127,49 @@ export default {
   },
   created() {
     this.getMallList()
+    this.getTableData()
   },
   methods: {
-    getTableData() {},
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {},
-    handleSearch() {},
+    getTableData() {
+      this.http({
+        url: 'market/checkCouponDetail/selCheckCouponDetail',
+        method: 'post',
+        data: {
+          currentPage: this.currentPage,
+          pagesize: this.pagesize,
+          t: {
+            isPay: this.index !== 3? 2 : undefined,
+            type: this.index
+          }
+        }
+      }, res => {
+        if (res.data.code === 200) {
+          const obj = res.data.data
+          this.tableData = obj.checkCouponDetailVoPageResult.rows
+          this.total = obj.checkCouponDetailVoPageResult.total
+          this.today_sent_money = obj.money || '0'
+          this.total_money = obj.dmoney || '0'
+          this.all_money = obj.ymoney || '0'
+        }
+      })
+    },
+    handleSizeChange(val) {
+      this.pagesize = val
+      this.getTableData()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = 1
+      this.getTableData()
+    },
+    handleSearch() {
+      this.currentPage = 1
+      this.pagesize = 10
+      this.getTableData()
+    },
+    switchTab(i) {
+      this.index = i
+      this.getTableData()
+    },
     getMallList() {
       this.http({
         url: 'merchant/shopMall/findTShopMallAll',

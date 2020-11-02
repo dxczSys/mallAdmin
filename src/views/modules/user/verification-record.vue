@@ -60,6 +60,7 @@
 <script>
 import tabsTitle from '@/components/tabs-title'
 import { arrive_account_options } from '@/enumerate/coupon'
+import { mapState } from 'vuex'
 export default {
   components: { tabsTitle },
   data() {
@@ -103,6 +104,9 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState('mall', ['shop_id'])
+  },
   created() {
     this.getTableData()
   },
@@ -115,6 +119,7 @@ export default {
           currentPage: this.currentPage,
           pagesize: this.pagesize,
           t: {
+            shopId: this.shop_id,
             couponIdentify: this.searchForm.couponIdentify || undefined,
             isPay: this.searchForm.isPay || undefined,
             startCheckCouponCreateTime: this.searchForm.checkDate[0] || undefined,
