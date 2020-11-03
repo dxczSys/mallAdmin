@@ -37,7 +37,7 @@
           <div class="info-item">
             <div class="item-top">
               <div class="item-top-left">
-                <div class="block-title">总金额</div>
+                <div class="block-title">优惠券已验总金额</div>
                 <div class="primary-info">￥{{ all_money }}</div>
               </div>
               <div class="item-top-right">
@@ -52,7 +52,7 @@
       <el-form :model="searchForm" ref="searchForm" label-width="70px" :inline="true" size="small">
         <el-form-item label="所属商城">
           <el-select v-model="searchForm.shopMallId" clearable @change="handleSearch" placeholder="请选择" style="width: 324px;">
-            <el-option v-for="item in coupon_mall_options" :key="item.id" :label="item.shopName" :value="item.id"></el-option>
+            <el-option v-for="item in coupon_mall_options" :key="item.id" :label="item.shopName" :value="item.shopName"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="商铺名称">
@@ -69,8 +69,9 @@
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
         <el-table-column label="商铺名称" prop="shopName" min-width="200" align="center" header-align="center"></el-table-column>
         <el-table-column label="商铺所属商城" prop="shopMallName" width="220" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺账户名" prop="userName" width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商铺账户号" prop="accountName" width="240" align="center" header-align="center"></el-table-column>
+        <el-table-column label="账户名" prop="userName" width="120" align="center" header-align="center"></el-table-column>
+        <el-table-column label="账户号" prop="accountName" width="200" align="center" header-align="center"></el-table-column>
+        <el-table-column label="开户银行" prop="bankName" width="150" align="center" header-align="center"></el-table-column>
         <el-table-column label="待结总金额" width="220" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.toBeSettledMoney }}￥
@@ -84,7 +85,7 @@
         </el-table-column>
         <el-table-column label="操作" width="100" align="center" header-align="center">
           <template slot-scope="scope"> 
-            <el-button type="text">已划账</el-button>
+            <el-button v-if="scope.row.isPay === 2 && index !== 3" type="text" @click="handleTransfer(scope.row)">标记划账</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -139,7 +140,9 @@ export default {
           pagesize: this.pagesize,
           t: {
             isPay: this.index !== 3? 2 : undefined,
-            type: this.index
+            type: this.index,
+            shopMallName: this.searchForm.shopMallId || undefined,
+            shopName: this.searchForm.shoopName || undefined
           }
         }
       }, res => {
@@ -187,6 +190,25 @@ export default {
         }
       })
     },
+    handleTransfer(row) {
+      this.$confirm('确认已划账?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.http({
+          url: `market/checkCouponDetail/selCheckCouponDetail/${ row.shopId }/${ this.index }`,
+          method: 'get'
+        }, res =>{
+          if (res.data.code === 200) {
+            this.$message.success('划账成功！')
+            this.getTableData()
+          } else {
+            this.$message.info(res.data.msg)
+          }
+        })
+      }).catch(() => {})
+    }
   }
 }
 </script>

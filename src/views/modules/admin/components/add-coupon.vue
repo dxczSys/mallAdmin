@@ -76,10 +76,10 @@
 
       <!-- 商品券 -->
       <template v-if="form.coupon_type === '3'">
-        <el-form-item label="优惠券适用商品" prop="goods_id">
+        <el-form-item label="优惠券适用商品" prop="shop_goods">
           <el-popover placement="bottom-start" width="400" trigger="click">
-            <el-tree ref="goodsTree" :load="loadNode" node-key="id" :check-strictly="true" class="goods-tree" @check-change="handleGoodsChange" empty-text="请先选择优惠券适用商城" lazy show-checkbox></el-tree>
-            <el-input slot="reference" v-model="form.goods_name" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
+            <el-tree v-if="refreshTree" ref="goodsTree" :load="loadNode" node-key="id" :check-strictly="true" class="goods-tree" @check-change="handleGoodsChange" empty-text="请先选择优惠券适用商城" lazy show-checkbox></el-tree>
+            <el-input slot="reference" v-model="form.shop_goods_name" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
           </el-popover>
         </el-form-item>
       </template>
@@ -88,7 +88,7 @@
         <el-input v-model="form.coupon_instructions" type="textarea" :rows="6" placeholder="请输入内容"></el-input>
       </el-form-item>
       <el-form-item label="发布总量" prop="total">
-        <el-input v-number="0" v-model="form.total" placeholder="输入0表示不限量" style="width: 220px;">
+        <el-input v-number="0" v-model="form.total" placeholder="发布总量" style="width: 220px;">
           <template slot="append">张</template>
         </el-input>
       </el-form-item>
@@ -172,8 +172,12 @@ export default {
         mall_id: [],
         mall_name: [],
         category_id: [],
+        shop_id: '',
+        shop_name: '',
         goods_id: '',
         goods_name: '',
+        shop_goods: '',
+        shop_goods_name: '',
         coupon_instructions: '',
         total: '',
         is_release: '1'
@@ -193,7 +197,7 @@ export default {
         expired_date: [ { required: true, message: '请选择优惠券过期时间', trigger: 'change' } ],
         mall_id: [ { required: true, message: '请选择优惠券所属商城', trigger: 'change' } ],
         category_id: [ { required: true, message: '请选择类目', trigger: 'change' } ],
-        goods_id: [ { required: true, message: '请选择优惠券所属商品', trigger: 'change' } ],
+        shop_goods: [ { required: true, message: '请选择优惠券所属商品', trigger: 'change' } ],
         coupon_instructions: [ { required: true, message: '请输入使用说明', trigger: 'blur' } ],
         total: [ { required: true, message: '请输入发布总量', trigger: 'blur' } ],
         is_release: [ { required: true, message: '请选择是否立即发布', trigger: 'change' } ],
@@ -203,7 +207,8 @@ export default {
           return time.getTime() < Date.now()
         }
       },
-      mall_list: []
+      mall_list: [],
+      refreshTree: true
     }
   },
   watch: {
@@ -224,6 +229,12 @@ export default {
           this.form.expired_date = this.couponDetail.expiredDate
           this.form.mall_id = this.couponDetail.shopMallId.split(',')
           this.form.mall_name = this.couponDetail.shopMallName.split(',')
+         
+          this.form.shop_id = this.couponDetail.shopId
+          this.form.shop_name = this.couponDetail.shopName
+          this.form.shop_goods = `${ this.couponDetail.shopId || ''},${ this.couponDetail.goodId || '' }`
+          this.form.shop_goods_name = `${ this.couponDetail.shopName || ''},${ this.couponDetail.goodName || '' }`
+
           this.form.goods_id = this.couponDetail.goodId
           this.form.goods_name = this.couponDetail.goodName
           this.form.coupon_instructions = this.couponDetail.couponInstructions
@@ -263,6 +274,8 @@ export default {
               expiredDate: this.form.expired_date,
               shopMallId: this.form.mall_id.join(),
               shopMallName: this.form.mall_name.join(),
+              shopId: this.form.shop_id || undefined,
+              shopName: this.form.shop_name || undefined,
               goodId: this.form.goods_id || undefined,
               goodName: this.form.goods_name || undefined,
               couponInstructions: this.form.coupon_instructions,
@@ -303,6 +316,16 @@ export default {
           })
         })
       }
+      this.refreshTree = false
+      this.$nextTick(_ => {
+        this.refreshTree = true
+        this.form.shop_id = ''
+        this.form.shop_name = ''
+        this.form.goods_id = ''
+        this.form.goods_name = ''
+        this.form.shop_goods = ''
+        this.form.shop_goods_name = ''
+      })
     },
     effectDateChange() {
       if (this.form.expired_date) {
@@ -348,16 +371,18 @@ export default {
         }, res => {
           if (res.data.code === 200) {
             let arr = res.data.data
-            if (node.level === 0 || node.level === 1 || node.level === 2) {
-              arr.forEach(item => {
+            if (node.level === 0 || node.level === 1) {
+              
+            }
+            arr.forEach(item => {
+              if (node.level === 0 || node.level === 1) {
                 item.disabled = true
-              })
-            }
-            if (node.level === 1) {
-              arr.forEach(item => {
+              }
+              if (node.level === 1) {
                 item.label = item.label + '楼'
-              })
-            }
+              }
+              item.level = node.level
+            })
             resolve(arr)
           }
         })
@@ -367,12 +392,23 @@ export default {
       let arr = this.$refs.goodsTree.getCheckedNodes()
       let id = []
       let name = []
+      let shopId = []
+      let shopName = []
       arr.forEach(item => {
-        id.push(item.id)
-        name.push(item.label)
+        if (item.level === 2) {
+          shopId.push(item.id)
+          shopName.push(item.label)
+        } else {
+          id.push(item.id)
+          name.push(item.label)
+        }
       })
+      this.form.shop_id = shopId.join()
+      this.form.shop_name = shopName.join()
       this.form.goods_id = id.join()
       this.form.goods_name = name.join()
+      this.form.shop_goods = id.concat(shopId).join()
+      this.form.shop_goods_name = name.concat(shopName).join()
     },
     loadKindsNode(node, resolve) {},
     handleCancel() {
