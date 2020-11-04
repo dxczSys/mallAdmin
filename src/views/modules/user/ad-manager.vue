@@ -29,7 +29,7 @@
           >立即申请</el-button>
       </div>
     </div>
-    <div style="color: #E6A23C; font-size: 13px; padding: 10px;">如需开票，请将广告订单编号+金额+您所在商场名称+您的店铺楼层+您的店铺名称发送至财务邮箱 xxx@qq.com</div>
+    <div style="color: #E6A23C; font-size: 14px; padding: 10px; font-weight: 600;">如需开票请联系： 联系电话（18629668705） 微信（18629668705）</div>
     <div class="ad-list-box">
       <el-row :gutter="10">
         <el-col :span="6" v-for="(item, index) in adList" :key="index">
