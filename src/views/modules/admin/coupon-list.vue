@@ -25,6 +25,18 @@
             <span>{{ scope.row.couponModus == 1 ? '￥' : '折'}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="发布总量" prop="couponNumber" width="100" align="center" header-align="center"></el-table-column>
+        <el-table-column label="发布总金额" width="100" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            {{ scope.row.pushTotalMoney }}￥
+          </template>
+        </el-table-column>
+        <el-table-column label="剩余数量" prop="couponSurplusNumber" width="100" align="center" header-align="center"></el-table-column>
+        <el-table-column label="剩余总金额" width="100" align="center" header-align="center">
+          <template slot-scope="scope"> 
+            {{ scope.row.surplusTotalMoney }}￥
+          </template>
+        </el-table-column>
         <el-table-column label="优惠券发放形式" width="160" align="center" header-align="center">
           <template slot-scope="scope"> 
             {{ scope.row.couponDistributionForm | coupon_modus_filter }}
@@ -69,8 +81,6 @@
             <pre class="coupon-instructions">{{ scope.row.couponInstructions }}</pre>
           </template>
         </el-table-column> -->
-        <el-table-column label="发布总量" prop="couponNumber" width="100" align="center" header-align="center"></el-table-column>
-        <el-table-column label="剩余数量" prop="couponSurplusNumber" width="100" align="center" header-align="center"></el-table-column>
         <el-table-column fixed="right" label="操作" align="center" header-align="center" width="120">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="viewDetail(scope.row)">查看</el-button>

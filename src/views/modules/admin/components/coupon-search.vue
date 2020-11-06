@@ -32,6 +32,13 @@
         <el-button type="primary" @click="handleSearch" icon="el-icon-search">查询</el-button>
       </el-form-item>
     </el-form>
+    <div v-if="!role_id.some(checkIsSuperAdmin)" class="quota">
+      <div class="title">剩余额度：</div>
+      <div v-for="item in quota" :key="item.id" class="quota-item">
+        <span class="mall">{{ item.shopName }}</span>
+        <span class="money">{{ Math.floor((item.couponTotalMoney - item.couponUseMoney) * 100) / 100 }}￥</span>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -51,7 +58,8 @@ export default {
         receiveEndTime: '',
         effectDate: '',
         expiredDate: ''
-      }
+      },
+      quota: []
     }
   },
   computed: {
@@ -59,6 +67,7 @@ export default {
   },
   created() {
     this.getMallList()
+    this.getQuota()
   },
   methods: {
     handleSearch() {
@@ -81,11 +90,35 @@ export default {
         }
       })
     },
+    getQuota() {
+      this.http({
+        url: 'merchant/shopMall/queryShopMallCouponMoney',
+        method: 'get'
+      }, res => {
+        if (res.data.code === 200) {
+          this.quota = res.data.data
+        }
+      })
+    },
+    checkIsSuperAdmin(item) {
+      if (item == '1') {
+        return true
+      }
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
 .search{
   margin-bottom: 20px;
+}
+.quota{
+  display: flex;
+  align-items: center;
+  color: #E6A23C;
+  font-weight: 600;
+  &-item{
+    margin-right: 20px;
+  }
 }
 </style>

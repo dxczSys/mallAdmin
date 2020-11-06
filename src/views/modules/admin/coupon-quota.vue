@@ -4,16 +4,18 @@
     <div class="table">
       <el-table :data="tableData" border stripe>
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商场名称" prop="bankName" align="center" header-align="center"></el-table-column>
-        <el-table-column label="商场地址" prop="bankName" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商场名称" prop="tshopName" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商场地址" prop="tshopAddress" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商场联系人" prop="tshopPropertyCompany" align="center" header-align="center"></el-table-column>
+        <el-table-column label="商场联系电话" prop="tshopTel" align="center" header-align="center"></el-table-column>
         <el-table-column label="已使用总金额" align="center" header-align="center">
           <template slot-scope="scope"> 
-            {{ scope.row.toBeSettledMoney }}￥
+            {{ scope.row.tcouponUseMoney }}￥
           </template>
         </el-table-column>
         <el-table-column label="剩余总额度" align="center" header-align="center">
           <template slot-scope="scope"> 
-            {{ scope.row.toBeSettledMoney }}￥
+            {{ scope.row.tcouponTotalMoney }}￥
           </template>
         </el-table-column>
         <el-table-column label="操作" width="100" align="center" header-align="center">
@@ -35,7 +37,7 @@
 
     <el-dialog v-if="dialogVisible" title="充值" :visible.sync="dialogVisible" width="30%">
       <el-form :model="form" ref="form" :rules="rules" label-width="80px">
-        <el-form-item label="充值金额">
+        <el-form-item label="充值金额" prop="money">
           <el-input v-model="form.money" v-number="2" placeholder="请输入充值金额">
             <template slot="append">￥</template>
           </el-input>
@@ -56,7 +58,7 @@ export default {
   directives: { number },
   data() {
     return {
-      tableData: [{}],
+      tableData: [],
       currentPage: 1,
       pagesize: 10,
       total: 0,
@@ -65,18 +67,63 @@ export default {
       form: {
         money: ''
       },
-      rules: {}
+      rules: {
+        money: [ { required: true, message: '请输入充值金额', trigger: 'blur' } ]
+      }
     }
   },
+  created() {
+    this.getTableData()
+  },
   methods: {
-    getTableData() {},
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {},
+    getTableData() {
+      this.http({
+        url: `market/shopMall/queryCouponById/${ this.currentPage }/${ this.pagesize }`,
+        method: 'get'
+      }, res =>{
+        if (res.data.code === 200) {
+          const obj = res.data.data
+          this.tableData = obj.rows
+          this.total = obj.total
+        }
+      })
+    },
+    handleSizeChange(val) {
+      this.pagesize = val
+      this.getTableData()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.getTableData()
+    },
     increaseQuota(row) {
       this.currentRow = row
       this.dialogVisible = true
     },
-    confirmQuota() {}
+    confirmQuota() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.$confirm('确认充值?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.http({
+              url: `market/shopMall/shopMallRecharge/${ this.currentRow.id }/${ this.form.money }`,
+              method: 'get'
+            }, res => {
+              if (res.data.code === 200) {
+                this.$message.success('充值成功！')
+                this.dialogVisible = false
+                this.getTableData()
+              } else {
+                this.$message.info(res.data.msg)
+              }
+            })
+          }).catch(() => {})
+        }
+      })
+    }
   }
 }
 </script>

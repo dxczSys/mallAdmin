@@ -454,6 +454,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .goods-tree{
+  max-height: 320px;
+  overflow-y: auto;
   /deep/ .el-checkbox.is-disabled{
     display: none;
   }
