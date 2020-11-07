@@ -25,7 +25,7 @@
       <el-table :data="tableData" border stripe>
         <el-table-column label="序号" width="50" type="index" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券名称" prop="couponName" min-width="200" align="center" header-align="center"></el-table-column>
-        <el-table-column label="优惠码" prop="couponName" width="220" align="center" header-align="center"></el-table-column>
+        <el-table-column label="优惠码" prop="couponIdentify" width="220" align="center" header-align="center"></el-table-column>
         <el-table-column label="使用人" prop="customerPhone" width="220" align="center" header-align="center"></el-table-column>
         <el-table-column label="优惠券面值" width="220" align="center" header-align="center">
           <template slot-scope="scope"> 

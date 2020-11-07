@@ -173,6 +173,8 @@ export default {
         if (res.data.code === 200) {
           this.$message.success('删除成功！')
           this.getTableData()
+        } else {
+          this.$message.info(res.data.msg)
         }
       })
     },

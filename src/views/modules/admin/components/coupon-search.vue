@@ -36,7 +36,7 @@
       <div class="title">剩余额度：</div>
       <div v-for="item in quota" :key="item.id" class="quota-item">
         <span class="mall">{{ item.shopName }}</span>
-        <span class="money">{{ Math.floor((item.couponTotalMoney - item.couponUseMoney) * 100) / 100 }}￥</span>
+        <span class="money">{{ item.couponTotalMoney }}￥</span>
       </div>
     </div>
   </div>
