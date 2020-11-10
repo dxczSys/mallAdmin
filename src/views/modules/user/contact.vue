@@ -57,7 +57,7 @@ export default {
             let message = obj.chatMessageVo
             message.fromUser = JSON.parse(message.fromUser)
             s.updateMessage(message, obj.msgId)
-            s.sendNotification()
+            // s.sendNotification()
           }
         }
       });
@@ -67,16 +67,16 @@ export default {
         new Notification("未读消息", {
           body: "您有一条新消息！",
           icon: require("@/assets/img/xiaoxin.png"),
-          silent: true,
-        });
+          silent: true
+        })
       } else {
         this.$notify({
           title: "未读消息",
           message: "您有一条新消息！",
           iconClass: "notifition-icon",
           duration: 0,
-          position: "bottom-right",
-        });
+          position: "bottom-right"
+        })
       }
     },
     updateMessage(message, id) {

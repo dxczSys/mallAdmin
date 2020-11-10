@@ -8,7 +8,9 @@ export default {
     floor_id: '',
     shop: {},
     shop_name: '',
-    shop_id: ''
+    shop_id: '',
+    order_badge: true,
+    sale_badge: false
   },
   mutations: {
     SET_MALL(state, val) {
@@ -34,6 +36,12 @@ export default {
     },
     SET_SHOP_ID(state, val) {
       state.shop_id = val
+    },
+    SET_ORDER_BADGE(state, val) {
+      state.order_badge = val
+    },
+    SET_SALE_BADGE(state, val) {
+      state.sale_badge = val
     }
   }
 }

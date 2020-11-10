@@ -56,6 +56,13 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const no = ['login', 'register', 'agreement', 'forget-password']
   const acc_token = Vue.cookie.get('acc_token')
+  // 去除角标
+  if (to.name === 'user-order-manage') {
+    store.commit('mall/SET_ORDER_BADGE', false)
+  }
+  if (to.name === 'user-sale-manage') {
+    store.commit('mall/SET_SALE_BADGE', false)
+  }
   if (no.includes(to.name)) {
     next()
   } else {
