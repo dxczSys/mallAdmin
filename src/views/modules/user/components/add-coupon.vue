@@ -58,11 +58,6 @@
       <el-form-item label="优惠券过期时间" prop="expired_date">
         <el-date-picker v-model="form.expired_date" :picker-options="pickerOptions" @change="expiredDateChange" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="优惠券过期时间"></el-date-picker>
       </el-form-item>
-      <el-form-item label="优惠券适用商城" prop="mall_id">
-        <el-select v-model="form.mall_id" multiple placeholder="请选择" @change="mallChange" style="width: 220px;">
-          <el-option v-for="item in mall_list" :key="item.id" :label="item.shopName" :value="item.id"></el-option>
-        </el-select>
-      </el-form-item>
 
       <!-- 品类券 -->
       <template v-if="form.coupon_type === '2'">
@@ -76,10 +71,10 @@
 
       <!-- 商品券 -->
       <template v-if="form.coupon_type === '3'">
-        <el-form-item label="优惠券适用商品" prop="shop_goods">
+        <el-form-item label="优惠券适用商品" prop="goods_id">
           <el-popover placement="bottom-start" width="400" trigger="click">
-            <el-tree v-if="refreshTree" ref="goodsTree" :load="loadNode" node-key="id" :check-strictly="true" class="goods-tree" @check-change="handleGoodsChange" empty-text="请先选择优惠券适用商城" lazy show-checkbox></el-tree>
-            <el-input slot="reference" v-model="form.shop_goods_name" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
+            <el-tree v-if="refreshTree" ref="goodsTree" :data="goods_list" :props="defaultProps" node-key="id" class="goods-tree" @check-change="handleGoodsChange" empty-text="暂无商品" show-checkbox></el-tree>
+            <el-input slot="reference" v-model="form.goods_name" readonly placeholder="请选择商品" suffix-icon="el-icon-arrow-down"></el-input>
           </el-popover>
         </el-form-item>
       </template>
@@ -169,15 +164,9 @@ export default {
         end_date: '',
         effect_date: this._dateFormat('YYYY-mm-dd HH:MM:SS', new Date()),
         expired_date: '',
-        mall_id: [],
-        mall_name: [],
         category_id: [],
-        shop_id: '',
-        shop_name: '',
         goods_id: '',
         goods_name: '',
-        shop_goods: '',
-        shop_goods_name: '',
         coupon_instructions: '',
         total: '',
         is_release: '1'
@@ -195,9 +184,8 @@ export default {
         end_date: [ { required: true, message: '请选择领取截止时间', trigger: 'change' } ],
         effect_date: [ { required: true, message: '请选择优惠券生效时间', trigger: 'change' } ],
         expired_date: [ { required: true, message: '请选择优惠券过期时间', trigger: 'change' } ],
-        mall_id: [ { required: true, message: '请选择优惠券所属商城', trigger: 'change' } ],
         category_id: [ { required: true, message: '请选择类目', trigger: 'change' } ],
-        shop_goods: [ { required: true, message: '请选择优惠券所属商品', trigger: 'change' } ],
+        goods_id: [ { required: true, message: '请选择优惠券所属商品', trigger: 'change' } ],
         coupon_instructions: [ { required: true, message: '请输入使用说明', trigger: 'blur' } ],
         total: [ { required: true, message: '请输入发布总量', trigger: 'blur' } ],
         is_release: [ { required: true, message: '请选择是否立即发布', trigger: 'change' } ],
@@ -208,7 +196,11 @@ export default {
         }
       },
       mall_list: [],
-      refreshTree: true
+      refreshTree: true,
+      goods_list: [],
+      defaultProps: {
+        label: 'goodTitle'
+      }
     }
   },
   watch: {
@@ -227,14 +219,6 @@ export default {
           this.form.end_date = this.couponDetail.receiveEndTime
           this.form.effect_date = this.couponDetail.effectDate
           this.form.expired_date = this.couponDetail.expiredDate
-          this.form.mall_id = this.couponDetail.shopMallId.split(',')
-          this.form.mall_name = this.couponDetail.shopMallName.split(',')
-         
-          this.form.shop_id = this.couponDetail.shopId
-          this.form.shop_name = this.couponDetail.shopName
-          this.form.shop_goods = `${ this.couponDetail.shopId || ''},${ this.couponDetail.goodId || '' }`
-          this.form.shop_goods_name = `${ this.couponDetail.shopName || ''},${ this.couponDetail.goodName || '' }`
-
           this.form.goods_id = this.couponDetail.goodId
           this.form.goods_name = this.couponDetail.goodName
           this.form.coupon_instructions = this.couponDetail.couponInstructions
@@ -247,10 +231,11 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['role_id'])
+    ...mapState('user', ['role_id']),
+    ...mapState('mall', ['mall_id', 'mall_name', 'shop_id', 'shop_name'])
   },
   created() {
-    this.getMallList()
+    this.loadNode()
   },
   methods: {
     onSubmit() {
@@ -272,60 +257,21 @@ export default {
               receiveEndTime: this.form.end_date,
               effectDate: this.form.effect_date,
               expiredDate: this.form.expired_date,
-              shopMallId: this.form.mall_id.join(),
-              shopMallName: this.form.mall_name.join(),
-              shopId: this.form.shop_id || undefined,
-              shopName: this.form.shop_name || undefined,
+              shopMallId: this.mall_id,
+              shopMallName: this.mall_name,
+              shopId: this.shop_id,
+              shopName: this.shop_name,
               goodId: this.form.goods_id || undefined,
               goodName: this.form.goods_name || undefined,
               couponInstructions: this.form.coupon_instructions,
               couponNumber: this.form.total,
               isRelease: this.form.is_release,
-              createRole: 2
+              createRole: 1
             }
           }, res => {
             this.$emit('addCoupon', res.data)
           })
         }
-      })
-    },
-    getMallList() {
-      this.http({
-        url: 'merchant/shopMall/findTShopMallAll',
-        method: 'post',
-        data: {
-          roles: this.role_id
-        }
-      }, res => {
-        if (res.data.code == 200) {
-          this.mall_list = res.data.data
-          if (this.mall_list.length) {
-            this.form.mall_id = [this.mall_list[0].id]
-            this.form.mall_name = [this.mall_list[0].shopName]
-          }
-        }
-      })
-    },
-    mallChange(val) {
-      this.form.mall_name= []
-      if (val.length) {
-        val.forEach(item => {
-          this.mall_list.forEach(mall => {
-            if (mall.id === item) {
-              this.form.mall_name.push(mall.shopName)
-            }
-          })
-        })
-      }
-      this.refreshTree = false
-      this.$nextTick(_ => {
-        this.refreshTree = true
-        this.form.shop_id = ''
-        this.form.shop_name = ''
-        this.form.goods_id = ''
-        this.form.goods_name = ''
-        this.form.shop_goods = ''
-        this.form.shop_goods_name = ''
       })
     },
     effectDateChange() {
@@ -360,56 +306,34 @@ export default {
         }
       }
     },
-    loadNode(node, resolve) {
-      if (this.form.mall_id.length) {
-        this.http({
-          url: `merchant/shopMall/selShopMallTree`,
-          method: 'post',
-          data: {
-            level: node.level + 1,
-            id: node.level === 0 ? this.form.mall_id : [node.key]
+    loadNode() {
+      this.http({
+        url: 'merchant/good/tGoodSelByPage',
+        method: 'post',
+        data: {
+          currentPage: 1,
+          pagesize: 99999,
+          t: {
+            goodIsUpperShelf: '1',
+            goodShop: this.shop_id,
           }
-        }, res => {
-          if (res.data.code === 200) {
-            let arr = res.data.data
-            if (node.level === 0 || node.level === 1) {
-              
-            }
-            arr.forEach(item => {
-              if (node.level === 0 || node.level === 1) {
-                item.disabled = true
-              }
-              if (node.level === 1) {
-                item.label = item.label + '楼'
-              }
-              item.level = node.level
-            })
-            resolve(arr)
-          }
-        })
-      }
+        },
+      }, res => {
+        if (res.data.code === 200) {
+          this.goods_list = res.data.data.rows
+        }
+      })
     },
     handleGoodsChange(nodes, current, leaf) {
       let arr = this.$refs.goodsTree.getCheckedNodes()
       let id = []
       let name = []
-      let shopId = []
-      let shopName = []
       arr.forEach(item => {
-        if (item.level === 2) {
-          shopId.push(item.id)
-          shopName.push(item.label)
-        } else {
-          id.push(item.id)
-          name.push(item.label)
-        }
+        id.push(item.id)
+        name.push(item.goodTitle)
       })
-      this.form.shop_id = shopId.join()
-      this.form.shop_name = shopName.join()
       this.form.goods_id = id.join()
       this.form.goods_name = name.join()
-      this.form.shop_goods = id.concat(shopId).join()
-      this.form.shop_goods_name = name.concat(shopName).join()
     },
     loadKindsNode(node, resolve) {},
     handleCancel() {

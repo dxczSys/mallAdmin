@@ -4,62 +4,75 @@ import router from '@/router'
 import qs from 'qs'
 import merge from 'lodash/merge'
 import JSEncrypt from 'jsencrypt'
-import { clearLoginInfo } from '@/utils'
+import { clearLoginInfo, getUUID } from '@/utils'
 import { Message } from 'element-ui'
 
+var publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+dMddeM0s+NeHeJe5rCzi7WctKe6JPjG4lsvPjtwtIa3v37dpAR+cQzrPhoXvwARda1OMlqFSSvlouMIOpUJh1LwPZVM4D3/iR3rrbs3MM6LEXL62r2oNIcImGc44t1IdJnY5yhiHMJRVJEWi4fNIHOv/bZ+qgjUoYg1bmQtq7wIDAQAB'
 
 const http = axios.create({
-    baseURL: window.SITE_CONFIG.baseUrl,
-    timeout: 5*60*1000,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    }
+  baseURL: window.SITE_CONFIG.baseUrl,
+  timeout: 5 * 60 * 1000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8'
+  }
 })
-
-var publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+dMddeM0s+NeHeJe5rCzi7WctKe6JPjG4lsvPjtwtIa3v37dpAR+cQzrPhoXvwARda1OMlqFSSvlouMIOpUJh1LwPZVM4D3/iR3rrbs3MM6LEXL62r2oNIcImGc44t1IdJnY5yhiHMJRVJEWi4fNIHOv/bZ+qgjUoYg1bmQtq7wIDAQAB'
 
 /**
  * 请求拦截
  */
 http.interceptors.request.use(config => {
-    config.headers['Authorization'] = Vue.cookie.get('acc_token') // 请求头带上acc_token
-    config.headers['sign'] = getUrl(config)
-    return config
+  config.headers['Authorization'] = Vue.cookie.get('acc_token') // 请求头带上acc_token
+  const obj = getUrl(config)
+  let timestamp = new Date().getTime()
+  const encryptStr = new JSEncrypt()
+  encryptStr.setPublicKey(publicKey)
+  let arr = []
+  arr.push(obj.method, obj.url, obj.str, '')
+  let str = encryptStr.encrypt(arr.join('\n'))
+  config.headers['sign'] = str
+  config.headers['timestamp'] = timestamp
+  config.headers['nonce_str'] = obj.str
+  return config
 }, error => {
-    return Promise.reject(error)
+  return Promise.reject(error)
 })
 
 function getUrl(config) {
-    let url = config.url.split('api/')[1].split('?')[0]
-    let encryptStr = new JSEncrypt();
-    encryptStr.setPublicKey(publicKey);
-    let data = encryptStr.encrypt(url);
-    return data
+  let obj = {}
+  obj.method = config.method
+  let url = config.url.split('api/')[1].split('?')[0]
+  obj.url = url
+  // let timestamp = new Date().getTime()
+  // obj.timestamp = timestamp
+  obj.str = getUUID()
+  return obj
 }
 
 /**
  * 响应拦截
  */
 http.interceptors.response.use(response => {
-    if (response.data && response.data.code === 401) { // 401, acc_token失效
-        Message({
-            message: '登录失效！',
-            type: 'error',
-            duration: 2 * 1000
-        })
-        clearLoginInfo()
-        router.push({ name: 'login' })
-    }else if (response.data && response.data.code === 500) {
-        Message({
-            message: response.data.msg,
-            type: 'error',
-            duration: 2 * 1000
-        })
-    }
-    return response
+  if (response.data && response.data.code === 401) { // 401, acc_token失效
+    Message({
+      message: '登录失效！',
+      type: 'error',
+      duration: 2 * 1000
+    })
+    clearLoginInfo()
+    router.push({
+      name: 'login'
+    })
+  } else if (response.data && response.data.code === 500) {
+    Message({
+      message: response.data.msg,
+      type: 'error',
+      duration: 2 * 1000
+    })
+  }
+  return response
 }, error => {
-    return Promise.reject(error)
+  return Promise.reject(error)
 })
 
 /**
@@ -67,16 +80,16 @@ http.interceptors.response.use(response => {
  * @param {*} actionName action方法名称
  */
 http.adornUrl = (actionName) => {
-    // 非生产环境 && 开启代理, 接口前缀统一使用[/proxyApi/]前缀做代理拦截!
-    return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.baseUrl) + actionName
+  // 非生产环境 && 开启代理, 接口前缀统一使用[/proxyApi/]前缀做代理拦截!
+  return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.baseUrl) + actionName
 }
 
 /**
  * 上传文件地址处理
  */
 http.uploadUrl = (actionName) => {
-    // 非生产环境 && 开启代理, 接口前缀统一使用[/proxyApi/]前缀做代理拦截!
-    return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.uploadUrl) + actionName
+  // 非生产环境 && 开启代理, 接口前缀统一使用[/proxyApi/]前缀做代理拦截!
+  return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.uploadUrl) + actionName
 }
 
 /**
@@ -85,10 +98,10 @@ http.uploadUrl = (actionName) => {
  * @param {*} openDefultParams 是否开启默认参数?
  */
 http.adornParams = (params = {}, openDefultParams = false) => {
-    let defaults = {
-        't': new Date().getTime()
-    }
-    return openDefultParams ? merge(defaults, params) : params
+  let defaults = {
+    't': new Date().getTime()
+  }
+  return openDefultParams ? merge(defaults, params) : params
 }
 
 /**
@@ -100,11 +113,11 @@ http.adornParams = (params = {}, openDefultParams = false) => {
  *  form: 'application/x-www-form-urlencoded; charset=utf-8'
  */
 http.adornData = (data = {}, openDefultdata = false, contentType = 'json') => {
-    var defaults = {
-        't': new Date().getTime()
-    }
-    data = openDefultdata ? merge(defaults, data) : data
-    return contentType === 'json' ? JSON.stringify(data) : qs.stringify(data)
+  var defaults = {
+    't': new Date().getTime()
+  }
+  data = openDefultdata ? merge(defaults, data) : data
+  return contentType === 'json' ? JSON.stringify(data) : qs.stringify(data)
 }
 
 export default http

@@ -253,7 +253,7 @@ export default {
               goodIsUpperShelf: this.filterForm.sellState,
               goodCode: this.filterForm.goodsNum,
               goodShop: this.shop_id,
-            },
+            }
           },
         },
         (res) => {

@@ -577,9 +577,9 @@ export default {
           item.colorType && _arr1.push({ goodColor: item.colorType });
         }
         arr.push({
-          goodDetailName: "",
-          goodDetailTitle: "",
-          goodDetailSubheading: "",
+          goodDetailName: '',
+          goodDetailTitle: '',
+          goodDetailSubheading: '',
           goodDetailPrice: parseFloat(item.price),
           goodDetailNumber: parseFloat(item.amount),
           goodDetailCode: item.coding,
@@ -592,7 +592,6 @@ export default {
       return arr;
     },
     handleRelease() {
-      debugger;
       let self = this;
       this.$refs.releaseForm.validate((valid) => {
         if (valid) {
