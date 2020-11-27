@@ -143,10 +143,10 @@ export const preferential_form_options = [
     label: '指定现金',
     value: '1'
   },
-  // {
-  //   label: '折扣',
-  //   value: '2'
-  // }
+  {
+    label: '折扣',
+    value: '2'
+  }
 ]
 
 export const use_states_options = [

@@ -132,7 +132,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('mall', ['mall_id'])
+    ...mapState('mall', ['mall_id', 'shop_id'])
   },
   created() {
     this.getTableData()
@@ -161,7 +161,7 @@ export default {
           pagesize: this.pagesize,
           t: {
             ...this.form,
-            shopMallId: this.mall_id
+            shopId: this.shop_id
           }
         }
       }, res => {
